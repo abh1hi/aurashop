@@ -1,48 +1,48 @@
 :root {
-    /* Base Colors (Light Mode Default) */
-    --bg-color: #f8fdff;
-    --text-color: #1c1b1f;
-    --text-secondary: #49454f;
-    --text-tertiary: #79747e;
-    --text-disabled: #939094;
+    /* Base Colors (AuraShop Earth/Chic Default) */
+    --bg-color: #fdfbf7;
+    --text-color: #3e2723;
+    --text-secondary: #5d4037;
+    --text-tertiary: #8d6e63;
+    --text-disabled: #d7ccc8;
 
-    /* Pastel Palette (Default) */
-    --primary-pastel: #d3e3fd;
-    --secondary-pastel: #c4eed0;
-    --tertiary-pastel: #f8d7da;
-    --accent-pastel: #e8def8;
+    /* Pastel Palette (Mapped to Earth Tones) */
+    --primary-pastel: #d7ccc8;
+    --secondary-pastel: #efebe9;
+    --tertiary-pastel: #ffccbc;
+    --accent-pastel: #fff8e1;
 
-    --primary-text: #001d35;
-    --secondary-text: #0f5223;
-    --tertiary-text: #410e0b;
-    --accent-text: #1d192b;
+    --primary-text: #3e2723;
+    --secondary-text: #4e342e;
+    --tertiary-text: #bf360c;
+    --accent-text: #5d4037;
 
     /* State Colors */
-    --primary-hover: #c0d6fc;
-    --primary-active: #b0c9fb;
-    --secondary-hover: #b0eac0;
-    --tertiary-hover: #f5c2c7;
+    --primary-hover: #a1887f;
+    --primary-active: #8d6e63;
+    --secondary-hover: #d7ccc8;
+    --tertiary-hover: #ffab91;
 
     /* Status Colors */
     --danger-color: #b3261e;
-    --success-color: #146c2e;
-    --warning-color: #f9ab00;
-    --info-color: #00639b;
+    --success-color: #2e7d32;
+    --warning-color: #f9a825;
+    --info-color: #0277bd;
 
     /* Gradients */
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(211, 227, 253, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(196, 238, 208, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(248, 215, 218, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(232, 222, 248, 0.6) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(215, 204, 200, 0.4) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(239, 235, 233, 0.4) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(255, 204, 188, 0.4) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(255, 248, 225, 0.4) 0, transparent 50%);
 
-    /* Liquid Glass */
-    --glass-bg: rgba(255, 255, 255, 0.3);
-    --glass-border: rgba(255, 255, 255, 0.5);
+    /* Liquid Glass (Warm Tint) */
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.6);
     --glass-blur: 20px;
     --glass-saturate: 180%;
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --glass-highlight: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 50%);
+    --glass-shadow: 0 8px 32px rgba(62, 39, 35, 0.08);
+    --glass-highlight: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 50%);
 
     /* Spacing */
     --spacing-xs: 4px;
@@ -64,21 +64,13 @@
     /* Typography Scale */
     --font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --text-xs: 0.75rem;
-    /* 12px */
     --text-sm: 0.875rem;
-    /* 14px */
     --text-base: 1rem;
-    /* 16px */
     --text-lg: 1.125rem;
-    /* 18px */
     --text-xl: 1.25rem;
-    /* 20px */
     --text-2xl: 1.5rem;
-    /* 24px */
     --text-3xl: 1.875rem;
-    /* 30px */
     --text-4xl: 2.25rem;
-    /* 36px */
 
     --font-weight-regular: 400;
     --font-weight-medium: 500;
@@ -138,36 +130,13 @@
     --glass-highlight: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
 }
 
-/* Chic Theme */
-[data-theme="chic"] {
-    --bg-color: #f9f4ef;
-    --primary-pastel: #e3d1c1;
-    --secondary-pastel: #f5eadd;
-    --tertiary-pastel: #f8bbd0;
-    --accent-pastel: #ffab91;
-
-    --primary-text: #5d4037;
-    --secondary-text: #795548;
-    --tertiary-text: #880e4f;
-    --accent-text: #d84315;
-
-    --gradient-mesh: none;
-    --glass-bg: rgba(255, 255, 255, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.8);
-    --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
 /* Oceanic Theme */
 [data-theme="oceanic"] {
     --bg-color: #f0f8ff;
     --primary-pastel: #b3e5fc;
-    /* Light Blue */
     --secondary-pastel: #b2dfdb;
-    /* Teal */
     --tertiary-pastel: #e1f5fe;
-    /* Lighter Blue */
     --accent-pastel: #80deea;
-    /* Cyan */
 
     --primary-text: #01579b;
     --secondary-text: #004d40;
@@ -185,13 +154,9 @@
 [data-theme="sunset"] {
     --bg-color: #fff8f0;
     --primary-pastel: #ffccbc;
-    /* Deep Orange */
     --secondary-pastel: #ffe0b2;
-    /* Orange */
     --tertiary-pastel: #f8bbd0;
-    /* Pink */
     --accent-pastel: #ffab91;
-    /* Coral */
 
     --primary-text: #bf360c;
     --secondary-text: #e65100;
@@ -209,13 +174,9 @@
 [data-theme="forest"] {
     --bg-color: #f1f8e9;
     --primary-pastel: #c8e6c9;
-    /* Green */
     --secondary-pastel: #dcedc8;
-    /* Light Green */
     --tertiary-pastel: #f0f4c3;
-    /* Lime */
     --accent-pastel: #a5d6a7;
-    /* Emerald */
 
     --primary-text: #1b5e20;
     --secondary-text: #33691e;
@@ -229,14 +190,12 @@
         radial-gradient(at 0% 100%, rgba(165, 214, 167, 0.6) 0, transparent 50%);
 }
 
-
 /* Lavender Theme */
 [data-theme="lavender"] {
     --liquid-glass-base: rgba(230, 230, 250, 0.2);
     --liquid-glass-tint: rgba(216, 191, 216, 0.25);
     --liquid-glass-border: rgba(230, 230, 250, 0.4);
     --liquid-action: #9370db;
-    /* Medium Purple */
 }
 
 /* Mint Theme */
@@ -245,7 +204,6 @@
     --liquid-glass-tint: rgba(240, 255, 240, 0.25);
     --liquid-glass-border: rgba(152, 255, 152, 0.4);
     --liquid-action: #3eb489;
-    /* Mint Green */
 }
 
 /* Peach Theme */
@@ -254,7 +212,6 @@
     --liquid-glass-tint: rgba(255, 229, 180, 0.25);
     --liquid-glass-border: rgba(255, 218, 185, 0.4);
     --liquid-action: #ff7f50;
-    /* Coral */
 }
 
 /* Slate Theme */
@@ -263,5 +220,4 @@
     --liquid-glass-tint: rgba(119, 136, 153, 0.2);
     --liquid-glass-border: rgba(112, 128, 144, 0.3);
     --liquid-action: #708090;
-    /* Slate Gray */
 }

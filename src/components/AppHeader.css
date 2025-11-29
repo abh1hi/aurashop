@@ -1,0 +1,137 @@
+.app-header {
+    background-color: var(--bg-color);
+    width: 100%;
+    z-index: 100;
+    border-bottom: 1px solid transparent;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    padding-top: env(safe-area-inset-top);
+    flex-shrink: 0;
+}
+
+/* Mobile Styles */
+.mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) 0;
+}
+
+.location-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.location-label {
+    font-size: var(--text-xs);
+    color: var(--brand-secondary);
+    font-weight: var(--font-weight-medium);
+}
+
+.location-selector {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-color);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.location-selector:hover {
+    opacity: 0.8;
+}
+
+.location-icon {
+    font-size: 18px;
+    color: var(--brand-primary);
+}
+
+.expand-icon {
+    font-size: 20px;
+    color: var(--text-color);
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.icon-btn-override {
+    padding: 8px !important;
+    color: var(--brand-primary) !important;
+}
+
+.icon-btn-override:hover {
+    color: var(--brand-secondary) !important;
+    background-color: rgba(139, 69, 19, 0.05) !important;
+}
+
+/* Desktop Styles */
+.desktop-header {
+    display: none;
+    /* Hidden by default */
+}
+
+@media (min-width: 768px) {
+    .mobile-header {
+        display: none;
+    }
+
+    .app-header {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .desktop-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-md) 0;
+    }
+
+    .brand-logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--brand-primary);
+        font-weight: var(--font-weight-bold);
+        font-size: var(--text-xl);
+    }
+
+    .desktop-nav {
+        display: flex;
+        gap: var(--spacing-xl);
+    }
+
+    .nav-link {
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-weight: var(--font-weight-medium);
+        font-size: var(--text-sm);
+        transition: color 0.2s;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+        color: var(--brand-primary);
+    }
+
+    .desktop-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .desktop-search-wrapper {
+        width: 240px;
+    }
+
+    /* Desktop Location Specifics */
+    .desktop-location .location-text {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

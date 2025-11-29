@@ -1,0 +1,38 @@
+import { computed } from 'vue';
+
+export const liquidButtonProps = {
+    text: String,
+    icon: String,
+    iconPosition: {
+        type: String,
+        default: 'left',
+    },
+    type: {
+        type: String,
+        default: 'primary', // primary, secondary, tertiary, outline, glass
+    },
+    size: {
+        type: String,
+        default: 'md', // sm, md, lg
+    },
+};
+
+export function useLiquidButton(props) {
+    const buttonClasses = computed(() => [
+        'btn',
+        `btn-${props.type}`,
+        `btn-${props.size}`,
+        {
+            'btn-icon': props.icon && !props.text,
+        },
+    ]);
+
+    const handleClick = (event) => {
+        // Ripple effect can be added here if needed
+    };
+
+    return {
+        buttonClasses,
+        handleClick,
+    };
+}

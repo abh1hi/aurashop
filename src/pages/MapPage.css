@@ -1,0 +1,218 @@
+/* Map Page Styles */
+.map-page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: var(--bg-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.map-wrapper {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    background-color: var(--bg-color);
+    /* Match theme to avoid white flashes */
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Command Palette / Search Overlay */
+.command-palette {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.location-details-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--glass-shadow);
+    animation: slideUp 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.location-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.location-title {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--brand-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.location-address {
+    font-size: var(--text-base);
+    color: var(--text-color);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.4;
+    margin-top: 4px;
+}
+
+.coords-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    font-family: monospace;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+}
+
+.action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* Locate Me Button */
+.locate-btn {
+    position: absolute;
+    bottom: 100px;
+    /* Above bottom nav */
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 900;
+    color: var(--brand-primary);
+    transition: all 0.3s ease;
+}
+
+.locate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    background: var(--glass-bg-hover, rgba(255, 255, 255, 0.8));
+}
+
+.locate-btn:active {
+    transform: translateY(0);
+}
+
+.locate-btn .material-icons-round {
+    font-size: 24px;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Leaflet Customization */
+.leaflet-popup-content-wrapper {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border-radius: var(--radius-md);
+    box-shadow: var(--glass-shadow);
+    color: var(--text-color);
+}
+
+.leaflet-popup-tip {
+    background: var(--glass-bg);
+}
+
+.leaflet-control-zoom a {
+    background-color: var(--glass-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--glass-border) !important;
+    backdrop-filter: blur(var(--glass-blur));
+}
+
+/* Theme-specific Map Tile Filters */
+/* Default (Earth/Chic) - Warm, Sepia */
+.leaflet-tile-pane {
+    filter: sepia(0.2) saturate(0.8) contrast(1.1);
+}
+
+/* Obsidian - Dark Mode */
+[data-theme="obsidian"] .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(1.2) saturate(0.8);
+}
+
+/* Crystal - Cool, Clean */
+[data-theme="crystal"] .leaflet-tile-pane {
+    filter: hue-rotate(190deg) saturate(0.6) brightness(1.1) contrast(1.1);
+}
+
+/* Frost - Icy, Bright */
+[data-theme="frost"] .leaflet-tile-pane {
+    filter: hue-rotate(200deg) saturate(0.4) brightness(1.15) contrast(1.05);
+}
+
+/* Aurora - Purple/Pink Tint */
+[data-theme="aurora"] .leaflet-tile-pane {
+    filter: hue-rotate(260deg) saturate(0.9) contrast(1.1);
+}
+
+/* Prism - Vibrant */
+[data-theme="prism"] .leaflet-tile-pane {
+    filter: saturate(1.5) contrast(1.1);
+}
+
+/* Custom Marker Style */
+.custom-pin {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pin-icon {
+    font-size: 36px;
+    color: var(--brand-primary, #8B4513);
+    /* Fallback to brown */
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+    transform: translate(0, -50%);
+    /* Center bottom adjustment */
+}
+
+/* Override for themes that define liquid-action */
+[data-theme="crystal"] .pin-icon,
+[data-theme="frost"] .pin-icon,
+[data-theme="aurora"] .pin-icon,
+[data-theme="obsidian"] .pin-icon,
+[data-theme="prism"] .pin-icon {
+    color: var(--liquid-action);
+}

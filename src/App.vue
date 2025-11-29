@@ -1,13 +1,12 @@
 <template>
   <div id="app" data-theme="chic">
-    <div class="mobile-shell">
-      <router-view />
-    </div>
+    <router-view />
+    <LiquidToast />
   </div>
 </template>
 
 <script setup>
-// No script needed now
+import LiquidToast from './components/liquid-ui-kit/LiquidToast/LiquidToast.vue';
 </script>
 
 <style>
@@ -17,22 +16,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Icons+Round');
 
 #app {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
   background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-family);
 }
 
-.mobile-shell {
-  width: 100%;
-  max-width: 420px;
-  height: 880px;
-  background-color: white;
-  border-radius: var(--radius-xl);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+/* Global Responsive Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
 }
 </style>

@@ -1,33 +1,38 @@
+
 <template>
   <div class="home-page-container">
-    <AppHeader />
-    <main class="app-content">
-      <div class="search-bar">
-        <LiquidInput
-          placeholder="ruched top"
-          icon="search"
-          icon-position="left"
-          search
+   <AppHeader />
+    <main class="app-content container">
+      <!-- Mobile Search (Hide on Desktop) -->
+      <div class="search-bar mobile-only">
+        <LiquidInput 
+            placeholder="ruched top" 
+            icon="search" 
+            icon-position="left" 
+            search 
+            class="flex-1"
         />
-        <LiquidButton icon="tune" type="primary" />
+        <LiquidButton icon="tune" type="primary" class="filter-btn-override" />
       </div>
 
       <section class="hero-section">
         <div class="hero-content">
-          <LiquidButton text="New Collection" type="primary" size="sm" />
+          <LiquidButton text="New Collection" type="primary" size="sm" class="mb-sm" />
           <h1 class="hero-title">Enjoy 30% Discount</h1>
-          <LiquidButton text="Shop Now" type="glass" icon="arrow_forward" icon-position="right" />
+          <LiquidButton text="Shop Now" icon="north_east" icon-position="right" type="glass" size="md" />
           <div class="flash-sale">
-            <span>Flash sale ends</span>
+            <span class="flash-text">Flash sale ends</span>
             <div class="countdown">
-              <span class="time-box">03</span>:<span class="time-box">15</span>:<span class="time-box">20</span>
+              <span class="time-box">03</span><span class="time-sep">:</span>
+              <span class="time-box">15</span><span class="time-sep">:</span>
+              <span class="time-box">20</span>
             </div>
           </div>
         </div>
         <img src="https://i.imgur.com/3g202p9.png" alt="Fashion model" class="hero-image" />
       </section>
 
-      <div class="slider-dots">
+      <div class="slider-dots mobile-only">
           <span class="dot active"></span>
           <span class="dot"></span>
           <span class="dot"></span>
@@ -43,20 +48,35 @@
             <div class="category-icon">
               <img :src="category.icon" :alt="category.name">
             </div>
-            <span>{{ category.name }}</span>
+            <span class="category-name">{{ category.name }}</span>
           </div>
         </div>
       </section>
 
-      <section class="on-sale-section">
-        <div class="section-header">
-          <h3 class="section-title">On Sale</h3>
-          <a href="#" class="see-all-link">See All</a>
-        </div>
-        <div class="product-grid">
-          <ProductCard v-for="product in onSaleProducts" :key="product.id" :product="product" />
-        </div>
-      </section>
+    <!-- On Sale Section -->
+    <section class="on-sale-section">
+      <div class="section-header">
+        <h2 class="section-title">On Sale</h2>
+        <LiquidButton text="View All" type="ghost" size="sm" icon="arrow_forward" />
+      </div>
+      <div class="product-grid">
+        <ProductCard 
+          v-for="product in onSaleProducts" 
+          :key="product.id" 
+          :product="product" 
+        />
+      </div>
+    </section>
+
+    <!-- New Sections -->
+    <FlashSaleSection />
+    <TrendingSection />
+    <CampaignBanner />
+    <LifestyleCollections />
+    <BrandsSection />
+    <FooterSection />
+
+    <!-- Bottom Navigation (Mobile) -->
     </main>
     <BottomNavBar />
   </div>
@@ -65,193 +85,74 @@
 <script setup>
 import { ref } from 'vue';
 import AppHeader from '../components/AppHeader.vue';
-import LiquidInput from '../components/LiquidInput.vue';
-import LiquidButton from '../components/LiquidButton.vue';
+import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
+import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import ProductCard from '../components/ProductCard.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
+import TrendingSection from '../components/sections/TrendingSection.vue';
+import FlashSaleSection from '../components/sections/FlashSaleSection.vue';
+import BrandsSection from '../components/sections/BrandsSection.vue';
+import FooterSection from '../components/sections/FooterSection.vue';
+import CampaignBanner from '../components/sections/CampaignBanner.vue';
+import LifestyleCollections from '../components/sections/LifestyleCollections.vue';
 
 const categories = ref([
-  { name: 'Tank Top', icon: 'https://i.imgur.com/KvE63rR.png' },
-  { name: 'Shirt', icon: 'https://i.imgur.com/sTjaOUC.png' },
-  { name: 'Shoes', icon: 'https://i.imgur.com/f2S1d85.png' },
-  { name: 'Dresses', icon: 'https://i.imgur.com/ZJjs3gS.png' },
-  { name: 'Home', icon: 'https://i.imgur.com/54z4Ipc.png' },
-  { name: 'Bag', icon: 'https://i.imgur.com/Jv3aQ0S.png' },
+  { id: 1, name: 'Dresses', image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=300&q=80' },
+  { id: 2, name: 'Tops', image: 'https://images.unsplash.com/photo-1551163943-3f6a29e39426?auto=format&fit=crop&w=300&q=80' },
+  { id: 3, name: 'Pants', image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=300&q=80' },
+  { id: 4, name: 'Jackets', image: 'https://images.unsplash.com/photo-1551488852-0801751acbe3?auto=format&fit=crop&w=300&q=80' },
+  { id: 5, name: 'Shoes', image: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=300&q=80' },
+  { id: 6, name: 'Bags', image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=300&q=80' }
 ]);
 
 const onSaleProducts = ref([
   {
     id: 1,
-    name: 'Draped Satin Set',
-    price: '$99',
-    image: 'https://i.imgur.com/o9M4Y3f.png',
-    discount: '20%',
+    name: 'Ruched Top',
+    brand: 'Zara',
+    price: 25.99,
+    originalPrice: 45.99,
+    image: 'https://images.unsplash.com/photo-1564257631407-4deb1f99d992?auto=format&fit=crop&w=800&q=80',
+    rating: 4.5,
+    reviews: 120,
+    isOnSale: true
   },
   {
     id: 2,
-    name: 'Satin Dress Sleeveless',
-    price: '$129',
-    image: 'https://i.imgur.com/SjA1T2H.png',
-    discount: '20%',
+    name: 'Loose Knit Sweater',
+    brand: 'H&M',
+    price: 39.99,
+    originalPrice: 59.99,
+    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80',
+    rating: 4.2,
+    reviews: 85,
+    isOnSale: true
   },
+  {
+    id: 3,
+    name: 'Cargo Pants',
+    brand: 'Pull&Bear',
+    price: 49.99,
+    originalPrice: 69.99,
+    image: 'https://images.unsplash.com/photo-1551852335-8069436d262e?auto=format&fit=crop&w=800&q=80',
+    rating: 4.7,
+    reviews: 200,
+    isOnSale: true
+  },
+  {
+    id: 4,
+    name: 'Denim Jacket',
+    brand: 'Levi\'s',
+    price: 89.99,
+    originalPrice: 119.99,
+    image: 'https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?auto=format&fit=crop&w=800&q=80',
+    rating: 4.8,
+    reviews: 310,
+    isOnSale: true
+  }
 ]);
 </script>
 
 <style scoped>
-.home-page-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: #f8f8f8;
-}
-
-.app-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--spacing-lg);
-}
-
-.search-bar {
-  display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
-}
-
-.hero-section {
-  position: relative;
-  background-color: var(--primary-pastel);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  display: flex;
-  align-items: center;
-  margin-bottom: var(--spacing-sm);
-  overflow: hidden;
-}
-
-.hero-content {
-  z-index: 1;
-}
-
-.hero-title {
-  font-size: var(--text-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--primary-text);
-  margin: var(--spacing-md) 0;
-  max-width: 180px;
-}
-
-.hero-image {
-  position: absolute;
-  right: -20px;
-  bottom: -20px;
-  width: 200px;
-  height: auto;
-}
-
-.flash-sale {
-    margin-top: var(--spacing-lg);
-    font-size: var(--text-sm);
-    color: var(--text-secondary)
-}
-
-.countdown {
-    display: inline-flex;
-    gap: var(--spacing-xs);
-    margin-left: var(--spacing-sm);
-}
-
-.time-box {
-    background: var(--primary-text);
-    color: white;
-    font-weight: var(--font-weight-bold);
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-}
-
-.slider-dots {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: var(--spacing-lg);
-}
-
-.dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--secondary-pastel);
-}
-
-.dot.active {
-    background: var(--primary-text);
-    width: 16px;
-    border-radius: var(--radius-full);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-md);
-}
-
-.section-title {
-  font-size: var(--text-lg);
-  font-weight: var(--font-weight-bold);
-}
-
-.see-all-link {
-  font-size: var(--text-sm);
-  color: var(--primary-text);
-  text-decoration: none;
-  font-weight: var(--font-weight-medium);
-}
-
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-}
-
-.category-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  font-size: var(--text-xs);
-}
-
-.category-icon {
-  width: 60px;
-  height: 60px;
-  background-color: var(--secondary-pastel);
-  border-radius: var(--radius-full);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: var(--spacing-sm);
-}
-
-.category-icon img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-}
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-lg);
-}
-
-/* Responsive adjustments */
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: var(--text-xl);
-  }
-  .hero-image {
-    width: 160px;
-  }
-}
+@import './HomePage.css';
 </style>
