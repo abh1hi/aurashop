@@ -1,0 +1,510 @@
+/* ==========================================
+   LIQUID GLASS MICRO-ANIMATIONS
+   Reusable animation classes for all projects
+   ========================================== */
+
+/* 1. Hover Animations */
+.anim-hover-float {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.anim-hover-float:hover {
+    transform: translateY(-5px);
+}
+
+.anim-hover-scale {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.anim-hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.anim-hover-glow {
+    transition: box-shadow 0.3s ease;
+}
+
+.anim-hover-glow:hover {
+    box-shadow: 0 0 15px var(--liquid-action, rgba(255, 255, 255, 0.5));
+}
+
+/* 2. Click/Active Animations */
+.anim-click-pulse:active {
+    animation: pulse-soft 0.4s ease-out;
+}
+
+.anim-click-shrink:active {
+    transform: scale(0.95);
+}
+
+/* 3. Loading/State Animations */
+.anim-load-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.anim-load-shimmer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.5s infinite;
+}
+
+.anim-pulse-soft {
+    animation: pulse-soft 2s infinite;
+}
+
+.anim-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* 4. Entry Animations */
+.anim-entry-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+.anim-entry-slide-up {
+    animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.anim-entry-slide-right {
+    animation: slideRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.anim-entry-pop {
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+/* Keyframes */
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes pulse-soft {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideRight {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes popIn {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Stagger Delays (Utility classes) */
+.delay-100 {
+    animation-delay: 100ms;
+}
+
+.delay-200 {
+    animation-delay: 200ms;
+}
+
+.delay-300 {
+    animation-delay: 300ms;
+    /* ==========================================
+   LIQUID GLASS MICRO-ANIMATIONS
+   Reusable animation classes for all projects
+   ========================================== */
+
+    /* 1. Hover Animations */
+    .anim-hover-float {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .anim-hover-float:hover {
+        transform: translateY(-5px);
+    }
+
+    .anim-hover-scale {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .anim-hover-scale:hover {
+        transform: scale(1.05);
+    }
+
+    .anim-hover-glow {
+        transition: box-shadow 0.3s ease;
+    }
+
+    .anim-hover-glow:hover {
+        box-shadow: 0 0 15px var(--liquid-action, rgba(255, 255, 255, 0.5));
+    }
+
+    /* 2. Click/Active Animations */
+    .anim-click-pulse:active {
+        animation: pulse-soft 0.4s ease-out;
+    }
+
+    .anim-click-shrink:active {
+        transform: scale(0.95);
+    }
+
+    /* 3. Loading/State Animations */
+    .anim-load-shimmer {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .anim-load-shimmer::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent);
+        transform: translateX(-100%);
+        animation: shimmer 1.5s infinite;
+    }
+
+    .anim-pulse-soft {
+        animation: pulse-soft 2s infinite;
+    }
+
+    .anim-spin {
+        animation: spin 1s linear infinite;
+    }
+
+    /* 4. Entry Animations */
+    .anim-entry-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+        opacity: 0;
+    }
+
+    .anim-entry-slide-up {
+        animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .anim-entry-slide-right {
+        animation: slideRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    .anim-entry-pop {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    /* Keyframes */
+    @keyframes shimmer {
+        100% {
+            transform: translateX(100%);
+        }
+    }
+
+    @keyframes pulse-soft {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+
+    @keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideRight {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes popIn {
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Stagger Delays (Utility classes) */
+    .delay-100 {
+        animation-delay: 100ms;
+    }
+
+    .delay-200 {
+        animation-delay: 200ms;
+    }
+
+    .delay-300 {
+        animation-delay: 300ms;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideRight {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes popIn {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Stagger Delays (Utility classes) */
+.delay-100 {
+    animation-delay: 100ms;
+}
+
+.delay-200 {
+    animation-delay: 200ms;
+}
+
+.delay-300 {
+    animation-delay: 300ms;
+}
+
+.delay-400 {
+    animation-delay: 400ms;
+}
+
+.delay-500 {
+    animation-delay: 500ms;
+}
+
+/* ==========================================
+   LIQUID GLASS MICRO-ANIMATIONS
+   Reusable animation classes for all projects
+   ========================================== */
+
+/* 1. Hover Animations */
+.anim-hover-float {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.anim-hover-float:hover {
+    transform: translateY(-5px);
+}
+
+.anim-hover-scale {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.anim-hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.anim-hover-glow {
+    transition: box-shadow 0.3s ease;
+}
+
+.anim-hover-glow:hover {
+    box-shadow: 0 0 15px var(--liquid-action, rgba(255, 255, 255, 0.5));
+}
+
+/* 2. Click/Active Animations */
+.anim-click-pulse:active {
+    animation: pulse-soft 0.4s ease-out;
+}
+
+.anim-click-shrink:active {
+    transform: scale(0.95);
+}
+
+/* 3. Loading/State Animations */
+.anim-load-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.anim-load-shimmer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.5s infinite;
+}
+
+.anim-pulse-soft {
+    animation: pulse-soft 2s infinite;
+}
+
+.anim-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* 4. Entry Animations */
+.anim-entry-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+.anim-entry-slide-up {
+    animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.anim-entry-slide-right {
+    animation: slideRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.anim-entry-pop {
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+/* Keyframes */
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes pulse-soft {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Ripple Effect */
+.liquid-btn,
+.nav-item,
+.stat-card,
+.server-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.liquid-ripple {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+    width: 100px;
+    height: 100px;
+    margin-left: -50px;
+    margin-top: -50px;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
