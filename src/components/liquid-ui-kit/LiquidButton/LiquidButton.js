@@ -15,6 +15,14 @@ export const liquidButtonProps = {
         type: String,
         default: 'md', // sm, md, lg
     },
+    loading: {
+        type: Boolean,
+        default: false
+    },
+    disabled: {
+        type: Boolean,
+        default: false
+    }
 };
 
 export function useLiquidButton(props) {
@@ -24,6 +32,8 @@ export function useLiquidButton(props) {
         `btn-${props.size}`,
         {
             'btn-icon': props.icon && !props.text,
+            'btn-loading': props.loading,
+            'btn-disabled': props.disabled || props.loading
         },
     ]);
 

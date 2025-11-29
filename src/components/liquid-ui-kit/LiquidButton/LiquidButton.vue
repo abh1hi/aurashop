@@ -1,8 +1,9 @@
 <template>
-  <button :class="buttonClasses" @click="handleClick">
-    <span v-if="icon && iconPosition === 'left'" class="material-icons-round">{{ icon }}</span>
+  <button :class="buttonClasses" @click="handleClick" :disabled="disabled || loading">
+    <span v-if="loading" class="material-icons-round spin">refresh</span>
+    <span v-else-if="icon && iconPosition === 'left'" class="material-icons-round">{{ icon }}</span>
     <span v-if="text">{{ text }}</span>
-    <span v-if="icon && iconPosition === 'right'" class="material-icons-round">{{ icon }}</span>
+    <span v-if="!loading && icon && iconPosition === 'right'" class="material-icons-round">{{ icon }}</span>
   </button>
 </template>
 

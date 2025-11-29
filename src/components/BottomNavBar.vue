@@ -1,21 +1,30 @@
 <template>
   <nav class="bottom-nav">
-    <button v-for="item in navItems" :key="item.name" :class="['nav-item', { active: item.name === 'Home' }]">
+    <router-link 
+      v-for="item in navItems" 
+      :key="item.name" 
+      :to="item.path"
+      class="nav-item"
+      active-class="active"
+    >
       <span class="material-icons-round nav-icon">{{ item.icon }}</span>
       <span class="nav-label">{{ item.name }}</span>
-    </button>
+    </router-link>
   </nav>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
+import { useAuth } from '../composables/useAuth';
 
-const navItems = ref([
-  { name: 'Home', icon: 'home' },
-  { name: 'Explore', icon: 'explore' },
-  { name: 'Wishlist', icon: 'favorite_border' },
-  { name: 'Bag', icon: 'shopping_bag' },
-  { name: 'Me', icon: 'person_outline' },
+const { user } = useAuth();
+
+const navItems = computed(() => [
+  { name: 'Home', icon: 'home', path: '/' },
+  { name: 'Explore', icon: 'explore', path: '/map' }, // Assuming Explore maps to Map for now
+  { name: 'Wishlist', icon: 'favorite_border', path: '/wishlist' },
+  { name: 'Bag', icon: 'shopping_bag', path: '/cart' },
+  { name: 'Me', icon: 'person_outline', path: user.value ? '/profile' : '/login' },
 ]);
 </script>
 
@@ -50,6 +59,7 @@ const navItems = ref([
   color: var(--text-secondary);
   padding: 0 12px;
   transition: all 0.3s var(--ease-out);
+  text-decoration: none;
 }
 
 .nav-icon {

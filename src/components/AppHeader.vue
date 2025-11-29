@@ -25,7 +25,7 @@
         </div>
         
         <nav class="desktop-nav">
-          <a href="#" class="nav-link active">Home</a>
+          <router-link to="/" class="nav-link" active-class="active">Home</router-link>
           <a href="#" class="nav-link">New Arrivals</a>
           <a href="#" class="nav-link">Brands</a>
         </nav>
@@ -41,7 +41,15 @@
            </div>
            <LiquidButton icon="favorite_border" type="ghost" class="icon-btn-override" />
            <LiquidButton icon="shopping_bag" type="ghost" class="icon-btn-override" />
-           <LiquidButton icon="person_outline" type="ghost" class="icon-btn-override" />
+           
+           <router-link v-if="user" to="/profile" class="profile-link">
+             <div class="header-avatar">
+               <img :src="user.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user.email || 'User')" alt="User" />
+             </div>
+           </router-link>
+           <router-link v-else to="/login">
+             <LiquidButton text="Login" type="primary" size="sm" />
+           </router-link>
         </div>
       </div>
     </div>
@@ -54,8 +62,10 @@ import LiquidButton from './liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidInput from './liquid-ui-kit/LiquidInput/LiquidInput.vue';
 import LiquidThemeSwitcher from './LiquidThemeSwitcher.vue';
 import { useLocation } from '../composables/useLocation.js';
+import { useAuth } from '../composables/useAuth';
 
 const { location, detectLocation } = useLocation();
+const { user } = useAuth();
 
 onMounted(() => {
     detectLocation();
@@ -64,5 +74,20 @@ onMounted(() => {
 
 <style scoped>
 @import './AppHeader.css';
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--brand-primary);
+  cursor: pointer;
+}
+
+.header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style>
 
