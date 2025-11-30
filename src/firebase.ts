@@ -23,7 +23,7 @@ if (import.meta.env.DEV) {
     console.log('Connecting to Firebase Emulators...');
     connectAuthEmulator(auth, 'http://localhost:9099');
     connectFirestoreEmulator(db, 'localhost', 8080);
-    // connectStorageEmulator(storage, 'localhost', 9199); // Uncomment if using storage emulator
+    connectStorageEmulator(storage, 'localhost', 9199);
 }
 
 export { auth, db, storage };

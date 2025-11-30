@@ -1,6 +1,7 @@
 import { ref } from 'vue';
-import { doc, setDoc, updateDoc, collection, addDoc, getDocs, getDoc, deleteDoc, query, where, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { doc, setDoc, updateDoc, collection, addDoc, getDocs, getDoc, deleteDoc, query, where, serverTimestamp, arrayUnion } from 'firebase/firestore';
+import { db, storage } from '../firebase';
+import { ref as refStorage, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from './useAuth';
 
 const loading = ref(false);
@@ -17,6 +18,7 @@ export function useVendor() {
             const userRef = doc(db, 'users', user.value.uid);
             await updateDoc(userRef, {
                 isVendor: true,
+                roles: arrayUnion('vendor'),
                 vendorSince: serverTimestamp()
             });
             // Refresh user profile logic might be needed here if useAuth doesn't auto-update custom claims/fields immediately
@@ -76,14 +78,40 @@ export function useVendor() {
         }
     };
 
-    const uploadKYC = async (file: File) => {
-        // Mock upload for now as we don't have Storage setup in this context yet
-        // In real app: upload to Firebase Storage, get URL
-        return new Promise<string>((resolve) => {
-            setTimeout(() => {
-                resolve(`https://fake-kyc-url.com/${file.name}`);
-            }, 1000);
-        });
+    const uploadFile = async (file: File, path: string) => {
+        if (!user.value) throw new Error("User not authenticated");
+        try {
+            const storageRef = refStorage(storage, path);
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+            return downloadURL;
+        } catch (e: any) {
+            console.error('Error uploading file:', e);
+            throw e;
+        }
+    };
+
+    const uploadKYC = async (videoFile: File, docFile: File) => {
+        if (!user.value) throw new Error("User not authenticated");
+        loading.value = true;
+        try {
+            const timestamp = Date.now();
+            const videoPath = `kyc/${user.value.uid}/video_${timestamp}_${videoFile.name}`;
+            const docPath = `kyc/${user.value.uid}/doc_${timestamp}_${docFile.name}`;
+
+            const [videoUrl, docUrl] = await Promise.all([
+                uploadFile(videoFile, videoPath),
+                uploadFile(docFile, docPath)
+            ]);
+
+            return { videoUrl, docUrl };
+        } catch (e: any) {
+            console.error('Error uploading KYC:', e);
+            error.value = e.message;
+            throw e;
+        } finally {
+            loading.value = false;
+        }
     };
 
     const submitForReview = async (storeId: string) => {

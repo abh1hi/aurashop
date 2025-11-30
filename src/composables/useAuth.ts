@@ -4,6 +4,7 @@ import {
     signInWithPopup,
     signInAnonymously,
     signInWithPhoneNumber,
+    linkWithPhoneNumber,
     RecaptchaVerifier,
     signOut as firebaseSignOut,
     onAuthStateChanged,
@@ -87,6 +88,17 @@ export function useAuth() {
         await firebaseSignOut(auth);
     };
 
+    const linkWithPhone = async (phoneNumber: string, appVerifier: RecaptchaVerifier) => {
+        if (!user.value) throw new Error("No user to link");
+        try {
+            const confirmationResult = await linkWithPhoneNumber(user.value, phoneNumber, appVerifier);
+            return confirmationResult;
+        } catch (error) {
+            console.error("Link phone error:", error);
+            throw error;
+        }
+    };
+
     return {
         user,
         isAuthenticated,
@@ -97,6 +109,7 @@ export function useAuth() {
         loginWithEmail,
         registerWithEmail,
         setupRecaptcha,
-        logout
+        logout,
+        linkWithPhone
     };
 }
