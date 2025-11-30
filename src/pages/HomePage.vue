@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import AppHeader from '../components/AppHeader.vue';
 import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
@@ -95,17 +95,21 @@ import BrandsSection from '../components/sections/BrandsSection.vue';
 import FooterSection from '../components/sections/FooterSection.vue';
 import CampaignBanner from '../components/sections/CampaignBanner.vue';
 import LifestyleCollections from '../components/sections/LifestyleCollections.vue';
+import { cacheManager } from '../utils/cacheManager';
 
-const categories = ref([
+const categories = ref([]);
+const onSaleProducts = ref([]);
+
+const MOCK_CATEGORIES = [
   { id: 1, name: 'Dresses', image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=300&q=80' },
   { id: 2, name: 'Tops', image: 'https://images.unsplash.com/photo-1551163943-3f6a29e39426?auto=format&fit=crop&w=300&q=80' },
   { id: 3, name: 'Pants', image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=300&q=80' },
   { id: 4, name: 'Jackets', image: 'https://images.unsplash.com/photo-1551488852-0801751acbe3?auto=format&fit=crop&w=300&q=80' },
   { id: 5, name: 'Shoes', image: 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=300&q=80' },
   { id: 6, name: 'Bags', image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=300&q=80' }
-]);
+];
 
-const onSaleProducts = ref([
+const MOCK_PRODUCTS = [
   {
     id: 1,
     name: 'Ruched Top',
@@ -150,7 +154,35 @@ const onSaleProducts = ref([
     reviews: 310,
     isOnSale: true
   }
-]);
+];
+
+const fetchHomeData = async () => {
+    // Try Cache First
+    const cachedCategories = cacheManager.get('home_categories');
+    const cachedProducts = cacheManager.get('home_products');
+
+    if (cachedCategories) {
+        categories.value = cachedCategories;
+    } else {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        categories.value = MOCK_CATEGORIES;
+        cacheManager.set('home_categories', MOCK_CATEGORIES, 600000); // 10 min TTL
+    }
+
+    if (cachedProducts) {
+        onSaleProducts.value = cachedProducts;
+    } else {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        onSaleProducts.value = MOCK_PRODUCTS;
+        cacheManager.set('home_products', MOCK_PRODUCTS, 300000); // 5 min TTL
+    }
+};
+
+onMounted(() => {
+    fetchHomeData();
+});
 </script>
 
 <style scoped>

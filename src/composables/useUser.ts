@@ -3,10 +3,21 @@ import { doc, getDoc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from './useAuth';
 
+export interface Address {
+    id: string;
+    label: string; // e.g., Home, Office
+    addressLine: string;
+    phoneNumber: string;
+}
+
 export interface UserProfile {
     uid: string;
     email?: string;
     displayName?: string;
+    phoneNumber?: string;
+    username?: string;
+    photoURL?: string;
+    addresses?: Address[];
     roles: string[];
     vendorProfile?: {
         storeName: string;
@@ -43,7 +54,9 @@ export function useUser() {
                     uid,
                     email: user.value?.email || '',
                     displayName: user.value?.displayName || '',
-                    roles: ['customer']
+                    phoneNumber: user.value?.phoneNumber || '',
+                    roles: ['customer'],
+                    addresses: []
                 };
                 await setDoc(userDocRef, newProfile);
                 userProfile.value = newProfile;
@@ -52,6 +65,58 @@ export function useUser() {
             console.error("Error fetching user profile:", error);
         } finally {
             loadingProfile.value = false;
+        }
+    };
+
+    const updateProfile = async (data: Partial<UserProfile>) => {
+        if (!userProfile.value) return;
+        try {
+            const userDocRef = doc(db, 'users', userProfile.value.uid);
+            await updateDoc(userDocRef, data);
+            // Optimistic update
+            userProfile.value = { ...userProfile.value, ...data };
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            throw error;
+        }
+    };
+
+    const addAddress = async (address: Omit<Address, 'id'>) => {
+        if (!userProfile.value) return;
+        try {
+            const newAddress = { ...address, id: Date.now().toString() };
+            const userDocRef = doc(db, 'users', userProfile.value.uid);
+            await updateDoc(userDocRef, {
+                addresses: arrayUnion(newAddress)
+            });
+            // Refresh or optimistic update
+            if (!userProfile.value.addresses) userProfile.value.addresses = [];
+            userProfile.value.addresses.push(newAddress);
+        } catch (error) {
+            console.error("Error adding address:", error);
+            throw error;
+        }
+    };
+
+    const removeAddress = async (addressId: string) => {
+        if (!userProfile.value || !userProfile.value.addresses) return;
+        try {
+            const addressToRemove = userProfile.value.addresses.find(a => a.id === addressId);
+            if (!addressToRemove) return;
+
+            const userDocRef = doc(db, 'users', userProfile.value.uid);
+            // arrayRemove requires the exact object. If we only have ID, we might need to read-modify-write or ensure we have the object.
+            // Since we have the local state, we can find it.
+            // However, Firestore arrayRemove checks for equality of all fields.
+            // A safer way for complex arrays is to read, filter, and write back the array.
+
+            const newAddresses = userProfile.value.addresses.filter(a => a.id !== addressId);
+            await updateDoc(userDocRef, { addresses: newAddresses });
+
+            userProfile.value.addresses = newAddresses;
+        } catch (error) {
+            console.error("Error removing address:", error);
+            throw error;
         }
     };
 
@@ -87,6 +152,9 @@ export function useUser() {
     return {
         userProfile,
         loadingProfile,
+        updateProfile,
+        addAddress,
+        removeAddress,
         addRole
     };
 }

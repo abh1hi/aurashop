@@ -49,7 +49,7 @@ const { wishlistItems, loading } = useWishlist();
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background-color: var(--bg-color);
+  background-color: transparent;
 }
 
 .main-content {

@@ -1,0 +1,117 @@
+{
+    "categories": {
+        "primary": [
+            {
+                "id": "vendor_manufacturer",
+                "name": "Vendor / Manufacturer",
+                "description": "Sellers who manufacture or produce clothing items."
+            },
+            {
+                "id": "reseller",
+                "name": "Reseller",
+                "description": "Sellers who source clothing from markets or wholesalers and resell."
+            },
+            {
+                "id": "thrift_store",
+                "name": "Thrift Store",
+                "description": "Sellers offering pre-owned, upcycled, or vintage clothing."
+            },
+            {
+                "id": "creator_influencer",
+                "name": "Creator / Influencer",
+                "description": "Creators who design, curate, or promote their personal clothing collections."
+            },
+            {
+                "id": "design_studio",
+                "name": "Design Studio / Boutique",
+                "description": "Fashion studios and boutique labels selling original designs."
+            }
+        ],
+        "secondary": [
+            {
+                "id": "dropshipper",
+                "name": "Dropshipper",
+                "description": "Sellers who list items shipped directly from suppliers."
+            },
+            {
+                "id": "tailor_custom",
+                "name": "Custom Tailor",
+                "description": "Tailors offering custom-sized or made-to-order clothing."
+            },
+            {
+                "id": "handmade_artisan",
+                "name": "Handmade / Artisan Clothing",
+                "description": "Artisan sellers offering hand-stitched or handcrafted clothing."
+            },
+            {
+                "id": "print_on_demand",
+                "name": "Print-On-Demand",
+                "description": "Sellers offering custom printed T-shirts, hoodies, and apparel."
+            },
+            {
+                "id": "ethical_sustainable",
+                "name": "Sustainable / Ethical Brand",
+                "description": "Brands focused on eco-friendly materials and ethical production."
+            }
+        ],
+        "specialized": [
+            {
+                "id": "streetwear_brand",
+                "name": "Streetwear Brand",
+                "description": "Independent or creator-led streetwear clothing lines."
+            },
+            {
+                "id": "high_fashion_label",
+                "name": "High Fashion / Luxury Label",
+                "description": "Premium fashion brands offering couture or luxury clothing."
+            },
+            {
+                "id": "ethnic_wear_label",
+                "name": "Ethnic / Cultural Wear",
+                "description": "Sellers focusing on traditional clothing like kurtas, sarees, lehengas."
+            },
+            {
+                "id": "kidswear_brand",
+                "name": "Kidswear Brand",
+                "description": "Sellers specialized in kids & baby clothing."
+            },
+            {
+                "id": "activewear_brand",
+                "name": "Activewear / Gymwear",
+                "description": "Fitness and sports clothing brands."
+            },
+            {
+                "id": "lingerie_innerwear",
+                "name": "Lingerie & Innerwear",
+                "description": "Sellers focused on innerwear, loungewear, nightwear."
+            },
+            {
+                "id": "plus_size_brand",
+                "name": "Plus-Size Clothing Brand",
+                "description": "Sellers offering extended and inclusive sizing."
+            },
+            {
+                "id": "custom_uniforms",
+                "name": "Uniform & Corporate Clothing",
+                "description": "Sellers who make uniforms for schools, offices, hotels."
+            }
+        ],
+        "service_focused": [
+            {
+                "id": "stylist",
+                "name": "Fashion Stylist",
+                "description": "Stylists curating outfits and styling services."
+            },
+            {
+                "id": "rental_fashion",
+                "name": "Fashion Rental Store",
+                "description": "Stores renting out designer or occasion wear."
+            },
+            {
+                "id": "upcycling_artist",
+                "name": "Upcycling Artist",
+                "description": "Creators who recycle fabric and repurpose old clothing."
+            }
+        ]
+    }
+}

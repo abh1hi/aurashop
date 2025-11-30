@@ -17,6 +17,7 @@ export function useLiquidCard(props) {
         {
             'card-elevated': props.variant === 'elevated',
             'card-outlined': props.variant === 'outlined',
+            'liquid-card': props.variant === 'liquid',
         },
     ]);
 

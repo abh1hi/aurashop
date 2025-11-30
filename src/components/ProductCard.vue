@@ -1,5 +1,5 @@
 <template>
-  <LiquidCard class="product-card" hoverable>
+  <LiquidCard variant="liquid" class="product-card" hoverable>
     <div class="card-image-wrapper">
       <img :src="product.image" :alt="product.name" />
       <div v-if="product.discount" class="discount-badge">{{ product.discount }}</div>

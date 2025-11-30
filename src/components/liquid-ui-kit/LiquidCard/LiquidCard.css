@@ -28,6 +28,48 @@
     border: 1px solid var(--text-tertiary);
 }
 
+/* Liquid Card Variant */
+.liquid-card {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: var(--glass-shadow);
+    position: relative;
+    overflow: hidden;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+}
+
+.liquidGlass-effect {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(12px);
+    filter: url(#glass-distortion);
+    background: var(--glass-bg);
+    z-index: 0;
+}
+
+.liquidGlass-tint {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+            color-mix(in srgb, var(--primary-pastel) 30%, transparent) 0%,
+            color-mix(in srgb, var(--secondary-pastel) 15%, transparent) 100%);
+    opacity: 0.6;
+    z-index: 0;
+}
+
+.liquidGlass-shine {
+    position: absolute;
+    inset: 0;
+    box-shadow:
+        inset 1px 1px 0 0 rgba(255, 255, 255, 0.7),
+        inset -1px -1px 0 0 rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-lg);
+    z-index: 0;
+    pointer-events: none;
+}
+
 .card-image {
     padding: 0;
 }
@@ -96,4 +138,55 @@
     font-weight: var(--font-weight-bold);
     color: var(--text-color);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Disable liquid effects when class is present on body */
+body.disable-liquid-effects .liquidGlass-effect,
+body.disable-liquid-effects .liquidGlass-tint,
+body.disable-liquid-effects .liquidGlass-shine {
+    display: none !important;
+}
+
+body.disable-liquid-effects .liquid-card {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow);
+}
+
+/* Glazing Effect for Liquid Card & Standard Glass Card */
+.liquid-card::after,
+.card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    animation: glazing-shimmer 8s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Disable glazing for non-glass variants */
+.card-elevated::after,
+.card-outlined::after {
+    display: none;
+}
+
+@keyframes glazing-shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+/* Disable glazing when liquid effects are disabled */
+body.disable-liquid-effects .liquid-card::after,
+body.disable-liquid-effects .card::after {
+    display: none !important;
 }

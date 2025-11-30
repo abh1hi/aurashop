@@ -119,7 +119,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import { useAuth } from '../composables/useAuth';
@@ -127,6 +127,7 @@ import { useUser } from '../composables/useUser';
 import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
 
 const router = useRouter();
+const route = useRoute();
 const { loginWithGoogle, loginAnonymously, loginWithPhone, loginWithEmail, registerWithEmail, setupRecaptcha } = useAuth();
 const { addRole } = useUser();
 const { showToast } = useToast();
@@ -167,7 +168,8 @@ const handleSubmit = async () => {
       await registerWithEmail(email.value, password.value);
       showToast('Account created successfully!', 'success');
     }
-    router.push('/');
+    const redirectPath = route.query.redirect || '/';
+    router.push(redirectPath);
   } catch (error) {
     showToast(error.message, 'error');
   } finally {
@@ -179,7 +181,8 @@ const handleGoogleLogin = async () => {
   try {
     await loginWithGoogle();
     showToast('Logged in with Google!', 'success');
-    router.push('/');
+    const redirectPath = route.query.redirect || '/';
+    router.push(redirectPath);
   } catch (error) {
     showToast(error.message, 'error');
   }
@@ -209,7 +212,8 @@ const handlePhoneAuth = async () => {
     } else {
       await confirmationResult.value.confirm(otp.value);
       showToast('Phone verified successfully!', 'success');
-      router.push('/');
+      const redirectPath = route.query.redirect || '/';
+      router.push(redirectPath);
     }
   } catch (error) {
     console.error(error);
@@ -227,7 +231,7 @@ const handlePhoneAuth = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
   padding: var(--spacing-lg);
   position: relative;
   overflow: hidden;

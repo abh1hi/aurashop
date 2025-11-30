@@ -3,71 +3,314 @@
     <AppHeader />
     
     <main class="main-content">
-      <div class="profile-container">
-        <LiquidCard class="profile-card">
-          <div class="profile-header">
-            <div class="avatar-container">
-              <img 
-                :src="userProfile?.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (userProfile?.email || 'User')" 
-                alt="Avatar" 
-                class="avatar"
-              />
+      <!-- Desktop Layout -->
+      <div class="desktop-layout">
+        <div class="profile-grid">
+          <!-- Left Column: Identity & Actions -->
+          <LiquidCard variant="liquid" class="identity-card glass-panel">
+            <div class="profile-cover"></div>
+            <div class="profile-identity">
+              <div class="avatar-wrapper">
+                <img 
+                  :src="userProfile?.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (userProfile?.email || 'User')" 
+                  alt="Avatar" 
+                  class="avatar"
+                />
+                <div class="status-indicator online"></div>
+              </div>
+              <h1 class="username">{{ userProfile?.displayName || 'User' }}</h1>
+              <p class="handle">@{{ userProfile?.username || 'username' }}</p>
+              
+              <div class="roles-pills">
+                <span v-for="role in userProfile?.roles" :key="role" class="role-pill">
+                  {{ formatRole(role) }}
+                </span>
+              </div>
+
+              <div class="quick-stats">
+                <div class="stat-item">
+                  <span class="stat-value">{{ userProfile?.addresses?.length || 0 }}</span>
+                  <span class="stat-label">Addresses</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ userProfile?.roles?.includes('vendor') ? '1' : '0' }}</span>
+                  <span class="stat-label">Stores</span>
+                </div>
+              </div>
+
+              <div class="desktop-actions">
+                <LiquidButton 
+                  text="Edit Profile" 
+                  type="secondary" 
+                  icon="edit"
+                  class="action-btn"
+                  @click="router.push('/profile/edit')"
+                />
+                <LiquidButton 
+                  v-if="!userProfile?.roles?.includes('vendor')"
+                  text="Create Store" 
+                  type="primary" 
+                  icon="store"
+                  class="action-btn"
+                  @click="handleCreateStore"
+                />
+                <LiquidButton 
+                  v-if="userProfile?.roles?.includes('vendor')"
+                  text="My Stores" 
+                  type="primary" 
+                  icon="storefront"
+                  class="action-btn"
+                  @click="router.push('/vendor/my-stores')"
+                />
+                <LiquidButton 
+                  text="Logout" 
+                  type="danger" 
+                  icon="logout"
+                  class="action-btn"
+                  @click="handleLogout"
+                />
+              </div>
             </div>
-            <h2 class="username">{{ userProfile?.displayName || 'User' }}</h2>
-            <p class="email">{{ userProfile?.email || userProfile?.phoneNumber }}</p>
-            <div class="roles-badges">
-              <span v-for="role in userProfile?.roles" :key="role" class="role-badge">
-                {{ formatRole(role) }}
-              </span>
+          </LiquidCard>
+
+          <!-- Right Column: Details & Settings -->
+          <div class="details-column">
+            <LiquidCard variant="liquid" class="details-card glass-panel">
+              <h2 class="section-header">Profile Details</h2>
+              <LiquidAccordion>
+                <LiquidAccordionItem title="Account Information" id="account">
+                  <div class="info-grid">
+                    <div class="info-item">
+                      <span class="label">User ID</span>
+                      <span class="value mono">{{ userProfile?.uid }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="label">Email</span>
+                      <span class="value">{{ userProfile?.email }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="label">Phone</span>
+                      <span class="value">{{ userProfile?.phoneNumber || 'Not set' }}</span>
+                    </div>
+                  </div>
+                </LiquidAccordionItem>
+
+                <LiquidAccordionItem title="Address Book" id="addresses">
+                  <div v-if="userProfile?.addresses && userProfile.addresses.length > 0" class="address-list">
+                    <div v-for="addr in userProfile.addresses" :key="addr.id" class="address-card">
+                      <div class="address-icon">
+                        <span class="material-icons-round">place</span>
+                      </div>
+                      <div class="address-content">
+                        <span class="address-label">{{ addr.label }}</span>
+                        <p class="address-text">{{ addr.addressLine }}</p>
+                        <p class="address-phone">{{ addr.phoneNumber }}</p>
+                      </div>
+                      <button class="icon-btn delete" @click="handleDeleteAddress(addr.id)">
+                        <span class="material-icons-round">delete_outline</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div v-else class="empty-state">
+                    <span class="material-icons-round">location_off</span>
+                    <p>No addresses saved</p>
+                  </div>
+
+                  <div class="add-address-section">
+                    <div v-if="showAddAddress" class="add-address-form glass-inset">
+                      <h4 class="form-title">New Address</h4>
+                      <div class="form-grid">
+                        <LiquidInput v-model="newAddress.label" placeholder="Label (e.g. Home)" />
+                        <LiquidInput v-model="newAddress.phoneNumber" placeholder="Phone Number" />
+                        <LiquidInput v-model="newAddress.addressLine" placeholder="Full Address" class="full-width" />
+                      </div>
+                      <div class="form-actions">
+                        <button class="text-btn" @click="showAddAddress = false">Cancel</button>
+                        <LiquidButton text="Save Address" size="sm" type="primary" @click="handleSaveAddress" />
+                      </div>
+                    </div>
+                    <div v-else class="add-btn-wrapper">
+                      <LiquidButton 
+                        text="Add New Address" 
+                        type="secondary" 
+                        icon="add" 
+                        size="sm" 
+                        @click="showAddAddress = true" 
+                      />
+                    </div>
+                  </div>
+                </LiquidAccordionItem>
+
+                <LiquidAccordionItem title="Vendor Profile" id="vendor" v-if="userProfile?.roles?.includes('vendor')">
+                  <div class="info-grid">
+                    <div class="info-item">
+                      <span class="label">Store Name</span>
+                      <span class="value">{{ userProfile?.vendorProfile?.storeName }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="label">Status</span>
+                      <span class="status-badge" :class="userProfile?.vendorProfile?.status">
+                        {{ userProfile?.vendorProfile?.status }}
+                      </span>
+                    </div>
+                  </div>
+                </LiquidAccordionItem>
+
+                <LiquidAccordionItem title="Theme & Appearance" id="theme">
+                  <div class="theme-settings">
+                    <div class="setting-row">
+                      <span class="setting-label">Liquid Effects</span>
+                      <LiquidToggle 
+                        :modelValue="liquidAnimationsEnabled" 
+                        @update:modelValue="toggleLiquidAnimations" 
+                        label="Enable Liquid Animations"
+                      />
+                    </div>
+
+                    <div class="setting-row column">
+                      <span class="setting-label">Theme Category</span>
+                      <LiquidSegmentedControl 
+                        v-model="themeCategory" 
+                        :options="[{label: 'Standard', value: 'standard'}, {label: 'Glass', value: 'glass'}]" 
+                        full-width
+                      />
+                    </div>
+
+                    <div class="setting-row column">
+                      <span class="setting-label">Select Theme</span>
+                      <LiquidDropdown 
+                        :modelValue="currentTheme" 
+                        :options="filteredThemeOptions" 
+                        @update:modelValue="setTheme"
+                        placeholder="Choose a theme"
+                      />
+                    </div>
+                  </div>
+                </LiquidAccordionItem>
+              </LiquidAccordion>
+            </LiquidCard>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Layout -->
+      <div class="mobile-layout">
+        <div class="mobile-header">
+          <h1 class="page-title">Account</h1>
+        </div>
+
+        <div class="mobile-content-wrapper">
+          <!-- Profile Card -->
+          <LiquidCard variant="liquid" class="m-profile-card">
+            <div class="m-profile-inner">
+              <div class="m-avatar-container">
+                <img 
+                  :src="userProfile?.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (userProfile?.email || 'User')" 
+                  alt="Avatar" 
+                  class="m-avatar"
+                />
+              </div>
+              <div class="m-profile-info">
+                <h2 class="m-username">{{ userProfile?.displayName || 'User' }}</h2>
+                <p class="m-email">{{ userProfile?.email || 'No email set' }}</p>
+              </div>
+              <button class="m-edit-btn" @click="router.push('/profile/edit')">
+                Edit profile
+              </button>
+            </div>
+          </LiquidCard>
+
+          <!-- Quick Actions (Pills) -->
+          <div class="m-section-title">My Roles</div>
+          <div class="m-pills-scroll">
+            <div class="m-pill active">Buyer</div>
+            <div class="m-pill" :class="{ active: userProfile?.roles?.includes('vendor') }">Vendor</div>
+            <div class="m-pill" :class="{ active: userProfile?.roles?.includes('delivery') }">Delivery</div>
+          </div>
+
+          <!-- Promo/Status Card -->
+          <div class="m-promo-card">
+            <div class="m-promo-icon">
+              <span class="material-icons-round">verified</span>
+            </div>
+            <div class="m-promo-content">
+              <h3>AuraShop Member</h3>
+              <p>You are enjoying full access to AuraShop</p>
             </div>
           </div>
 
-          <div class="profile-details">
-            <div class="section-title">Account Details</div>
-            <div class="detail-row">
-              <span class="label">User ID:</span>
-              <span class="value">{{ userProfile?.uid }}</span>
-            </div>
-            
-            <!-- Vendor Details -->
-            <div v-if="userProfile?.roles?.includes('vendor')" class="role-section">
-              <div class="section-title">Vendor Profile</div>
-              <div class="detail-row">
-                <span class="label">Store Name:</span>
-                <span class="value">{{ userProfile?.vendorProfile?.storeName }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="label">Status:</span>
-                <span class="value status" :class="userProfile?.vendorProfile?.status">{{ userProfile?.vendorProfile?.status }}</span>
-              </div>
-            </div>
+          <!-- Create Store Action -->
+          <LiquidButton 
+            v-if="!userProfile?.roles?.includes('vendor')"
+            text="Create Your Store" 
+            type="primary" 
+            icon="store"
+            class="m-action-btn"
+            @click="handleCreateStore"
+          />
 
-            <!-- Delivery Details -->
-            <div v-if="userProfile?.roles?.includes('delivery_partner')" class="role-section">
-              <div class="section-title">Delivery Profile</div>
-              <div class="detail-row">
-                <span class="label">Vehicle:</span>
-                <span class="value">{{ userProfile?.deliveryProfile?.vehicleType }}</span>
+          <!-- Appearance Card -->
+          <LiquidCard class="m-appearance-card glass-panel mb-md">
+            <div class="m-section-title" style="margin-bottom: 16px;">Appearance</div>
+            <div class="theme-settings mobile">
+              <div class="setting-row">
+                <span class="setting-label">Liquid Effects</span>
+                <LiquidToggle 
+                  :modelValue="liquidAnimationsEnabled" 
+                  @update:modelValue="toggleLiquidAnimations" 
+                />
               </div>
+
+              <div class="setting-row column">
+                <span class="setting-label">Theme Category</span>
+                <LiquidSegmentedControl 
+                  v-model="themeCategory" 
+                  :options="[{label: 'Standard', value: 'standard'}, {label: 'Glass', value: 'glass'}]" 
+                  full-width
+                />
+              </div>
+
+              <div class="setting-row column">
+                <span class="setting-label">Select Theme</span>
+                <LiquidDropdown 
+                  :modelValue="currentTheme" 
+                  :options="filteredThemeOptions" 
+                  @update:modelValue="setTheme"
+                  placeholder="Choose a theme"
+                />
+              </div>
+            </div>
+          </LiquidCard>
+
+          <!-- Settings List -->
+          <div class="m-settings-list">
+            <div class="m-list-item" @click="router.push('/orders')">
+              <span class="material-icons-round m-list-icon">shopping_bag</span>
+              <span class="m-list-label">My Orders</span>
+              <span class="material-icons-round m-list-chevron">chevron_right</span>
+            </div>
+            <div class="m-list-item" v-if="userProfile?.roles?.includes('vendor')" @click="router.push('/vendor/my-stores')">
+              <span class="material-icons-round m-list-icon">storefront</span>
+              <span class="m-list-label">My Stores</span>
+              <span class="material-icons-round m-list-chevron">chevron_right</span>
+            </div>
+            <div class="m-list-item" @click="router.push('/wishlist')">
+              <span class="material-icons-round m-list-icon">favorite_border</span>
+              <span class="m-list-label">Wishlist</span>
+              <span class="material-icons-round m-list-chevron">chevron_right</span>
+            </div>
+            <div class="m-list-item" @click="router.push('/addresses')">
+              <span class="material-icons-round m-list-icon">place</span>
+              <span class="m-list-label">Address Book</span>
+              <span class="material-icons-round m-list-chevron">chevron_right</span>
+            </div>
+            <div class="m-list-item" @click="handleLogout">
+              <span class="material-icons-round m-list-icon">logout</span>
+              <span class="m-list-label">Log Out</span>
+              <span class="material-icons-round m-list-chevron">chevron_right</span>
             </div>
           </div>
-
-          <div class="actions">
-            <LiquidButton 
-              text="Edit Profile" 
-              type="secondary" 
-              icon="edit"
-              class="action-btn"
-            />
-            <LiquidButton 
-              text="Logout" 
-              type="danger" 
-              icon="logout"
-              class="action-btn"
-              @click="handleLogout"
-            />
-          </div>
-        </LiquidCard>
+        </div>
       </div>
     </main>
 
@@ -76,164 +319,62 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+// created-by-llm-agent: reason = "implementing UI rules"; date = 2025-11-30
+import { ref, computed } from 'vue';
 import AppHeader from '../components/AppHeader.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidCard from '../components/liquid-ui-kit/LiquidCard/LiquidCard.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
-import { useUser } from '../composables/useUser';
-import { useAuth } from '../composables/useAuth';
+import LiquidAccordion from '../components/liquid-ui-kit/LiquidAccordion/LiquidAccordion.vue';
+import LiquidAccordionItem from '../components/liquid-ui-kit/LiquidAccordion/LiquidAccordionItem.vue';
+import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
+import LiquidToggle from '../components/liquid-ui-kit/LiquidToggle/LiquidToggle.vue';
+import LiquidSegmentedControl from '../components/liquid-ui-kit/LiquidSegmentedControl/LiquidSegmentedControl.vue';
+import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
+import { useProfilePage } from './ProfilePage.js';
+import { useTheme } from '../composables/useTheme';
 
-const router = useRouter();
-const { userProfile } = useUser();
-const { logout } = useAuth();
+const {
+    router,
+    userProfile,
+    user,
+    showAddAddress,
+    newAddress,
+    handleSaveAddress,
+    handleDeleteAddress,
+    formatRole,
+    handleCreateStore,
+    handleLogout
+} = useProfilePage();
 
-const formatRole = (role) => {
-  return role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-};
+const { liquidAnimationsEnabled, currentTheme, toggleLiquidAnimations, setTheme } = useTheme();
 
-const handleLogout = async () => {
-  try {
-    await logout();
-    router.push('/login');
-  } catch (error) {
-    console.error('Logout failed', error);
-  }
-};
+const themeCategory = ref('standard');
+
+const standardThemes = [
+    { label: 'Chic (Default)', value: 'chic', icon: 'palette' },
+    { label: 'Oceanic', value: 'oceanic', icon: 'water_drop' },
+    { label: 'Sunset', value: 'sunset', icon: 'wb_sunny' },
+    { label: 'Forest', value: 'forest', icon: 'forest' },
+    { label: 'Lavender', value: 'lavender', icon: 'local_florist' },
+    { label: 'Mint', value: 'mint', icon: 'eco' },
+    { label: 'Peach', value: 'peach', icon: 'emoji_food_beverage' },
+    { label: 'Slate', value: 'slate', icon: 'dark_mode' },
+];
+
+const glassThemes = [
+    { label: 'Crystal', value: 'crystal', icon: 'diamond' },
+    { label: 'Frost', value: 'frost', icon: 'ac_unit' },
+    { label: 'Aurora', value: 'aurora', icon: 'auto_awesome' },
+    { label: 'Obsidian', value: 'obsidian', icon: 'volcano' },
+    { label: 'Prism', value: 'prism', icon: 'looks' },
+];
+
+const filteredThemeOptions = computed(() => {
+    return themeCategory.value === 'standard' ? standardThemes : glassThemes;
+});
 </script>
 
 <style scoped>
-.page-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-  background-color: var(--bg-color);
-}
-
-.main-content {
-  flex: 1;
-  overflow-y: auto;
-  padding-top: var(--spacing-lg);
-  padding-bottom: calc(80px + env(safe-area-inset-bottom));
-  -webkit-overflow-scrolling: touch;
-  display: flex;
-  justify-content: center;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-.profile-container {
-  width: 100%;
-  max-width: 500px;
-}
-
-.profile-card {
-  padding: 30px;
-}
-
-.profile-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.avatar-container {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid white;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  margin-bottom: 16px;
-}
-
-.avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.username {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin-bottom: 4px;
-}
-
-.email {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-bottom: 12px;
-}
-
-.roles-badges {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.role-badge {
-  background: rgba(var(--brand-primary-rgb), 0.1);
-  color: var(--brand-primary);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid rgba(var(--brand-primary-rgb), 0.2);
-}
-
-.profile-details {
-  margin-bottom: 30px;
-}
-
-.section-title {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-secondary);
-  margin-bottom: 12px;
-  font-weight: 700;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-  padding-bottom: 4px;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  font-size: 14px;
-}
-
-.label {
-  color: var(--text-secondary);
-}
-
-.value {
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.role-section {
-  margin-top: 20px;
-}
-
-.status {
-  text-transform: capitalize;
-}
-
-.status.pending { color: #f59e0b; }
-.status.approved { color: #10b981; }
-.status.rejected { color: #ef4444; }
-
-.actions {
-  display: flex;
-  gap: 12px;
-}
-
-.action-btn {
-  flex: 1;
-}
+@import './ProfilePage.css';
 </style>

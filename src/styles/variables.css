@@ -24,25 +24,14 @@
     --tertiary-hover: #ffab91;
 
     /* Status Colors */
-    --danger-color: #b3261e;
-    --success-color: #2e7d32;
-    --warning-color: #f9a825;
-    --info-color: #0277bd;
-
-    /* Gradients */
-    --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(215, 204, 200, 0.4) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(239, 235, 233, 0.4) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(255, 204, 188, 0.4) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(255, 248, 225, 0.4) 0, transparent 50%);
-
-    /* Liquid Glass (Warm Tint) */
-    --glass-bg: rgba(255, 255, 255, 0.4);
-    --glass-border: rgba(255, 255, 255, 0.6);
-    --glass-blur: 20px;
-    --glass-saturate: 180%;
     --glass-shadow: 0 8px 32px rgba(62, 39, 35, 0.08);
     --glass-highlight: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 50%);
+
+    /* Glass Defaults */
+    --glass-bg: rgba(255, 255, 255, 0.2);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-blur: 12px;
+    --glass-saturate: 110%;
 
     /* Spacing */
     --spacing-xs: 4px;
@@ -192,6 +181,23 @@
 
 /* Lavender Theme */
 [data-theme="lavender"] {
+    --bg-color: #f3e5f5;
+    --primary-pastel: #e1bee7;
+    --secondary-pastel: #d1c4e9;
+    --tertiary-pastel: #f8bbd0;
+    --accent-pastel: #e0b2f2;
+
+    --primary-text: #4a148c;
+    --secondary-text: #311b92;
+    --tertiary-text: #880e4f;
+    --accent-text: #6a1b9a;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(225, 190, 231, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(209, 196, 233, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(248, 187, 208, 0.6) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(224, 178, 242, 0.6) 0, transparent 50%);
+
     --liquid-glass-base: rgba(230, 230, 250, 0.2);
     --liquid-glass-tint: rgba(216, 191, 216, 0.25);
     --liquid-glass-border: rgba(230, 230, 250, 0.4);
@@ -200,6 +206,23 @@
 
 /* Mint Theme */
 [data-theme="mint"] {
+    --bg-color: #e0f2f1;
+    --primary-pastel: #b2dfdb;
+    --secondary-pastel: #c8e6c9;
+    --tertiary-pastel: #b9f6ca;
+    --accent-pastel: #a7ffeb;
+
+    --primary-text: #004d40;
+    --secondary-text: #1b5e20;
+    --tertiary-text: #00695c;
+    --accent-text: #00bfa5;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(178, 223, 219, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(200, 230, 201, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(185, 246, 202, 0.6) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(167, 255, 235, 0.6) 0, transparent 50%);
+
     --liquid-glass-base: rgba(152, 255, 152, 0.15);
     --liquid-glass-tint: rgba(240, 255, 240, 0.25);
     --liquid-glass-border: rgba(152, 255, 152, 0.4);
@@ -208,6 +231,23 @@
 
 /* Peach Theme */
 [data-theme="peach"] {
+    --bg-color: #fff3e0;
+    --primary-pastel: #ffe0b2;
+    --secondary-pastel: #ffccbc;
+    --tertiary-pastel: #ffecb3;
+    --accent-pastel: #ffd180;
+
+    --primary-text: #e65100;
+    --secondary-text: #bf360c;
+    --tertiary-text: #ff6f00;
+    --accent-text: #ff9100;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(255, 224, 178, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(255, 204, 188, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(255, 236, 179, 0.6) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(255, 209, 128, 0.6) 0, transparent 50%);
+
     --liquid-glass-base: rgba(255, 218, 185, 0.2);
     --liquid-glass-tint: rgba(255, 229, 180, 0.25);
     --liquid-glass-border: rgba(255, 218, 185, 0.4);
@@ -216,8 +256,125 @@
 
 /* Slate Theme */
 [data-theme="slate"] {
+    --bg-color: #eceff1;
+    --primary-pastel: #cfd8dc;
+    --secondary-pastel: #b0bec5;
+    --tertiary-pastel: #d7ccc8;
+    --accent-pastel: #90a4ae;
+
+    --primary-text: #263238;
+    --secondary-text: #37474f;
+    --tertiary-text: #455a64;
+    --accent-text: #546e7a;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(207, 216, 220, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(176, 190, 197, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(215, 204, 200, 0.6) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(144, 164, 174, 0.6) 0, transparent 50%);
+
     --liquid-glass-base: rgba(112, 128, 144, 0.15);
     --liquid-glass-tint: rgba(119, 136, 153, 0.2);
     --liquid-glass-border: rgba(112, 128, 144, 0.3);
     --liquid-action: #708090;
+}
+
+/* Crystal Theme */
+[data-theme="crystal"] {
+    --bg-color: #f0f8ff;
+    --primary-pastel: #e3f2fd;
+    --secondary-pastel: #e1f5fe;
+    --tertiary-pastel: #f3e5f5;
+    --accent-pastel: #e0f7fa;
+
+    --primary-text: #01579b;
+    --secondary-text: #0277bd;
+    --tertiary-text: #4a148c;
+    --accent-text: #006064;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(227, 242, 253, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(225, 245, 254, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(243, 229, 245, 0.6) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(224, 247, 250, 0.6) 0, transparent 50%);
+}
+
+/* Frost Theme */
+[data-theme="frost"] {
+    --bg-color: #e3f2fd;
+    --primary-pastel: #bbdefb;
+    --secondary-pastel: #b3e5fc;
+    --tertiary-pastel: #cfd8dc;
+    --accent-pastel: #81d4fa;
+
+    --primary-text: #0d47a1;
+    --secondary-text: #1565c0;
+    --tertiary-text: #37474f;
+    --accent-text: #0277bd;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(187, 222, 251, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(179, 229, 252, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(207, 216, 220, 0.6) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(129, 212, 250, 0.6) 0, transparent 50%);
+}
+
+/* Aurora Theme */
+[data-theme="aurora"] {
+    --bg-color: #f3e5f5;
+    --primary-pastel: #e1bee7;
+    --secondary-pastel: #b2dfdb;
+    --tertiary-pastel: #d1c4e9;
+    --accent-pastel: #69f0ae;
+
+    --primary-text: #4a148c;
+    --secondary-text: #004d40;
+    --tertiary-text: #311b92;
+    --accent-text: #00c853;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(225, 190, 231, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(178, 223, 219, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(209, 196, 233, 0.6) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(105, 240, 174, 0.6) 0, transparent 50%);
+}
+
+/* Obsidian Theme */
+[data-theme="obsidian"] {
+    --bg-color: #121212;
+    --primary-pastel: #373737;
+    --secondary-pastel: #2c2c2c;
+    --tertiary-pastel: #424242;
+    --accent-pastel: #bb86fc;
+
+    --primary-text: #ffffff;
+    --secondary-text: #e0e0e0;
+    --tertiary-text: #bdbdbd;
+    --accent-text: #bb86fc;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(55, 55, 55, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(44, 44, 44, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(66, 66, 66, 0.6) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(187, 134, 252, 0.15) 0, transparent 50%);
+}
+
+/* Prism Theme */
+[data-theme="prism"] {
+    --bg-color: #fff5f7;
+    --primary-pastel: #ffcdd2;
+    --secondary-pastel: #fff9c4;
+    --tertiary-pastel: #b2ebf2;
+    --accent-pastel: #e1bee7;
+
+    --primary-text: #c62828;
+    --secondary-text: #f9a825;
+    --tertiary-text: #00838f;
+    --accent-text: #6a1b9a;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(255, 205, 210, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(255, 249, 196, 0.6) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(178, 235, 242, 0.6) 0, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(225, 190, 231, 0.6) 0, transparent 50%);
 }

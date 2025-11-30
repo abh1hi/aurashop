@@ -27,7 +27,7 @@
 
             <div class="action-row">
                 <LiquidButton text="Pin Location" icon="push_pin" type="secondary" size="sm" @click="pinLocation" />
-                <LiquidButton text="Confirm" icon="check" type="primary" size="sm" @click="confirmLocation" />
+                <LiquidButton text="Confirm Address" icon="check" type="primary" size="sm" @click="openAddressSheet" />
             </div>
         </div>
       </div>
@@ -37,24 +37,97 @@
         <span class="material-icons-round">my_location</span>
       </button>
 
+      <!-- Address Action Sheet -->
+      <LiquidActionSheet 
+        v-model="showAddressSheet" 
+        title="Confirm Address" 
+        subtitle="Add details to save this location"
+      >
+        <div class="address-form">
+            <div class="form-group">
+                <label>Address</label>
+                <textarea 
+                    v-model="addressForm.address" 
+                    class="glass-input" 
+                    rows="3"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input 
+                    type="tel" 
+                    v-model="addressForm.phone" 
+                    class="glass-input" 
+                    placeholder="+1 234 567 8900"
+                />
+            </div>
+
+            <div class="form-group">
+                <label>Label (Optional)</label>
+                <div class="label-pills">
+                    <button 
+                        v-for="label in ['Home', 'Work', 'Other']" 
+                        :key="label"
+                        class="label-pill"
+                        :class="{ active: addressForm.label === label }"
+                        @click="addressForm.label = label"
+                    >
+                        {{ label }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="action-buttons-row">
+                <LiquidButton 
+                    text="Set as Current Location" 
+                    type="primary" 
+                    class="flex-1" 
+                    @click="setAsCurrent" 
+                    :loading="isSettingCurrent"
+                />
+                <LiquidButton 
+                    text="Save New Address" 
+                    type="secondary" 
+                    class="flex-1" 
+                    @click="saveNewAddress" 
+                    :loading="isSavingNew"
+                />
+            </div>
+        </div>
+      </LiquidActionSheet>
+
     </div>
     <BottomNavBar />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidAutocomplete from '../components/liquid-ui-kit/LiquidAutocomplete/LiquidAutocomplete.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
+import LiquidActionSheet from '../components/liquid-ui-kit/LiquidActionSheet/LiquidActionSheet.vue';
 import { useLocation } from '../composables/useLocation.js';
 import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useRouter } from 'vue-router';
 
 const map = ref(null);
 const marker = ref(null);
 const selectedLocation = ref(null);
+const showAddressSheet = ref(false);
+const isSettingCurrent = ref(false);
+const isSavingNew = ref(false);
+const router = useRouter();
+
+const addressForm = reactive({
+    address: '',
+    phone: '',
+    label: 'Home'
+});
+
 const { location: currentLocation, detectLocation, setLocation } = useLocation();
 const { showToast } = useToast();
 
@@ -125,11 +198,6 @@ const updateMarker = (lat, lng) => {
 };
 
 const handleLocationSelect = (item) => {
-    // Photon API returns coordinates in [lon, lat] order in geometry.coordinates
-    // Nominatim returns lat, lon as strings
-    // We need to handle both or standardize. 
-    // Since we are switching to Photon in Autocomplete, let's assume Photon format or normalize it.
-    
     let lat, lng, address;
 
     if (item.geometry && item.geometry.coordinates) {
@@ -154,8 +222,6 @@ const handleLocationSelect = (item) => {
 
 const fetchAddress = async (lat, lng) => {
     try {
-        // Using Photon API (Komoot) which is free and CORS friendly
-        // https://photon.komoot.io/reverse?lon=10&lat=52
         const response = await fetch(`https://photon.komoot.io/reverse?lon=${lng}&lat=${lat}`);
         if (!response.ok) throw new Error('Network response was not ok');
         
@@ -163,7 +229,6 @@ const fetchAddress = async (lat, lng) => {
         
         if (data.features && data.features.length > 0) {
             const props = data.features[0].properties;
-            // Construct a readable address
             const addressParts = [
                 props.name,
                 props.street,
@@ -173,7 +238,6 @@ const fetchAddress = async (lat, lng) => {
                 props.country
             ].filter(Boolean);
             
-            // Remove duplicates (sometimes name and city are same)
             const uniqueAddress = [...new Set(addressParts)].join(', ');
 
             selectedLocation.value = {
@@ -191,13 +255,11 @@ const fetchAddress = async (lat, lng) => {
 
     } catch (error) {
         console.error('Reverse geocoding failed', error);
-        // Fallback to simple coordinates if API fails
         selectedLocation.value = {
             lat,
             lng,
             address: `${lat.toFixed(4)}, ${lng.toFixed(4)}`
         };
-        // Don't spam toast on map drag/click, just show coords
     }
 };
 
@@ -213,15 +275,51 @@ const pinLocation = () => {
     showToast('Location pinned!', 'success');
 };
 
-const confirmLocation = () => {
+const openAddressSheet = () => {
     if (selectedLocation.value) {
-        // Extract a shorter address for the header (e.g., City, Country)
-        const parts = selectedLocation.value.address.split(',');
-        const shortAddress = parts.slice(0, 2).join(',').trim(); // First two parts usually work
-        
-        setLocation(shortAddress);
-        showToast(`Location set to: ${shortAddress}`, 'success');
+        addressForm.address = selectedLocation.value.address;
+        showAddressSheet.value = true;
     }
+};
+
+const validateForm = () => {
+    if (!addressForm.phone) {
+        showToast('Please enter a phone number', 'warning');
+        return false;
+    }
+    return true;
+};
+
+const setAsCurrent = async () => {
+    if (!validateForm()) return;
+
+    isSettingCurrent.value = true;
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Set global location
+    setLocation(addressForm.address);
+    
+    showToast('Location updated successfully!', 'success');
+    isSettingCurrent.value = false;
+    showAddressSheet.value = false;
+};
+
+const saveNewAddress = async () => {
+    if (!validateForm()) return;
+
+    isSavingNew.value = true;
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Here we would typically add to a user's address list in a store/DB
+    console.log('Saving new address:', { ...addressForm, ...selectedLocation.value });
+    
+    showToast('New address saved to your profile!', 'success');
+    isSavingNew.value = false;
+    showAddressSheet.value = false;
 };
 
 const locateUser = () => {
@@ -248,4 +346,70 @@ const locateUser = () => {
 
 <style scoped>
 @import './MapPage.css';
+
+.address-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: 0 var(--spacing-md);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.form-group label {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.glass-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    color: var(--text-color);
+    font-family: inherit;
+    resize: none;
+}
+
+.glass-input:focus {
+    outline: none;
+    border-color: var(--primary-pastel);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.label-pills {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.label-pill {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.label-pill.active {
+    background: var(--text-color);
+    color: var(--bg-color);
+    border-color: var(--text-color);
+}
+
+.action-buttons-row {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.flex-1 {
+    flex: 1;
+}
 </style>

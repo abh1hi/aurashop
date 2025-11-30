@@ -1,77 +1,7 @@
 @import 'variables.css';
 @import 'liquid_variables.css';
 @import 'liquid_glass_themes.css';
-@import 'reset.css';
-@import 'layout.css';
-
-/* Utility Classes */
-.hidden {
-    display: none !important;
-}
-
-.flex {
-    display: flex;
-}
-
-.flex-col {
-    flex-direction: column;
-}
-
-.items-center {
-    align-items: center;
-}
-
-.justify-center {
-    justify-content: center;
-}
-
-.gap-sm {
-    gap: var(--spacing-sm);
-}
-
-.gap-md {
-    gap: var(--spacing-md);
-}
-
-.w-full {
-    width: 100%;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.mt-md {
-    margin-top: var(--spacing-md);
-}
-
-.mb-md {
-    margin-bottom: var(--spacing-md);
-}
-
-.p-md {
-    padding: var(--spacing-md);
-}
-
-/* Typography Utilities */
-.text-h1 {
-    font-size: var(--text-4xl);
-    font-weight: var(--font-weight-regular);
-}
-
-.text-h2 {
-    font-size: var(--text-3xl);
-    font-weight: var(--font-weight-regular);
-}
-
-.text-h3 {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-weight-regular);
-}
-
-@import 'variables.css';
-@import 'liquid_variables.css';
-@import 'liquid_glass_themes.css';
+@import 'liquid_micro_animations.css';
 @import 'reset.css';
 @import 'layout.css';
 

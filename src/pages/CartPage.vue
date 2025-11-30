@@ -8,7 +8,7 @@
         
         <div v-if="cartItems.length > 0" class="cart-content">
           <div class="cart-items">
-            <LiquidCard v-for="item in cartItems" :key="item.id" class="cart-item-card">
+            <LiquidCard v-for="item in cartItems" :key="item.id" variant="liquid" class="cart-item-card">
               <div class="cart-item">
                 <div class="item-image">
                   <img :src="item.image" :alt="item.name" />
@@ -35,7 +35,7 @@
           </div>
 
           <div class="cart-summary">
-            <LiquidCard class="summary-card">
+            <LiquidCard variant="liquid" class="summary-card">
               <h3 class="summary-title">Order Summary</h3>
               <div class="summary-row">
                 <span>Subtotal</span>
@@ -128,7 +128,7 @@ const checkout = () => {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background-color: var(--bg-color);
+  background-color: transparent;
 }
 
 .main-content {
