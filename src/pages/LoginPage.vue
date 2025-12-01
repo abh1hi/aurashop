@@ -12,7 +12,7 @@
           :class="{ active: isLogin }" 
           @click="toggleMode(true)"
         >
-          Sign In
+          {{ isAnonymous ? 'Link Account' : 'Sign In' }}
         </button>
         <button 
           class="toggle-btn" 
@@ -90,7 +90,7 @@
           />
         </div>
         <LiquidButton 
-          :text="isLogin ? 'Sign In' : 'Sign Up'" 
+          :text="isLogin ? (isAnonymous ? 'Link Account' : 'Sign In') : 'Sign Up'" 
           type="primary" 
           size="lg" 
           class="submit-btn"
@@ -118,7 +118,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
@@ -128,9 +128,11 @@ import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js
 
 const router = useRouter();
 const route = useRoute();
-const { loginWithGoogle, loginAnonymously, loginWithPhone, loginWithEmail, registerWithEmail, setupRecaptcha } = useAuth();
-const { addRole } = useUser();
+const { loginWithGoogle, loginAnonymously, loginWithPhone, loginWithEmail, registerWithEmail, setupRecaptcha, linkWithGoogle, linkWithEmail, user } = useAuth();
+const { addRole, mergeUserData } = useUser();
 const { showToast } = useToast();
+
+const isAnonymous = computed(() => user.value?.isAnonymous);
 
 const isLogin = ref(true);
 const authMethod = ref('email'); // 'email' or 'phone'
@@ -162,8 +164,15 @@ const handleSubmit = async () => {
   loading.value = true;
   try {
     if (isLogin.value) {
-      await loginWithEmail(email.value, password.value);
-      showToast('Logged in successfully!', 'success');
+      if (isAnonymous.value) {
+        // Link Account Flow
+        await linkWithEmail(email.value, password.value);
+        showToast('Account linked successfully!', 'success');
+      } else {
+        // Normal Sign In
+        await loginWithEmail(email.value, password.value);
+        showToast('Logged in successfully!', 'success');
+      }
     } else {
       await registerWithEmail(email.value, password.value);
       showToast('Account created successfully!', 'success');
@@ -171,6 +180,18 @@ const handleSubmit = async () => {
     const redirectPath = route.query.redirect || '/';
     router.push(redirectPath);
   } catch (error) {
+    if (error.code === 'auth/credential-already-in-use') {
+        // Handle Merge Flow
+        if (confirm("This email is already associated with another account. Do you want to switch to it and merge your current data?")) {
+            const currentUid = user.value.uid;
+            // Sign in to the existing account (this will sign out the anonymous user)
+            const targetUser = await loginWithEmail(email.value, password.value);
+            await mergeUserData(currentUid, targetUser.uid);
+            showToast('Logged in and data merged!', 'success');
+            router.push('/');
+            return;
+        }
+    }
     showToast(error.message, 'error');
   } finally {
     loading.value = false;
@@ -179,11 +200,26 @@ const handleSubmit = async () => {
 
 const handleGoogleLogin = async () => {
   try {
-    await loginWithGoogle();
-    showToast('Logged in with Google!', 'success');
+    if (isAnonymous.value) {
+        await linkWithGoogle();
+        showToast('Account linked with Google!', 'success');
+    } else {
+        await loginWithGoogle();
+        showToast('Logged in with Google!', 'success');
+    }
     const redirectPath = route.query.redirect || '/';
     router.push(redirectPath);
   } catch (error) {
+    if (error.code === 'auth/credential-already-in-use') {
+         if (confirm("This Google account is already in use. Switch and merge data?")) {
+            const currentUid = user.value.uid;
+            const targetUser = await loginWithGoogle(); // This might need re-auth logic depending on provider
+            await mergeUserData(currentUid, targetUser.uid);
+            showToast('Logged in and data merged!', 'success');
+            router.push('/');
+            return;
+         }
+    }
     showToast(error.message, 'error');
   }
 };

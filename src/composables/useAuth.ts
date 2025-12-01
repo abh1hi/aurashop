@@ -11,7 +11,11 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     type User,
-    type ConfirmationResult
+    type ConfirmationResult,
+    linkWithPopup,
+    EmailAuthProvider,
+    linkWithCredential,
+    AuthCredential
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -99,6 +103,30 @@ export function useAuth() {
         }
     };
 
+    const linkWithGoogle = async () => {
+        if (!user.value) throw new Error("No user to link");
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await linkWithPopup(user.value, provider);
+            return result.user;
+        } catch (error) {
+            console.error("Link Google error:", error);
+            throw error;
+        }
+    };
+
+    const linkWithEmail = async (email: string, password: string) => {
+        if (!user.value) throw new Error("No user to link");
+        const credential = EmailAuthProvider.credential(email, password);
+        try {
+            const result = await linkWithCredential(user.value, credential);
+            return result.user;
+        } catch (error) {
+            console.error("Link Email error:", error);
+            throw error;
+        }
+    };
+
     return {
         user,
         isAuthenticated,
@@ -110,6 +138,8 @@ export function useAuth() {
         registerWithEmail,
         setupRecaptcha,
         logout,
-        linkWithPhone
+        linkWithPhone,
+        linkWithGoogle,
+        linkWithEmail
     };
 }

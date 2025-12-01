@@ -18,8 +18,8 @@
                 />
                 <div class="status-indicator online"></div>
               </div>
-              <h1 class="username">{{ userProfile?.displayName || 'User' }}</h1>
-              <p class="handle">@{{ userProfile?.username || 'username' }}</p>
+              <h1 class="username">{{ userProfile?.displayName || (isAnonymous ? 'Guest User' : 'User') }}</h1>
+              <p class="handle">@{{ userProfile?.username || (isAnonymous ? 'guest' : 'username') }}</p>
               
               <div class="roles-pills">
                 <span v-for="role in userProfile?.roles" :key="role" class="role-pill">
@@ -47,7 +47,15 @@
                   @click="router.push('/profile/edit')"
                 />
                 <LiquidButton 
-                  v-if="!userProfile?.roles?.includes('vendor')"
+                  v-if="isAnonymous"
+                  text="Log In / Sign Up" 
+                  type="primary" 
+                  icon="login"
+                  class="action-btn"
+                  @click="router.push('/login')"
+                />
+                <LiquidButton 
+                  v-if="!isAnonymous && !userProfile?.roles?.includes('vendor')"
                   text="Create Store" 
                   type="primary" 
                   icon="store"
@@ -96,48 +104,27 @@
                 </LiquidAccordionItem>
 
                 <LiquidAccordionItem title="Address Book" id="addresses">
-                  <div v-if="userProfile?.addresses && userProfile.addresses.length > 0" class="address-list">
-                    <div v-for="addr in userProfile.addresses" :key="addr.id" class="address-card">
-                      <div class="address-icon">
-                        <span class="material-icons-round">place</span>
-                      </div>
-                      <div class="address-content">
-                        <span class="address-label">{{ addr.label }}</span>
-                        <p class="address-text">{{ addr.addressLine }}</p>
-                        <p class="address-phone">{{ addr.phoneNumber }}</p>
-                      </div>
-                      <button class="icon-btn delete" @click="handleDeleteAddress(addr.id)">
-                        <span class="material-icons-round">delete_outline</span>
-                      </button>
+                  <div class="address-book-preview">
+                    <div v-if="userProfile?.addresses && userProfile.addresses.length > 0" class="address-list-preview">
+                        <div v-for="addr in userProfile.addresses.slice(0, 2)" :key="addr.id" class="address-preview-item">
+                            <span class="material-icons-round">place</span>
+                            <span>{{ addr.label }}: {{ addr.addressLine }}</span>
+                        </div>
+                        <p v-if="userProfile.addresses.length > 2" class="more-addresses">
+                            +{{ userProfile.addresses.length - 2 }} more
+                        </p>
                     </div>
-                  </div>
-                  <div v-else class="empty-state">
-                    <span class="material-icons-round">location_off</span>
-                    <p>No addresses saved</p>
-                  </div>
-
-                  <div class="add-address-section">
-                    <div v-if="showAddAddress" class="add-address-form glass-inset">
-                      <h4 class="form-title">New Address</h4>
-                      <div class="form-grid">
-                        <LiquidInput v-model="newAddress.label" placeholder="Label (e.g. Home)" />
-                        <LiquidInput v-model="newAddress.phoneNumber" placeholder="Phone Number" />
-                        <LiquidInput v-model="newAddress.addressLine" placeholder="Full Address" class="full-width" />
-                      </div>
-                      <div class="form-actions">
-                        <button class="text-btn" @click="showAddAddress = false">Cancel</button>
-                        <LiquidButton text="Save Address" size="sm" type="primary" @click="handleSaveAddress" />
-                      </div>
+                    <div v-else class="empty-state-preview">
+                        <p>No addresses saved.</p>
                     </div>
-                    <div v-else class="add-btn-wrapper">
-                      <LiquidButton 
-                        text="Add New Address" 
+                    <LiquidButton 
+                        text="Manage Addresses" 
+                        icon="map" 
                         type="secondary" 
-                        icon="add" 
                         size="sm" 
-                        @click="showAddAddress = true" 
-                      />
-                    </div>
+                        class="mt-2"
+                        @click="openAddressBook" 
+                    />
                   </div>
                 </LiquidAccordionItem>
 
@@ -211,11 +198,14 @@
                 />
               </div>
               <div class="m-profile-info">
-                <h2 class="m-username">{{ userProfile?.displayName || 'User' }}</h2>
-                <p class="m-email">{{ userProfile?.email || 'No email set' }}</p>
+                <h2 class="m-username">{{ userProfile?.displayName || (isAnonymous ? 'Guest User' : 'User') }}</h2>
+                <p class="m-email">{{ userProfile?.email || (isAnonymous ? 'Anonymous' : 'No email set') }}</p>
               </div>
-              <button class="m-edit-btn" @click="router.push('/profile/edit')">
+              <button v-if="!isAnonymous" class="m-edit-btn" @click="router.push('/profile/edit')">
                 Edit profile
+              </button>
+              <button v-else class="m-edit-btn primary" @click="router.push('/login')">
+                Log In / Sign Up
               </button>
             </div>
           </LiquidCard>
@@ -299,7 +289,7 @@
               <span class="m-list-label">Wishlist</span>
               <span class="material-icons-round m-list-chevron">chevron_right</span>
             </div>
-            <div class="m-list-item" @click="router.push('/addresses')">
+            <div class="m-list-item" @click="openAddressBook">
               <span class="material-icons-round m-list-icon">place</span>
               <span class="m-list-label">Address Book</span>
               <span class="material-icons-round m-list-chevron">chevron_right</span>
@@ -314,65 +304,83 @@
       </div>
     </main>
 
+    <!-- Address Book Action Sheet -->
+    <LiquidActionSheet
+        v-model="showAddressBookSheet"
+        title="Address Book"
+        subtitle="Manage your saved addresses"
+    >
+        <div class="address-book-content">
+            <div v-if="!userProfile?.addresses || userProfile.addresses.length === 0" class="empty-state">
+                <span class="material-icons-round empty-icon">location_off</span>
+                <p>No addresses saved yet.</p>
+            </div>
+            
+            <div class="address-list">
+                <div v-for="addr in userProfile?.addresses" :key="addr.id" class="address-card">
+                    <div class="address-icon">
+                        <span class="material-icons-round">place</span>
+                    </div>
+                    <div class="address-details">
+                        <span class="address-label">{{ addr.label }}</span>
+                        <p class="address-text">{{ addr.addressLine }}</p>
+                        <span class="address-phone">{{ addr.phoneNumber }}</span>
+                    </div>
+                    <div class="address-actions">
+                        <LiquidButton icon="edit" type="ghost" size="sm" @click="editAddress(addr.id)" />
+                        <LiquidButton icon="delete" type="ghost" size="sm" class="delete-btn" @click="confirmDeleteAddress(addr.id)" />
+                    </div>
+                </div>
+            </div>
+
+            <LiquidButton 
+                text="Add New Address" 
+                icon="add_location" 
+                type="primary" 
+                class="w-100 mt-4" 
+                @click="addNewAddress" 
+            />
+        </div>
+    </LiquidActionSheet>
+
     <BottomNavBar />
   </div>
 </template>
 
 <script setup>
-// created-by-llm-agent: reason = "implementing UI rules"; date = 2025-11-30
-import { ref, computed } from 'vue';
 import AppHeader from '../components/AppHeader.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidCard from '../components/liquid-ui-kit/LiquidCard/LiquidCard.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidAccordion from '../components/liquid-ui-kit/LiquidAccordion/LiquidAccordion.vue';
 import LiquidAccordionItem from '../components/liquid-ui-kit/LiquidAccordion/LiquidAccordionItem.vue';
-import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
 import LiquidToggle from '../components/liquid-ui-kit/LiquidToggle/LiquidToggle.vue';
 import LiquidSegmentedControl from '../components/liquid-ui-kit/LiquidSegmentedControl/LiquidSegmentedControl.vue';
 import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
+import LiquidActionSheet from '../components/liquid-ui-kit/LiquidActionSheet/LiquidActionSheet.vue';
 import { useProfilePage } from './ProfilePage.js';
-import { useTheme } from '../composables/useTheme';
 
 const {
     router,
     userProfile,
     user,
-    showAddAddress,
-    newAddress,
-    handleSaveAddress,
+    isAnonymous,
     handleDeleteAddress,
     formatRole,
     handleCreateStore,
-    handleLogout
+    handleLogout,
+    showAddressBookSheet,
+    openAddressBook,
+    addNewAddress,
+    editAddress,
+    confirmDeleteAddress,
+    liquidAnimationsEnabled,
+    currentTheme,
+    toggleLiquidAnimations,
+    setTheme,
+    themeCategory,
+    filteredThemeOptions
 } = useProfilePage();
-
-const { liquidAnimationsEnabled, currentTheme, toggleLiquidAnimations, setTheme } = useTheme();
-
-const themeCategory = ref('standard');
-
-const standardThemes = [
-    { label: 'Chic (Default)', value: 'chic', icon: 'palette' },
-    { label: 'Oceanic', value: 'oceanic', icon: 'water_drop' },
-    { label: 'Sunset', value: 'sunset', icon: 'wb_sunny' },
-    { label: 'Forest', value: 'forest', icon: 'forest' },
-    { label: 'Lavender', value: 'lavender', icon: 'local_florist' },
-    { label: 'Mint', value: 'mint', icon: 'eco' },
-    { label: 'Peach', value: 'peach', icon: 'emoji_food_beverage' },
-    { label: 'Slate', value: 'slate', icon: 'dark_mode' },
-];
-
-const glassThemes = [
-    { label: 'Crystal', value: 'crystal', icon: 'diamond' },
-    { label: 'Frost', value: 'frost', icon: 'ac_unit' },
-    { label: 'Aurora', value: 'aurora', icon: 'auto_awesome' },
-    { label: 'Obsidian', value: 'obsidian', icon: 'volcano' },
-    { label: 'Prism', value: 'prism', icon: 'looks' },
-];
-
-const filteredThemeOptions = computed(() => {
-    return themeCategory.value === 'standard' ? standardThemes : glassThemes;
-});
 </script>
 
 <style scoped>

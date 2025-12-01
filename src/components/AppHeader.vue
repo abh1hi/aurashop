@@ -7,7 +7,7 @@
           <span class="location-label">Location</span>
           <router-link to="/map" class="location-selector" style="text-decoration: none;">
             <span class="material-icons-round location-icon">location_on</span>
-            <span class="location-text">{{ location }}</span>
+            <span class="location-text">{{ location.address || location }}</span>
             <span class="material-icons-round expand-icon">expand_more</span>
           </router-link>
         </div>
@@ -33,7 +33,7 @@
         <div class="desktop-actions">
            <router-link to="/map" class="location-selector desktop-location" style="text-decoration: none; margin-right: 12px;">
              <span class="material-icons-round location-icon">location_on</span>
-             <span class="location-text">{{ location }}</span>
+             <span class="location-text">{{ location.address || location }}</span>
            </router-link>
            <LiquidThemeSwitcher />
            <div class="desktop-search-wrapper">
