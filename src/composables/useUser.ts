@@ -197,6 +197,22 @@ export function useUser() {
         await fetchUserProfile(userProfile.value.uid); // Refresh
     };
 
+    const migrateSubcollection = async (sourceUid: string, targetUid: string, collectionName: string) => {
+        const sourceRef = collection(db, 'users', sourceUid, collectionName);
+        const targetRef = collection(db, 'users', targetUid, collectionName);
+        const sourceSnapshot = await getDocs(sourceRef);
+
+        for (const sourceDoc of sourceSnapshot.docs) {
+            const data = sourceDoc.data();
+            const targetDocRef = doc(targetRef, sourceDoc.id);
+            const targetDocSnap = await getDoc(targetDocRef);
+
+            if (!targetDocSnap.exists()) {
+                await setDoc(targetDocRef, data);
+            }
+        }
+    };
+
     const mergeUserData = async (sourceUid: string, targetUid: string) => {
         try {
             const sourceDocRef = doc(db, 'users', sourceUid);
@@ -233,6 +249,13 @@ export function useUser() {
             }
 
             await setDoc(targetDocRef, mergedData, { merge: true });
+
+            // --- Migrate Subcollections ---
+            // 1. Wishlist: Keep existing, add new
+            await migrateSubcollection(sourceUid, targetUid, 'wishlist');
+
+            // 2. Tracking Sessions: Copy all
+            await migrateSubcollection(sourceUid, targetUid, 'tracking_sessions');
 
             // Optional: Delete source doc or mark as merged
             // await deleteDoc(sourceDocRef); 

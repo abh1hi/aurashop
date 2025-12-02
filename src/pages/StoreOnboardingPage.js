@@ -8,7 +8,7 @@ import vendorCats from '../../vendorcat.json';
 export function useStoreOnboardingLogic() {
     const router = useRouter();
     const route = useRoute();
-    const { createStore, updateStore, uploadKYC, submitForReview, loading } = useVendor();
+    const { createStore, updateStore, uploadKYC, submitForReview, loading, fetchUserKYC } = useVendor();
     const { user, setupRecaptcha, linkWithPhone } = useAuth();
     const { showToast } = useToast();
 
@@ -47,12 +47,33 @@ export function useStoreOnboardingLogic() {
 
     const isPhoneVerified = computed(() => !!user.value?.phoneNumber);
 
+    const existingKYC = ref(null);
+    const useExistingKYC = ref(false);
+
     const isNextDisabled = computed(() => {
         if (currentStep.value === 2 && !isPhoneVerified.value) return true;
-        if (currentStep.value === 3 && (!videoFile.value || !docFile.value)) return true;
+        if (currentStep.value === 3) {
+            if (useExistingKYC.value) return !existingKYC.value;
+            return (!videoFile.value || !docFile.value);
+        }
         if (currentStep.value === 4 && !formData.category) return true;
         return false;
     });
+
+    onMounted(async () => {
+        if (user.value?.phoneNumber) {
+            formData.phone = user.value.phoneNumber;
+        }
+        const kyc = await fetchUserKYC();
+        if (kyc) {
+            existingKYC.value = kyc;
+            useExistingKYC.value = true; // Default to using existing if available
+        }
+    });
+
+    const toggleExistingKYC = () => {
+        useExistingKYC.value = !useExistingKYC.value;
+    };
 
     const onPhoneValidate = (phoneObject) => {
         isValidPhone.value = phoneObject.valid;
@@ -117,12 +138,6 @@ export function useStoreOnboardingLogic() {
         return options;
     });
 
-    onMounted(() => {
-        if (user.value?.phoneNumber) {
-            formData.phone = user.value.phoneNumber;
-        }
-    });
-
     const sendVerificationCode = async () => {
         if (!formData.phone) return;
         verifying.value = true;
@@ -156,12 +171,19 @@ export function useStoreOnboardingLogic() {
         }
     };
 
+    const steps = [
+        { label: "Welcome", description: "Get started" },
+        { label: "Store Basics", description: "Name & Phone" },
+        { label: "Identity", description: "KYC Verification" },
+        { label: "Category", description: "What you sell" },
+        { label: "Details", description: "Location & Hours" },
+        { label: "Bank Info", description: "For Payouts" },
+        { label: "Branding", description: "Logo & Banner" },
+        { label: "Review", description: "Submit" }
+    ];
+
     const getStepTitle = (step) => {
-        const titles = [
-            "Welcome", "Store Basics", "Identity Verification", "Select Category",
-            "Store Details", "Bank Information", "Branding", "Review"
-        ];
-        return titles[step - 1];
+        return steps[step - 1]?.label || "";
     };
 
     const getStepDescription = (step) => {
@@ -197,7 +219,13 @@ export function useStoreOnboardingLogic() {
                     }
                     break;
                 case 3: // KYC
-                    if (videoFile.value && docFile.value) {
+                    if (useExistingKYC.value && existingKYC.value) {
+                        await updateStore(storeId.value, {
+                            kycVideoUrl: existingKYC.value.videoUrl,
+                            kycDocUrl: existingKYC.value.docUrl,
+                            kycStatus: 'submitted'
+                        });
+                    } else if (videoFile.value && docFile.value) {
                         try {
                             const { videoUrl, docUrl } = await uploadKYC(videoFile.value, docFile.value);
                             await updateStore(storeId.value, {
@@ -277,6 +305,10 @@ export function useStoreOnboardingLogic() {
         nextStep,
         prevStep,
         handleNext,
-        getCategoryName
+        getCategoryName,
+        existingKYC,
+        useExistingKYC,
+        toggleExistingKYC,
+        steps
     };
 }

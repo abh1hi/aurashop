@@ -1,18 +1,64 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 12, 30);
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isVendor() {
+      // Check if user has vendor claim or field (adjust based on actual implementation)
+      // For now, we'll rely on the store ownership check which implicitly implies vendor status
+      return isAuthenticated(); 
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      // Only admins can delete users (if applicable)
+    }
+
+    // Stores Collection
+    match /stores/{storeId} {
+      allow read: if true; // Public stores
+      allow create: if isAuthenticated(); // Any auth user can create a store (become vendor)
+      allow update: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // Products Collection
+    match /products/{productId} {
+      allow read: if true; // Public products
+      
+      allow create: if isAuthenticated() 
+                    && get(/databases/$(database)/documents/stores/$(request.resource.data.storeId)).data.ownerId == request.auth.uid;
+                    
+      allow update: if isAuthenticated() 
+                    && get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid;
+                    
+      allow delete: if isAuthenticated() 
+                    && get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid;
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      allow create: if isAuthenticated(); // Customers create orders
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid || // Customer
+        get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid // Vendor
+      );
+      allow update: if isAuthenticated() && (
+        // Vendor updating status
+        get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid
+      );
     }
   }
 }

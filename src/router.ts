@@ -3,6 +3,7 @@ import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
 import HomePage from './pages/HomePage.vue';
 import MapPage from './pages/MapPage.vue';
 import LoginPage from './pages/LoginPage.vue';
+import { useAdmin } from './composables/useAdmin';
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -75,6 +76,103 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/vendor/store/:id/dashboard',
+        name: 'StoreDashboard',
+        component: () => import('./pages/StoreDashboardPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/vendor/store/:id/settings',
+        name: 'StoreSettings',
+        component: () => import('./pages/StoreSettingsPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/vendor/store/:id/add-product',
+        name: 'AddProduct',
+        component: () => import('./pages/AddProductPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/vendor/store/:id/orders',
+        name: 'StoreOrders',
+        component: () => import('./pages/StoreOrdersPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/vendor/store/:id/orders/:orderId',
+        name: 'StoreOrderDetails',
+        component: () => import('./pages/StoreOrderDetailsPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/vendor/store/:id/marketing',
+        name: 'StoreMarketing',
+        component: () => import('./pages/StoreMarketingPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/vendor/store/:id/analytics',
+        name: 'StoreAnalytics',
+        component: () => import('./pages/StoreAnalyticsPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/vendor/store/:id/products',
+        name: 'StoreProducts',
+        component: () => import('./pages/StoreProductsPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/vendor/store/:id/products/:productId/edit',
+        name: 'EditProduct',
+        component: () => import('./pages/EditProductPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    // Admin Routes
+    {
+        path: '/admin',
+        name: 'AdminDashboard',
+        component: () => import('./Admin_Pages/Dashboard/AdminDashboard.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/users',
+        name: 'UserManagement',
+        component: () => import('./Admin_Pages/Users/UserManagement.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/vendors',
+        name: 'VendorManagement',
+        component: () => import('./Admin_Pages/Vendors/VendorManagement.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/stores',
+        name: 'StoreManagement',
+        component: () => import('./Admin_Pages/Stores/StoreManagement.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/team',
+        name: 'TeamPage',
+        component: () => import('./Admin_Pages/Team/TeamPage.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/settings',
+        name: 'SettingsPage',
+        component: () => import('./Admin_Pages/Settings/SettingsPage.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/kyc',
+        name: 'KYCRequests',
+        component: () => import('./Admin_Pages/KYC/KYCRequests.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'Error',
         component: () => import('./pages/ErrorPage.vue')
@@ -99,10 +197,26 @@ const getCurrentUser = (): Promise<User | null> => {
     });
 };
 
-router.beforeEach(async (to, from, next) => {
-    if (to.matched.some((record) => record.meta.requiresAuth)) {
-        if (await getCurrentUser()) {
-            next();
+router.beforeEach(async (to, _from, next) => {
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+    const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin);
+
+    if (requiresAuth) {
+        const user = await getCurrentUser();
+        if (user) {
+            if (requiresAdmin) {
+                const { checkAdminStatus, isAdmin } = useAdmin();
+                // We need to wait for the check
+                await checkAdminStatus();
+                if (isAdmin.value) {
+                    next();
+                } else {
+                    // Not admin, redirect to home or error
+                    next('/');
+                }
+            } else {
+                next();
+            }
         } else {
             next('/login');
         }

@@ -1,8 +1,9 @@
 import { ref } from 'vue';
-import { doc, setDoc, updateDoc, collection, addDoc, getDocs, getDoc, deleteDoc, query, where, serverTimestamp, arrayUnion } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, collection, addDoc, getDocs, getDoc, deleteDoc, query, where, serverTimestamp, arrayUnion, onSnapshot, limit } from 'firebase/firestore';
 import { db, storage } from '../firebase';
 import { ref as refStorage, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from './useAuth';
+import { compressImage } from '../utils/imageOptimizer';
 
 const loading = ref(false);
 const error = ref<string | null>(null);
@@ -104,6 +105,18 @@ export function useVendor() {
                 uploadFile(docFile, docPath)
             ]);
 
+            // Save to user profile for future reuse
+            const userRef = doc(db, 'users', user.value.uid);
+            await updateDoc(userRef, {
+                kycDocuments: {
+                    videoUrl,
+                    docUrl,
+                    videoName: videoFile.name,
+                    docName: docFile.name,
+                    uploadedAt: serverTimestamp()
+                }
+            });
+
             return { videoUrl, docUrl };
         } catch (e: any) {
             console.error('Error uploading KYC:', e);
@@ -111,6 +124,52 @@ export function useVendor() {
             throw e;
         } finally {
             loading.value = false;
+        }
+    };
+
+    const fetchUserKYC = async () => {
+        if (!user.value) return null;
+        try {
+            const userRef = doc(db, 'users', user.value.uid);
+            const snap = await getDoc(userRef);
+
+            // 1. Try to get from user profile
+            if (snap.exists() && snap.data().kycDocuments) {
+                return snap.data().kycDocuments;
+            }
+
+            // 2. Fallback: Check existing stores (Legacy support)
+            const storesRef = collection(db, 'stores');
+            const q = query(
+                storesRef,
+                where('ownerId', '==', user.value.uid),
+                where('kycStatus', '==', 'submitted'),
+                limit(1)
+            );
+            const storeSnap = await getDocs(q);
+
+            if (!storeSnap.empty) {
+                const storeData = storeSnap.docs[0].data();
+                if (storeData.kycVideoUrl && storeData.kycDocUrl) {
+                    const kycData = {
+                        videoUrl: storeData.kycVideoUrl,
+                        docUrl: storeData.kycDocUrl,
+                        videoName: 'Existing Video', // Fallback name
+                        docName: 'Existing Document', // Fallback name
+                        uploadedAt: serverTimestamp()
+                    };
+
+                    // Migrate to user profile for future
+                    await updateDoc(userRef, { kycDocuments: kycData });
+
+                    return kycData;
+                }
+            }
+
+            return null;
+        } catch (e) {
+            console.error('Error fetching user KYC:', e);
+            return null;
         }
     };
 
@@ -137,7 +196,7 @@ export function useVendor() {
         loading.value = true;
         try {
             const storeRef = doc(db, 'stores', storeId);
-            const snap = await getDoc(storeRef); // Need to import getDoc
+            const snap = await getDoc(storeRef);
             if (snap.exists()) {
                 return { id: snap.id, ...snap.data() };
             }
@@ -148,6 +207,15 @@ export function useVendor() {
         } finally {
             loading.value = false;
         }
+    };
+
+    const subscribeToStore = (storeId: string, callback: (data: any) => void) => {
+        const storeRef = doc(db, 'stores', storeId);
+        return onSnapshot(storeRef, (doc) => {
+            if (doc.exists()) {
+                callback({ id: doc.id, ...doc.data() });
+            }
+        });
     };
 
     const fetchMyStores = async () => {
@@ -165,6 +233,16 @@ export function useVendor() {
         } finally {
             loading.value = false;
         }
+    };
+
+    const subscribeToMyStores = (callback: (stores: any[]) => void) => {
+        if (!user.value) return () => { };
+        const storesRef = collection(db, 'stores');
+        const q = query(storesRef, where('ownerId', '==', user.value.uid));
+        return onSnapshot(q, (snapshot) => {
+            const stores = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            callback(stores);
+        });
     };
 
     const deleteStore = async (storeId: string) => {
@@ -197,6 +275,192 @@ export function useVendor() {
         }
     };
 
+    const fetchStoreStats = async (storeId: string) => {
+        if (!user.value) return null;
+        loading.value = true;
+        try {
+            // In a real app with many items, use aggregation queries or counters
+            const productsRef = collection(db, 'products');
+            const productsQ = query(productsRef, where('storeId', '==', storeId));
+            const productsSnap = await getDocs(productsQ);
+            const productCount = productsSnap.size;
+
+            const ordersRef = collection(db, 'orders');
+            const ordersQ = query(ordersRef, where('storeId', '==', storeId));
+            const ordersSnap = await getDocs(ordersQ);
+            const orderCount = ordersSnap.size;
+
+            // Calculate total sales
+            let totalSales = 0;
+            ordersSnap.forEach(doc => {
+                const data = doc.data();
+                totalSales += (data.totalAmount || 0);
+            });
+
+            // Store views (assuming it's a field on the store doc, fetched separately or passed in)
+            // For now, we'll return what we calculated
+            return {
+                products: productCount,
+                orders: orderCount,
+                sales: totalSales,
+                views: 0 // Placeholder or fetch from store doc if it exists
+            };
+        } catch (e: any) {
+            console.error('Error fetching store stats:', e);
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const createProduct = async (storeId: string, productData: any, images: File[]) => {
+        if (!user.value) throw new Error("User not authenticated");
+        loading.value = true;
+        error.value = null;
+
+        try {
+            // 1. Upload Images
+            const imageUrls: string[] = [];
+            const timestamp = Date.now();
+
+            for (let i = 0; i < images.length; i++) {
+                const file = images[i];
+                // Compress image before upload
+                const compressedFile = await compressImage(file);
+                const path = `products/${storeId}/${timestamp}_${i}_${file.name}`;
+                const url = await uploadFile(compressedFile, path);
+                imageUrls.push(url);
+            }
+
+            // 2. Create Product Document
+            const productsRef = collection(db, 'products');
+            const newProduct = {
+                storeId,
+                ...productData,
+                images: imageUrls,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                status: 'active',
+                rating: 0,
+                reviewCount: 0,
+                views: 0,
+                sales: 0
+            };
+
+            const docRef = await addDoc(productsRef, newProduct);
+            return docRef.id;
+        } catch (e: any) {
+            console.error('Error creating product:', e);
+            error.value = e.message;
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const fetchProducts = async (storeId: string) => {
+        loading.value = true;
+        try {
+            const productsRef = collection(db, 'products');
+            const q = query(productsRef, where('storeId', '==', storeId));
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e: any) {
+            console.error('Error fetching products:', e);
+            return [];
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const getProduct = async (productId: string) => {
+        loading.value = true;
+        try {
+            const productRef = doc(db, 'products', productId);
+            const snap = await getDoc(productRef);
+            if (snap.exists()) {
+                return { id: snap.id, ...snap.data() };
+            }
+            return null;
+        } catch (e: any) {
+            console.error('Error fetching product:', e);
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const updateProduct = async (productId: string, data: any, newImages?: File[]) => {
+        if (!user.value) return;
+        loading.value = true;
+        try {
+            const productRef = doc(db, 'products', productId);
+
+            let updatedData = { ...data, updatedAt: serverTimestamp() };
+
+            // Handle new images if provided
+            if (newImages && newImages.length > 0) {
+                const currentDoc = await getDoc(productRef);
+                const currentData = currentDoc.data();
+                const storeId = currentData?.storeId;
+
+                const imageUrls: string[] = [];
+                const timestamp = Date.now();
+
+                for (let i = 0; i < newImages.length; i++) {
+                    const file = newImages[i];
+                    const path = `products/${storeId}/${timestamp}_${i}_${file.name}`;
+                    const url = await uploadFile(file, path);
+                    imageUrls.push(url);
+                }
+
+                // Append new images to existing ones or replace? 
+                // For now, let's assume we append. The UI should handle removal separately.
+                updatedData.images = arrayUnion(...imageUrls);
+            }
+
+            await updateDoc(productRef, updatedData);
+        } catch (e: any) {
+            console.error('Error updating product:', e);
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const deleteProduct = async (productId: string) => {
+        if (!user.value) return;
+        loading.value = true;
+        try {
+            await deleteDoc(doc(db, 'products', productId));
+        } catch (e: any) {
+            console.error('Error deleting product:', e);
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const fetchStoreOrders = async (storeId: string, limitCount = 5) => {
+        if (!user.value) return [];
+        loading.value = true;
+        try {
+            const ordersRef = collection(db, 'orders');
+            // Assuming 'createdAt' field exists
+            const q = query(ordersRef, where('storeId', '==', storeId), limit(limitCount));
+            // Note: Composite index might be needed for ordering by date with filter
+            // const q = query(ordersRef, where('storeId', '==', storeId), orderBy('createdAt', 'desc'), limit(limitCount));
+
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e: any) {
+            console.error('Error fetching store orders:', e);
+            return [];
+        } finally {
+            loading.value = false;
+        }
+    };
+
     return {
         loading,
         error,
@@ -208,6 +472,17 @@ export function useVendor() {
         getStore,
         fetchMyStores,
         deleteStore,
-        toggleStoreStatus
+        toggleStoreStatus,
+        subscribeToStore,
+        subscribeToMyStores,
+        fetchStoreStats,
+        fetchStoreOrders,
+        createProduct,
+        fetchProducts,
+        getProduct,
+        updateProduct,
+        deleteProduct,
+        uploadFile,
+        fetchUserKYC
     };
 }

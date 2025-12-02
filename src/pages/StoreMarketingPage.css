@@ -1,0 +1,314 @@
+.page-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-color);
+    background-image: var(--gradient-mesh);
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.main-content {
+    flex: 1;
+    padding: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    margin-bottom: 24px;
+    font-weight: 600;
+    width: fit-content;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--primary-color);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.marketing-section {
+    margin-bottom: 48px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.section-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+/* Campaigns Grid */
+.campaigns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.campaign-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(var(--glass-blur));
+    box-shadow: var(--glass-shadow);
+}
+
+.campaign-card:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.6);
+    border-color: var(--primary-pastel);
+}
+
+.campaign-image {
+    height: 120px;
+    background: linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.campaign-image .material-icons-round {
+    font-size: 48px;
+    opacity: 0.8;
+}
+
+.campaign-badge {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.campaign-badge.active {
+    color: #059669;
+}
+
+.campaign-content h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.campaign-content p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.campaign-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+}
+
+.campaign-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.campaign-meta .material-icons-round {
+    font-size: 16px;
+}
+
+.campaign-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--primary-color);
+}
+
+/* Add New Card */
+.campaign-card.add-new {
+    border: 2px dashed var(--glass-border);
+    background: transparent;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    min-height: 300px;
+}
+
+.campaign-card.add-new:hover {
+    border-color: var(--primary-pastel);
+    background: rgba(var(--primary-rgb), 0.05);
+}
+
+.add-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    margin-bottom: 16px;
+    box-shadow: var(--glass-shadow);
+}
+
+/* Coupons List */
+.coupons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.coupon-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+}
+
+.coupon-item:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.coupon-code {
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    background: rgba(var(--primary-rgb), 0.1);
+    padding: 6px 12px;
+    border-radius: 8px;
+    letter-spacing: 1px;
+}
+
+.coupon-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.discount {
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.usage {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.coupon-status {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.coupon-status.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.coupon-status.expired {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+}
+
+.icon-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+@media (max-width: 640px) {
+    .main-content {
+        padding: 16px;
+    }
+
+    .campaigns-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .coupon-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .coupon-status {
+        align-self: flex-start;
+    }
+
+    .icon-btn.delete {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+    }
+
+    .coupon-item {
+        position: relative;
+    }
+}

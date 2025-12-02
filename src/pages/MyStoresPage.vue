@@ -58,7 +58,10 @@
             
             <div class="card-actions">
               <button class="action-btn" @click="handleEdit(store)">
-                <span class="material-icons-round">edit</span>
+                <span class="material-icons-round">dashboard</span>
+              </button>
+              <button class="action-btn" @click="handleSettings(store)">
+                <span class="material-icons-round">settings</span>
               </button>
               <button class="action-btn delete" @click="handleDelete(store)">
                 <span class="material-icons-round">delete</span>
@@ -103,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import AppHeader from '../components/AppHeader.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
@@ -114,22 +117,25 @@ import { useVendor } from '../composables/useVendor';
 import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
 
 const router = useRouter();
-const { fetchMyStores, deleteStore, toggleStoreStatus, createStore } = useVendor();
+const { fetchMyStores, deleteStore, toggleStoreStatus, createStore, subscribeToMyStores } = useVendor();
 const { showToast } = useToast();
 
 const stores = ref([]);
 const loading = ref(true);
 const activeTab = ref('All');
+let unsubscribe = null;
 
 onMounted(async () => {
-  await loadStores();
+  loading.value = true;
+  unsubscribe = subscribeToMyStores((updatedStores) => {
+    stores.value = updatedStores;
+    loading.value = false;
+  });
 });
 
-const loadStores = async () => {
-  loading.value = true;
-  stores.value = await fetchMyStores();
-  loading.value = false;
-};
+onUnmounted(() => {
+  if (unsubscribe) unsubscribe();
+});
 
 const filteredStores = computed(() => {
   if (activeTab.value === 'All') return stores.value;
@@ -154,9 +160,12 @@ const handleEdit = (store) => {
   if (store.status === 'draft') {
     router.push(`/vendor/store/${store.id}/onboarding`);
   } else {
-    // Future: Go to Store Dashboard
-    showToast('Store Dashboard coming soon!', 'info');
+    router.push(`/vendor/store/${store.id}/dashboard`);
   }
+};
+
+const handleSettings = (store) => {
+  router.push(`/vendor/store/${store.id}/settings`);
 };
 
 const handleDelete = async (store) => {
@@ -187,7 +196,7 @@ const toggleStatus = async (store) => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f8f9fa;
+  background: var(--bg-color);
 }
 
 .main-content {
@@ -246,7 +255,7 @@ const toggleStatus = async (store) => {
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  background: #f0f2f5;
+  background: var(--secondary-pastel);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -268,6 +277,7 @@ const toggleStatus = async (store) => {
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 4px;
+  color: var(--text-color);
 }
 
 .store-meta {
@@ -281,13 +291,13 @@ const toggleStatus = async (store) => {
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 4px;
-  background: #e2e8f0;
+  background: var(--glass-border);
   color: var(--text-secondary);
 }
 
-.status-badge.active { background: #d1fae5; color: #065f46; }
-.status-badge.pending { background: #fef3c7; color: #92400e; }
-.status-badge.draft { background: #f3f4f6; color: #4b5563; }
+.status-badge.active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.status-badge.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.status-badge.draft { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
 
 .rating {
   display: flex;
@@ -323,12 +333,12 @@ const toggleStatus = async (store) => {
 }
 
 .action-btn:hover {
-  background: rgba(0,0,0,0.05);
-  color: var(--primary-color);
+  background: var(--glass-bg);
+  color: var(--primary-text);
 }
 
 .action-btn.delete:hover {
-  background: #fee2e2;
+  background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
 }
 
@@ -337,7 +347,7 @@ const toggleStatus = async (store) => {
   justify-content: space-between;
   align-items: center;
   padding-top: 16px;
-  border-top: 1px solid rgba(0,0,0,0.05);
+  border-top: 1px solid var(--glass-border);
 }
 
 .toggle-wrapper {
@@ -373,7 +383,7 @@ const toggleStatus = async (store) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--text-disabled);
   transition: .4s;
 }
 
@@ -389,7 +399,7 @@ const toggleStatus = async (store) => {
 }
 
 input:checked + .slider {
-  background-color: var(--primary-color);
+  background-color: var(--primary-pastel);
 }
 
 input:checked + .slider:before {
@@ -425,8 +435,8 @@ input:checked + .slider:before {
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid rgba(0,0,0,0.1);
-  border-top-color: var(--primary-color);
+  border: 3px solid var(--glass-border);
+  border-top-color: var(--primary-pastel);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

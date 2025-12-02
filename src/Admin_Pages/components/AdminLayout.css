@@ -1,0 +1,83 @@
+/* Base Layout */
+.admin-layout {
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    position: relative;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
+}
+
+/* Sidebar Wrapper - Desktop Default */
+.sidebar-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 50;
+    background-color: white;
+    border-right: 1px solid #e5e7eb;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Main Content - Desktop Default */
+.main-content {
+    margin-left: 280px;
+    /* Match sidebar width */
+    width: calc(100% - 280px);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 48px;
+    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+/* Mobile Overlay */
+.mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    display: none;
+    /* Hidden on desktop */
+}
+
+/* Responsive Styles (Tablets and Mobile) */
+@media (max-width: 1024px) {
+
+    /* Sidebar becomes off-canvas */
+    .sidebar-wrapper {
+        transform: translateX(-100%);
+        /* Hidden by default */
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+        /* Shadow when open */
+    }
+
+    .sidebar-wrapper.open {
+        transform: translateX(0);
+        /* Slide in */
+    }
+
+    /* Main Content takes full width */
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 24px;
+    }
+
+    /* Show overlay when sidebar is open */
+    .mobile-overlay {
+        display: block;
+        /* Only visible when needed via v-if in Vue, but CSS allows it */
+    }
+}
+
+/* Mobile Specific Adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 16px;
+    }
+}

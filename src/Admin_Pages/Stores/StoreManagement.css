@@ -1,0 +1,42 @@
+/* Reusing styles from UserManagement.css */
+.store-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.store-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    object-fit: cover;
+}
+
+.store-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+}
+
+.store-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.store-name {
+    font-weight: 600;
+    color: #111827;
+}
+
+.store-category {
+    font-size: 12px;
+    color: #6b7280;
+}
