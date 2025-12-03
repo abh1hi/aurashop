@@ -23,7 +23,20 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.auth.uid == userId;
       allow update: if isAuthenticated() && request.auth.uid == userId;
-      // Only admins can delete users (if applicable)
+      
+      // Subcollections
+      match /cart/{itemId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /wishlist/{itemId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /tracking_sessions/{sessionId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // Stores Collection
@@ -38,11 +51,46 @@ service cloud.firestore {
     match /products/{productId} {
       allow read: if true; // Public products
       
+      function isValidProduct() {
+        let data = request.resource.data;
+        
+        // Basic Type Checks
+        let hasBasicFields = data.name is string 
+                          && data.storeId is string
+                          && data.price is number
+                          && data.category is string;
+                          
+        // Status Check
+        let isValidStatus = data.status in ['active', 'draft', 'archived'];
+        
+        // Draft Mode: Minimal validation
+        let isDraft = data.status == 'draft';
+        
+        // Active Mode: Strict validation
+        let isActiveValid = data.status == 'active' 
+                          && data.price >= 0
+                          && data.stock is number && data.stock >= 0
+                          && data.images is list && data.images.size() > 0
+                          && data.description is string && data.description.size() > 0;
+
+        // New Fields Validation (Optional but must be correct type if present)
+        let hasValidExtras = (!('subCategory' in data) || data.subCategory is string)
+                          && (!('brand' in data) || data.brand is string)
+                          && (!('tags' in data) || data.tags is list)
+                          && (!('costPrice' in data) || data.costPrice is number)
+                          && (!('variants' in data) || data.variants is list)
+                          && (!('seo' in data) || data.seo is map);
+
+        return hasBasicFields && isValidStatus && (isDraft || isActiveValid) && hasValidExtras;
+      }
+
       allow create: if isAuthenticated() 
-                    && get(/databases/$(database)/documents/stores/$(request.resource.data.storeId)).data.ownerId == request.auth.uid;
+                    && get(/databases/$(database)/documents/stores/$(request.resource.data.storeId)).data.ownerId == request.auth.uid
+                    && isValidProduct();
                     
       allow update: if isAuthenticated() 
-                    && get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid;
+                    && get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid
+                    && isValidProduct();
                     
       allow delete: if isAuthenticated() 
                     && get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid;

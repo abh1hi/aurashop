@@ -15,6 +15,7 @@ export function useProfilePage() {
     const isAnonymous = ref(false); // This should be computed from user but ref for now to match usage
     const showAddressBookSheet = ref(false);
     const themeCategory = ref('standard');
+    const activeTab = ref('overview');
 
     const standardThemes = [
         { label: 'Chic (Default)', value: 'chic', icon: 'palette' },
@@ -33,6 +34,9 @@ export function useProfilePage() {
         { label: 'Aurora', value: 'aurora', icon: 'auto_awesome' },
         { label: 'Obsidian', value: 'obsidian', icon: 'volcano' },
         { label: 'Prism', value: 'prism', icon: 'looks' },
+        { label: 'Midnight', value: 'midnight', icon: 'nights_stay' },
+        { label: 'Deep Space', value: 'deep-space', icon: 'rocket_launch' },
+        { label: 'Cyberpunk', value: 'cyberpunk', icon: 'bolt' },
     ];
 
     const filteredThemeOptions = computed(() => {
@@ -90,6 +94,24 @@ export function useProfilePage() {
         }
     };
 
+    const getTabIcon = (tab) => {
+        const icons = {
+            overview: 'dashboard',
+            orders: 'shopping_bag',
+            settings: 'settings'
+        };
+        return icons[tab] || 'circle';
+    };
+
+    const getTabLabel = (tab) => {
+        const labels = {
+            overview: 'Overview',
+            orders: 'Order History',
+            settings: 'Settings'
+        };
+        return labels[tab] || 'Tab';
+    };
+
     return {
         router,
         userProfile,
@@ -109,6 +131,9 @@ export function useProfilePage() {
         toggleLiquidAnimations,
         setTheme,
         themeCategory,
-        filteredThemeOptions
+        filteredThemeOptions,
+        activeTab,
+        getTabIcon,
+        getTabLabel
     };
 }

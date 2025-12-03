@@ -17,6 +17,11 @@ const routes: Array<RouteRecordRaw> = [
         component: MapPage
     },
     {
+        path: '/product/:id',
+        name: 'ProductDetails',
+        component: () => import('./pages/ProductDetailsPage.vue')
+    },
+    {
         path: '/login',
         name: 'Login',
         component: LoginPage

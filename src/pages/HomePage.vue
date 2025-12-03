@@ -6,7 +6,7 @@
       <!-- Mobile Search (Hide on Desktop) -->
       <div class="search-bar mobile-only">
         <LiquidInput 
-            placeholder="ruched top" 
+            placeholder="Search products..." 
             icon="search" 
             icon-position="left" 
             search 
@@ -15,68 +15,128 @@
         <LiquidButton icon="tune" type="primary" class="filter-btn-override" />
       </div>
 
-      <section class="hero-section">
-        <div class="hero-content">
-          <LiquidButton text="New Collection" type="primary" size="sm" class="mb-sm" />
-          <h1 class="hero-title">Enjoy 30% Discount</h1>
-          <LiquidButton text="Shop Now" icon="north_east" icon-position="right" type="glass" size="md" />
-          <div class="flash-sale">
-            <span class="flash-text">Flash sale ends</span>
-            <div class="countdown">
-              <span class="time-box">03</span><span class="time-sep">:</span>
-              <span class="time-box">15</span><span class="time-sep">:</span>
-              <span class="time-box">20</span>
+      <!-- Hero Section (Split Grid on Desktop) -->
+      <section class="hero-wrapper">
+        <!-- Main Hero Slider -->
+        <div class="hero-main">
+            <div class="hero-content">
+              <LiquidButton text="New Collection" type="primary" size="sm" class="mb-sm" />
+              <h1 class="hero-title">iPhone 16 Pro Max</h1>
+              <p class="hero-subtitle">Titanium. So strong. So light. So Pro.</p>
+              <LiquidButton text="Shop Now" icon="north_east" icon-position="right" type="glass" size="md" />
             </div>
-          </div>
+            <img src="https://i.imgur.com/3g202p9.png" alt="Hero Product" class="hero-image" />
         </div>
-        <img src="https://i.imgur.com/3g202p9.png" alt="Fashion model" class="hero-image" />
+        
+        <!-- Side Banner (Desktop Only) -->
+        <div class="hero-side desktop-only">
+            <div class="side-banner-content">
+                <span class="sale-tag">SALE</span>
+                <h3 class="side-title">Up to 50% Off</h3>
+                <p class="side-desc">On selected running shoes</p>
+                <LiquidButton text="View Offers" type="ghost" size="sm" />
+            </div>
+            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80" alt="Sale" class="side-image" />
+        </div>
       </section>
 
-      <div class="slider-dots mobile-only">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-      </div>
-
+      <!-- Categories (Circular) -->
       <section class="categories-section">
         <div class="section-header">
-          <h3 class="section-title">Shop by Categories</h3>
-          <a href="#" class="see-all-link">See All</a>
+          <h3 class="section-title">Explore Popular Categories</h3>
+          <a href="#" class="see-all-link">View All</a>
         </div>
-        <div class="category-grid">
-          <div v-for="category in categories" :key="category.name" class="category-item">
-            <div class="category-icon">
-              <img :src="category.icon" :alt="category.name">
+        <div class="category-scroll">
+          <div v-for="category in categories" :key="category.name" class="category-circle-item">
+            <div class="category-circle">
+              <img :src="category.image" :alt="category.name">
             </div>
-            <span class="category-name">{{ category.name }}</span>
+            <span class="category-label">{{ category.name }}</span>
           </div>
         </div>
       </section>
 
-    <!-- On Sale Section -->
-    <section class="on-sale-section">
-      <div class="section-header">
-        <h2 class="section-title">On Sale</h2>
-        <LiquidButton text="View All" type="ghost" size="sm" icon="arrow_forward" />
+      <!-- Micro Sections: Countdown & Coupons -->
+      <div class="micro-section-row">
+          <SeasonCountdown />
+          <CouponCarousel />
       </div>
-      <div class="product-grid">
-        <ProductCard 
-          v-for="product in onSaleProducts" 
-          :key="product.id" 
-          :product="product" 
-        />
-      </div>
-    </section>
 
-    <!-- New Sections -->
-    <FlashSaleSection />
-    <TrendingSection />
-    <CampaignBanner />
-    <LifestyleCollections />
-    <BrandsSection />
-    <FooterSection />
+      <!-- Flash Sale (Today's Best Deals) -->
+      <FlashSaleSection />
 
-    <!-- Bottom Navigation (Mobile) -->
+      <!-- 3-Column Banner Grid -->
+      <section class="banner-grid-section">
+        <div class="banner-grid">
+            <div class="promo-card bg-vegetable">
+                <div class="promo-content">
+                    <span class="promo-tag">Fresh & Healthy</span>
+                    <h3>Vegetables</h3>
+                    <span class="promo-discount">30% OFF</span>
+                    <LiquidButton text="Shop Now" type="primary" size="sm" />
+                </div>
+                <img src="https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?auto=format&fit=crop&w=300&q=80" class="promo-img" />
+            </div>
+            <div class="promo-card bg-tech">
+                <div class="promo-content">
+                    <span class="promo-tag">Samsung</span>
+                    <h3>Galaxy S24 FE</h3>
+                    <p>Galaxy AI is here</p>
+                    <LiquidButton text="Pre-order" type="primary" size="sm" />
+                </div>
+                <img src="https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=300&q=80" class="promo-img" />
+            </div>
+            <div class="promo-card bg-red">
+                <div class="promo-content text-white">
+                    <h3>Special Offer</h3>
+                    <p>Gift sets for everyone</p>
+                    <LiquidButton text="Explore" type="glass" size="sm" />
+                </div>
+                <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=300&q=80" class="promo-img" />
+            </div>
+        </div>
+      </section>
+
+      <!-- Trending & Price Drops -->
+      <TrendingSection />
+      <PriceDropList />
+
+      <!-- Aura AI Section -->
+      <section class="ai-section glass-panel">
+        <div class="ai-content">
+            <div class="ai-badge">
+                <span class="material-icons-round">auto_awesome</span>
+                Aura AI
+            </div>
+            <h2>AI-Powered Shopping Experience</h2>
+            <div class="ai-search-bar">
+                <input type="text" placeholder="Ask Aura: 'Show me outfit ideas for a summer wedding'" />
+                <button class="ai-btn"><span class="material-icons-round">send</span></button>
+            </div>
+            <div class="ai-tags">
+                <span>#SummerOutfit</span>
+                <span>#TechGifts</span>
+                <span>#HomeDecor</span>
+            </div>
+        </div>
+        <div class="ai-visuals mobile-hidden">
+            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=400&q=80" class="ai-img-1" />
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=80" class="ai-img-2" />
+        </div>
+      </section>
+
+      <!-- Rest of Sections -->
+      <BackInStockList />
+      <CampaignBanner />
+      <FollowedBrands />
+      <LifestyleCollections />
+      <TrendingAccessories />
+      <ShopByColor />
+      <ShopBySize />
+      <ShopByRating />
+      <BrandsSection />
+      <FooterSection />
+
     </main>
     <BottomNavBar />
   </div>
@@ -95,6 +155,15 @@ import BrandsSection from '../components/sections/BrandsSection.vue';
 import FooterSection from '../components/sections/FooterSection.vue';
 import CampaignBanner from '../components/sections/CampaignBanner.vue';
 import LifestyleCollections from '../components/sections/LifestyleCollections.vue';
+import SeasonCountdown from '../components/sections/SeasonCountdown.vue';
+import CouponCarousel from '../components/sections/CouponCarousel.vue';
+import PriceDropList from '../components/sections/PriceDropList.vue';
+import BackInStockList from '../components/sections/BackInStockList.vue';
+import FollowedBrands from '../components/sections/FollowedBrands.vue';
+import TrendingAccessories from '../components/sections/TrendingAccessories.vue';
+import ShopByColor from '../components/sections/ShopByColor.vue';
+import ShopBySize from '../components/sections/ShopBySize.vue';
+import ShopByRating from '../components/sections/ShopByRating.vue';
 import { cacheManager } from '../utils/cacheManager';
 
 const categories = ref([]);
@@ -118,8 +187,11 @@ const MOCK_PRODUCTS = [
     originalPrice: 45.99,
     image: 'https://images.unsplash.com/photo-1564257631407-4deb1f99d992?auto=format&fit=crop&w=800&q=80',
     rating: 4.5,
-    reviews: 120,
-    isOnSale: true
+    reviewCount: 120,
+    isOnSale: true,
+    colors: ['#D2B48C', '#000000', '#FFFFFF'],
+    sizes: ['S', 'M', 'L'],
+    isBestSeller: true
   },
   {
     id: 2,
@@ -129,8 +201,11 @@ const MOCK_PRODUCTS = [
     originalPrice: 59.99,
     image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80',
     rating: 4.2,
-    reviews: 85,
-    isOnSale: true
+    reviewCount: 85,
+    isOnSale: true,
+    colors: ['#F5F5DC', '#808080'],
+    sizes: ['M', 'L', 'XL'],
+    isNew: true
   },
   {
     id: 3,
@@ -140,8 +215,11 @@ const MOCK_PRODUCTS = [
     originalPrice: 69.99,
     image: 'https://images.unsplash.com/photo-1551852335-8069436d262e?auto=format&fit=crop&w=800&q=80',
     rating: 4.7,
-    reviews: 200,
-    isOnSale: true
+    reviewCount: 200,
+    isOnSale: true,
+    colors: ['#556B2F', '#000000'],
+    sizes: ['30', '32', '34', '36'],
+    isBestSeller: true
   },
   {
     id: 4,
@@ -151,8 +229,11 @@ const MOCK_PRODUCTS = [
     originalPrice: 119.99,
     image: 'https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?auto=format&fit=crop&w=800&q=80',
     rating: 4.8,
-    reviews: 310,
-    isOnSale: true
+    reviewCount: 310,
+    isOnSale: true,
+    colors: ['#1E90FF', '#000080'],
+    sizes: ['S', 'M', 'L', 'XL'],
+    isNew: true
   }
 ];
 

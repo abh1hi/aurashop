@@ -61,8 +61,4 @@ const close = () => {
 
 <style scoped>
 @import './LiquidActionSheet.css';
-
-.sheet-content {
-    padding: var(--spacing-md) 0;
-}
 </style>

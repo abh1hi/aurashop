@@ -1,37 +1,57 @@
 :root {
-    /* Base Colors (AuraShop Earth/Chic Default) */
-    --bg-color: #fdfbf7;
-    --text-color: #3e2723;
-    --text-secondary: #5d4037;
-    --text-tertiary: #8d6e63;
-    --text-disabled: #d7ccc8;
+    /* Base Colors (AuraShop Chic Default - Apple Style) */
+    --bg-color: #fbfbfd;
+    /* Apple's off-white background */
+    --text-color: #1d1d1f;
+    /* Apple's primary text */
+    --text-secondary: #86868b;
+    /* Apple's secondary text */
+    --text-tertiary: #a1a1a6;
+    --text-disabled: #d2d2d7;
 
-    /* Pastel Palette (Mapped to Earth Tones) */
-    --primary-pastel: #d7ccc8;
-    --secondary-pastel: #efebe9;
-    --tertiary-pastel: #ffccbc;
-    --accent-pastel: #fff8e1;
+    /* Brand Colors (Vibrant & Clean) */
+    --brand-primary: #0071e3;
+    /* Apple Blue */
+    --brand-secondary: #5e5ce6;
+    /* Indigo */
 
-    --primary-text: #3e2723;
-    --secondary-text: #4e342e;
-    --tertiary-text: #bf360c;
-    --accent-text: #5d4037;
+    /* Pastel Palette (Soft & Airy) */
+    --primary-pastel: #f5f5f7;
+    /* Light Gray */
+    --secondary-pastel: #e8e8ed;
+    --tertiary-pastel: #d2d2d7;
+    --accent-pastel: #0071e3;
+
+    --primary-text: #1d1d1f;
+    --secondary-text: #86868b;
+    --tertiary-text: #0071e3;
+    --accent-text: #1d1d1f;
 
     /* State Colors */
-    --primary-hover: #a1887f;
-    --primary-active: #8d6e63;
-    --secondary-hover: #d7ccc8;
-    --tertiary-hover: #ffab91;
+    --primary-hover: #0077ed;
+    --primary-active: #006edb;
+    --secondary-hover: #e4e4e9;
+    --tertiary-hover: #c7c7cc;
+    --error-color: #ff3b30;
+    --success-color: #34c759;
+    --warning-color: #ffcc00;
 
     /* Status Colors */
-    --glass-shadow: 0 8px 32px rgba(62, 39, 35, 0.08);
+    --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
     --glass-highlight: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 50%);
 
-    /* Glass Defaults */
-    --glass-bg: rgba(255, 255, 255, 0.2);
+    /* Glass Defaults (Frosted) */
+    --glass-bg: rgba(255, 255, 255, 0.65);
     --glass-border: rgba(255, 255, 255, 0.4);
-    --glass-blur: 12px;
-    --glass-saturate: 110%;
+    --glass-blur: 20px;
+    --glass-saturate: 180%;
+
+    /* Gradient Mesh (Default) */
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(0, 113, 227, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(94, 92, 230, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(255, 59, 48, 0.1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(52, 199, 89, 0.1) 0px, transparent 50%);
 
     /* Spacing */
     --spacing-xs: 4px;
@@ -42,28 +62,28 @@
     --spacing-2xl: 48px;
     --spacing-3xl: 64px;
 
-    /* Radius */
-    --radius-xs: 4px;
-    --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --radius-xl: 32px;
+    /* Radius (More Rounded) */
+    --radius-xs: 6px;
+    --radius-sm: 10px;
+    --radius-md: 18px;
+    --radius-lg: 28px;
+    --radius-xl: 36px;
     --radius-full: 9999px;
 
     /* Typography Scale */
-    --font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --text-xs: 0.75rem;
     --text-sm: 0.875rem;
     --text-base: 1rem;
     --text-lg: 1.125rem;
-    --text-xl: 1.25rem;
-    --text-2xl: 1.5rem;
-    --text-3xl: 1.875rem;
-    --text-4xl: 2.25rem;
+    --text-xl: 1.35rem;
+    --text-2xl: 1.75rem;
+    --text-3xl: 2.25rem;
+    --text-4xl: 3rem;
 
     --font-weight-regular: 400;
     --font-weight-medium: 500;
-    --font-weight-bold: 700;
+    --font-weight-bold: 600;
 
     /* Z-Index */
     --z-negative: -1;
@@ -76,305 +96,296 @@
     --z-tooltip: 1200;
 
     /* Animation */
-    --duration-fast: 150ms;
-    --duration-normal: 300ms;
-    --duration-slow: 500ms;
-    --ease-out: cubic-bezier(0, 0, 0.2, 1);
-    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --duration-fast: 200ms;
+    --duration-normal: 400ms;
+    --duration-slow: 600ms;
+    --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+    --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Dark Mode */
+/* Dark Mode (Deep & Rich) */
 [data-theme="dark"] {
-    --bg-color: #0a0a0a;
-    --text-color: #e5e5e5;
-    --text-secondary: #a0a0a0;
-    --text-tertiary: #666;
-    --text-disabled: #444;
+    --bg-color: #000000;
+    --text-color: #f5f5f7;
+    --text-secondary: #86868b;
+    --text-tertiary: #6e6e73;
+    --text-disabled: #424245;
 
-    --primary-pastel: #4a7fff;
-    --secondary-pastel: #3dd68c;
-    --tertiary-pastel: #ff6b9d;
-    --accent-pastel: #b794f6;
+    --brand-primary: #0a84ff;
+    --brand-secondary: #5e5ce6;
 
-    --primary-text: #e3f2ff;
-    --secondary-text: #d4f4e2;
-    --tertiary-text: #ffe4ec;
-    --accent-text: #f0e7ff;
+    --primary-pastel: #1c1c1e;
+    --secondary-pastel: #2c2c2e;
+    --tertiary-pastel: #3a3a3c;
+    --accent-pastel: #48484a;
 
-    --primary-hover: #6b96ff;
-    --primary-active: #8cb0ff;
+    --primary-text: #f5f5f7;
+    --secondary-text: #86868b;
+    --tertiary-text: #0a84ff;
+    --accent-text: #f5f5f7;
 
-    --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(74, 127, 255, 0.15) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(61, 214, 140, 0.15) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(255, 107, 157, 0.15) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(183, 148, 246, 0.15) 0, transparent 50%);
+    --primary-hover: #2c2c2e;
+    --primary-active: #3a3a3c;
 
-    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-bg: rgba(30, 30, 30, 0.7);
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-blur: 24px;
     --glass-saturate: 200%;
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    --glass-highlight: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
-}
-
-/* Oceanic Theme */
-[data-theme="oceanic"] {
-    --bg-color: #f0f8ff;
-    --primary-pastel: #b3e5fc;
-    --secondary-pastel: #b2dfdb;
-    --tertiary-pastel: #e1f5fe;
-    --accent-pastel: #80deea;
-
-    --primary-text: #01579b;
-    --secondary-text: #004d40;
-    --tertiary-text: #0277bd;
-    --accent-text: #006064;
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(179, 229, 252, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(178, 223, 219, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(128, 222, 234, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(225, 245, 254, 0.6) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(10, 132, 255, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(94, 92, 230, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(255, 69, 58, 0.1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(48, 209, 88, 0.1) 0px, transparent 50%);
 }
 
-/* Sunset Theme */
+/* Oceanic Theme (Pastel Blue/Teal) */
+[data-theme="oceanic"] {
+    --bg-color: #f0f8ff;
+    --brand-primary: #007aff;
+    --brand-secondary: #5ac8fa;
+
+    --primary-pastel: #e3f2fd;
+    --secondary-pastel: #bbdefb;
+    --tertiary-pastel: #90caf9;
+    --accent-pastel: #64b5f6;
+
+    --primary-text: #004080;
+    --secondary-text: #006064;
+    --tertiary-text: #007aff;
+    --accent-text: #0097a7;
+
+    --gradient-mesh:
+        radial-gradient(at 0% 0%, rgba(0, 122, 255, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(90, 200, 250, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(52, 199, 89, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(0, 122, 255, 0.1) 0px, transparent 50%);
+}
+
+/* Sunset Theme (Pastel Orange/Pink) */
 [data-theme="sunset"] {
-    --bg-color: #fff8f0;
-    --primary-pastel: #ffccbc;
-    --secondary-pastel: #ffe0b2;
-    --tertiary-pastel: #f8bbd0;
-    --accent-pastel: #ffab91;
+    --bg-color: #fff5f2;
+    --brand-primary: #ff9500;
+    --brand-secondary: #ff2d55;
+
+    --primary-pastel: #ffe0b2;
+    --secondary-pastel: #ffccbc;
+    --tertiary-pastel: #ffab91;
+    --accent-pastel: #ff8a65;
 
     --primary-text: #bf360c;
-    --secondary-text: #e65100;
-    --tertiary-text: #880e4f;
+    --secondary-text: #e64a19;
+    --tertiary-text: #ff9500;
     --accent-text: #d84315;
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(255, 204, 188, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(255, 224, 178, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(248, 187, 208, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(255, 171, 145, 0.6) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(255, 149, 0, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(255, 45, 85, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(175, 82, 222, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(255, 59, 48, 0.1) 0px, transparent 50%);
 }
 
-/* Forest Theme */
+/* Forest Theme (Pastel Green) */
 [data-theme="forest"] {
-    --bg-color: #f1f8e9;
-    --primary-pastel: #c8e6c9;
-    --secondary-pastel: #dcedc8;
-    --tertiary-pastel: #f0f4c3;
-    --accent-pastel: #a5d6a7;
+    --bg-color: #f2fcf5;
+    --brand-primary: #34c759;
+    --brand-secondary: #30b0c7;
+
+    --primary-pastel: #dcedc8;
+    --secondary-pastel: #c8e6c9;
+    --tertiary-pastel: #a5d6a7;
+    --accent-pastel: #81c784;
 
     --primary-text: #1b5e20;
-    --secondary-text: #33691e;
-    --tertiary-text: #827717;
-    --accent-text: #2e7d32;
+    --secondary-text: #2e7d32;
+    --tertiary-text: #34c759;
+    --accent-text: #388e3c;
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(200, 230, 201, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(220, 237, 200, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(240, 244, 195, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(165, 214, 167, 0.6) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(52, 199, 89, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(48, 176, 199, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(255, 204, 0, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(52, 199, 89, 0.1) 0px, transparent 50%);
 }
 
-/* Lavender Theme */
+/* Lavender Theme (Pastel Purple) */
 [data-theme="lavender"] {
-    --bg-color: #f3e5f5;
+    --bg-color: #fbf7ff;
+    --brand-primary: #af52de;
+    --brand-secondary: #5e5ce6;
+
     --primary-pastel: #e1bee7;
     --secondary-pastel: #d1c4e9;
-    --tertiary-pastel: #f8bbd0;
-    --accent-pastel: #e0b2f2;
+    --tertiary-pastel: #b39ddb;
+    --accent-pastel: #9575cd;
 
     --primary-text: #4a148c;
-    --secondary-text: #311b92;
-    --tertiary-text: #880e4f;
-    --accent-text: #6a1b9a;
+    --secondary-text: #6a1b9a;
+    --tertiary-text: #af52de;
+    --accent-text: #7b1fa2;
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(225, 190, 231, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(209, 196, 233, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(248, 187, 208, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(224, 178, 242, 0.6) 0, transparent 50%);
-
-    --liquid-glass-base: rgba(230, 230, 250, 0.2);
-    --liquid-glass-tint: rgba(216, 191, 216, 0.25);
-    --liquid-glass-border: rgba(230, 230, 250, 0.4);
-    --liquid-action: #9370db;
+        radial-gradient(at 0% 0%, rgba(175, 82, 222, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(94, 92, 230, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(255, 45, 85, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(175, 82, 222, 0.1) 0px, transparent 50%);
 }
 
-/* Mint Theme */
+/* Mint Theme (Pastel Mint/Teal) */
 [data-theme="mint"] {
-    --bg-color: #e0f2f1;
+    --bg-color: #f0fdfa;
+    --brand-primary: #00c7be;
+    --brand-secondary: #34c759;
+
     --primary-pastel: #b2dfdb;
-    --secondary-pastel: #c8e6c9;
-    --tertiary-pastel: #b9f6ca;
-    --accent-pastel: #a7ffeb;
+    --secondary-pastel: #80cbc4;
+    --tertiary-pastel: #4db6ac;
+    --accent-pastel: #26a69a;
 
     --primary-text: #004d40;
-    --secondary-text: #1b5e20;
-    --tertiary-text: #00695c;
-    --accent-text: #00bfa5;
+    --secondary-text: #00695c;
+    --tertiary-text: #00c7be;
+    --accent-text: #00897b;
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(178, 223, 219, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(200, 230, 201, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(185, 246, 202, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(167, 255, 235, 0.6) 0, transparent 50%);
-
-    --liquid-glass-base: rgba(152, 255, 152, 0.15);
-    --liquid-glass-tint: rgba(240, 255, 240, 0.25);
-    --liquid-glass-border: rgba(152, 255, 152, 0.4);
-    --liquid-action: #3eb489;
+        radial-gradient(at 0% 0%, rgba(0, 199, 190, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(52, 199, 89, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 122, 255, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(0, 199, 190, 0.1) 0px, transparent 50%);
 }
 
-/* Peach Theme */
+/* Peach Theme (Pastel Peach/Coral) */
 [data-theme="peach"] {
-    --bg-color: #fff3e0;
-    --primary-pastel: #ffe0b2;
-    --secondary-pastel: #ffccbc;
-    --tertiary-pastel: #ffecb3;
-    --accent-pastel: #ffd180;
+    --bg-color: #fff8f0;
+    --brand-primary: #ff6482;
+    /* Coral Pink */
+    --brand-secondary: #ff9500;
 
-    --primary-text: #e65100;
-    --secondary-text: #bf360c;
-    --tertiary-text: #ff6f00;
-    --accent-text: #ff9100;
+    --primary-pastel: #ffccbc;
+    --secondary-pastel: #ffab91;
+    --tertiary-pastel: #ff8a65;
+    --accent-pastel: #ff7043;
+
+    --primary-text: #bf360c;
+    --secondary-text: #d84315;
+    --tertiary-text: #ff6482;
+    --accent-text: #e64a19;
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(255, 224, 178, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(255, 204, 188, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(255, 236, 179, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(255, 209, 128, 0.6) 0, transparent 50%);
-
-    --liquid-glass-base: rgba(255, 218, 185, 0.2);
-    --liquid-glass-tint: rgba(255, 229, 180, 0.25);
-    --liquid-glass-border: rgba(255, 218, 185, 0.4);
-    --liquid-action: #ff7f50;
+        radial-gradient(at 0% 0%, rgba(255, 100, 130, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(255, 149, 0, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(255, 204, 0, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(255, 100, 130, 0.1) 0px, transparent 50%);
 }
 
-/* Slate Theme */
+/* Slate Theme (Neutral/Cool) */
 [data-theme="slate"] {
-    --bg-color: #eceff1;
-    --primary-pastel: #cfd8dc;
-    --secondary-pastel: #b0bec5;
-    --tertiary-pastel: #d7ccc8;
-    --accent-pastel: #90a4ae;
+    --bg-color: #f5f7fa;
+    --brand-primary: #636e72;
+    --brand-secondary: #2d3436;
 
-    --primary-text: #263238;
-    --secondary-text: #37474f;
-    --tertiary-text: #455a64;
-    --accent-text: #546e7a;
+    --primary-pastel: #dfe6e9;
+    --secondary-pastel: #b2bec3;
+    --tertiary-pastel: #636e72;
+    --accent-pastel: #2d3436;
 
-    --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(207, 216, 220, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(176, 190, 197, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(215, 204, 200, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(144, 164, 174, 0.6) 0, transparent 50%);
-
-    --liquid-glass-base: rgba(112, 128, 144, 0.15);
-    --liquid-glass-tint: rgba(119, 136, 153, 0.2);
-    --liquid-glass-border: rgba(112, 128, 144, 0.3);
-    --liquid-action: #708090;
-}
-
-/* Crystal Theme */
-[data-theme="crystal"] {
-    --bg-color: #f0f8ff;
-    --primary-pastel: #e3f2fd;
-    --secondary-pastel: #e1f5fe;
-    --tertiary-pastel: #f3e5f5;
-    --accent-pastel: #e0f7fa;
-
-    --primary-text: #01579b;
-    --secondary-text: #0277bd;
-    --tertiary-text: #4a148c;
-    --accent-text: #006064;
+    --primary-text: #2d3436;
+    --secondary-text: #636e72;
+    --tertiary-text: #2d3436;
+    --accent-text: #636e72;
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(227, 242, 253, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(225, 245, 254, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(243, 229, 245, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(224, 247, 250, 0.6) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(99, 110, 114, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(45, 52, 54, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(178, 190, 195, 0.1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(99, 110, 114, 0.1) 0px, transparent 50%);
 }
 
-/* Frost Theme */
-[data-theme="frost"] {
-    --bg-color: #e3f2fd;
-    --primary-pastel: #bbdefb;
-    --secondary-pastel: #b3e5fc;
-    --tertiary-pastel: #cfd8dc;
-    --accent-pastel: #81d4fa;
+/* Midnight Theme (Deep Blue) */
+[data-theme="midnight"] {
+    --bg-color: #020617;
+    --text-color: #f1f5f9;
+    --text-secondary: #94a3b8;
 
-    --primary-text: #0d47a1;
-    --secondary-text: #1565c0;
-    --tertiary-text: #37474f;
-    --accent-text: #0277bd;
+    --brand-primary: #3b82f6;
+    --brand-secondary: #6366f1;
+
+    --primary-pastel: #1e293b;
+    --secondary-pastel: #334155;
+    --tertiary-pastel: #475569;
+    --accent-pastel: #64748b;
+
+    --primary-text: #f1f5f9;
+    --secondary-text: #e2e8f0;
+    --tertiary-text: #3b82f6;
+    --accent-text: #94a3b8;
+
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(148, 163, 184, 0.1);
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(187, 222, 251, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(179, 229, 252, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(207, 216, 220, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(129, 212, 250, 0.6) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
 }
 
-/* Aurora Theme */
-[data-theme="aurora"] {
-    --bg-color: #f3e5f5;
-    --primary-pastel: #e1bee7;
-    --secondary-pastel: #b2dfdb;
-    --tertiary-pastel: #d1c4e9;
-    --accent-pastel: #69f0ae;
+/* Deep Space Theme (Black/Purple) */
+[data-theme="deep-space"] {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --text-secondary: #a1a1aa;
 
-    --primary-text: #4a148c;
-    --secondary-text: #004d40;
-    --tertiary-text: #311b92;
-    --accent-text: #00c853;
+    --brand-primary: #a855f7;
+    --brand-secondary: #d946ef;
 
-    --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(225, 190, 231, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(178, 223, 219, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(209, 196, 233, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(105, 240, 174, 0.6) 0, transparent 50%);
-}
-
-/* Obsidian Theme */
-[data-theme="obsidian"] {
-    --bg-color: #121212;
-    --primary-pastel: #373737;
-    --secondary-pastel: #2c2c2c;
-    --tertiary-pastel: #424242;
-    --accent-pastel: #bb86fc;
+    --primary-pastel: #18181b;
+    --secondary-pastel: #27272a;
+    --tertiary-pastel: #3f3f46;
+    --accent-pastel: #52525b;
 
     --primary-text: #ffffff;
-    --secondary-text: #e0e0e0;
-    --tertiary-text: #bdbdbd;
-    --accent-text: #bb86fc;
+    --secondary-text: #e4e4e7;
+    --tertiary-text: #a855f7;
+    --accent-text: #a1a1aa;
+
+    --glass-bg: rgba(24, 24, 27, 0.7);
+    --glass-border: rgba(161, 161, 170, 0.1);
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(55, 55, 55, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(44, 44, 44, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(66, 66, 66, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(187, 134, 252, 0.15) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(217, 70, 239, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
 }
 
-/* Prism Theme */
-[data-theme="prism"] {
-    --bg-color: #fff5f7;
-    --primary-pastel: #ffcdd2;
-    --secondary-pastel: #fff9c4;
-    --tertiary-pastel: #b2ebf2;
-    --accent-pastel: #e1bee7;
+/* Cyberpunk Theme (Neon) */
+[data-theme="cyberpunk"] {
+    --bg-color: #050505;
+    --text-color: #22d3ee;
+    --text-secondary: #06b6d4;
 
-    --primary-text: #c62828;
-    --secondary-text: #f9a825;
-    --tertiary-text: #00838f;
-    --accent-text: #6a1b9a;
+    --brand-primary: #06b6d4;
+    --brand-secondary: #f472b6;
+
+    --primary-pastel: #18181b;
+    --secondary-pastel: #27272a;
+    --tertiary-pastel: #3f3f46;
+    --accent-pastel: #52525b;
+
+    --primary-text: #22d3ee;
+    --secondary-text: #67e8f9;
+    --tertiary-text: #f472b6;
+    --accent-text: #e879f9;
+
+    --glass-bg: rgba(24, 24, 27, 0.8);
+    --glass-border: rgba(34, 211, 238, 0.3);
 
     --gradient-mesh:
-        radial-gradient(at 0% 0%, rgba(255, 205, 210, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(255, 249, 196, 0.6) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(178, 235, 242, 0.6) 0, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(225, 190, 231, 0.6) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.25) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(244, 114, 182, 0.25) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
 }

@@ -15,24 +15,16 @@
     --liquid-blur: 8px;
     --liquid-saturate: 150%;
     --liquid-distortion-scale: 10;
-
-    /* Liquid Glass Light/Dark Reflex */
-    --liquid-reflex-light: 1;
-    --liquid-reflex-dark: 1;
-
-    /* Liquid Glass Content Colors */
-    --liquid-content: var(--text-color);
-    --liquid-action: var(--primary-pastel);
-    --liquid-bg-overlay: var(--bg-color);
-
-    /* Liquid Glass Shadows */
-    --liquid-shadow-sm: 0 1px 5px 0px rgba(0, 0, 0, 0.1);
-    --liquid-shadow-md: 0 6px 16px 0px rgba(0, 0, 0, 0.08);
     --liquid-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
     --liquid-shadow-inset-1: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
     --liquid-shadow-inset-2: inset 2px 3px 0px -2px rgba(255, 255, 255, 0.9);
     --liquid-shadow-inset-3: inset -2px -2px 0px -2px rgba(255, 255, 255, 0.8);
     --liquid-shadow-inset-4: inset -3px -8px 1px -6px rgba(255, 255, 255, 0.6);
+
+    /* Liquid Glass Content Colors */
+    --liquid-content: var(--text-color);
+    --liquid-action: var(--brand-primary);
+    --liquid-bg-overlay: var(--bg-color);
 
     /* Liquid Button */
     --liquid-btn-bg: rgba(255, 255, 255, 0.05);
@@ -45,12 +37,6 @@
     /* Liquid Switcher */
     --liquid-switcher-bg: rgba(187, 187, 188, 0.12);
     --liquid-switcher-indicator: rgba(187, 187, 188, 0.36);
-
-    /* Animation */
-    --liquid-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
-
-    --liquid-btn-bg: rgba(255, 255, 255, 0.05);
-    --liquid-card-bg: rgba(255, 255, 255, 0.05);
 }
 
 /* Dim/Oceanic Theme */
@@ -85,6 +71,62 @@ body:has(input[value="dim"]:checked),
     --liquid-glass-tint: rgba(200, 230, 201, 0.25);
     --liquid-glass-border: rgba(165, 214, 167, 0.4);
     --liquid-action: var(--primary-pastel);
+}
+
+/* Lavender Theme */
+[data-theme="lavender"] {
+    --liquid-glass-base: rgba(230, 230, 250, 0.2);
+    --liquid-glass-tint: rgba(216, 191, 216, 0.25);
+    --liquid-glass-border: rgba(230, 230, 250, 0.4);
+    --liquid-action: #9370db;
+}
+
+/* Mint Theme */
+[data-theme="mint"] {
+    --liquid-glass-base: rgba(152, 255, 152, 0.15);
+    --liquid-glass-tint: rgba(240, 255, 240, 0.25);
+    --liquid-glass-border: rgba(152, 255, 152, 0.4);
+    --liquid-action: #3eb489;
+}
+
+/* Peach Theme */
+[data-theme="peach"] {
+    --liquid-glass-base: rgba(255, 218, 185, 0.2);
+    --liquid-glass-tint: rgba(255, 229, 180, 0.25);
+    --liquid-glass-border: rgba(255, 218, 185, 0.4);
+    --liquid-action: #ff7f50;
+}
+
+/* Slate Theme */
+[data-theme="slate"] {
+    --liquid-glass-base: rgba(112, 128, 144, 0.15);
+    --liquid-glass-tint: rgba(119, 136, 153, 0.2);
+    --liquid-glass-border: rgba(112, 128, 144, 0.3);
+    --liquid-action: #708090;
+}
+
+/* Midnight Theme */
+[data-theme="midnight"] {
+    --liquid-glass-base: rgba(15, 23, 42, 0.4);
+    --liquid-glass-tint: rgba(59, 130, 246, 0.15);
+    --liquid-glass-border: rgba(59, 130, 246, 0.3);
+    --liquid-action: #3b82f6;
+}
+
+/* Deep Space Theme */
+[data-theme="deep-space"] {
+    --liquid-glass-base: rgba(5, 5, 5, 0.5);
+    --liquid-glass-tint: rgba(147, 51, 234, 0.15);
+    --liquid-glass-border: rgba(147, 51, 234, 0.3);
+    --liquid-action: #9333ea;
+}
+
+/* Cyberpunk Theme */
+[data-theme="cyberpunk"] {
+    --liquid-glass-base: rgba(9, 9, 11, 0.6);
+    --liquid-glass-tint: rgba(6, 182, 212, 0.2);
+    --liquid-glass-border: rgba(6, 182, 212, 0.5);
+    --liquid-action: #06b6d4;
 }
 
 /* ==========================================
@@ -187,40 +229,4 @@ body:has(input[value="dim"]:checked),
 
 .liquid-hover:active {
     transform: scale(0.95);
-}
-
-/* Lavender Theme */
-[data-theme="lavender"] {
-    --liquid-glass-base: rgba(230, 230, 250, 0.2);
-    --liquid-glass-tint: rgba(216, 191, 216, 0.25);
-    --liquid-glass-border: rgba(230, 230, 250, 0.4);
-    --liquid-action: #9370db;
-    /* Medium Purple */
-}
-
-/* Mint Theme */
-[data-theme="mint"] {
-    --liquid-glass-base: rgba(152, 255, 152, 0.15);
-    --liquid-glass-tint: rgba(240, 255, 240, 0.25);
-    --liquid-glass-border: rgba(152, 255, 152, 0.4);
-    --liquid-action: #3eb489;
-    /* Mint Green */
-}
-
-/* Peach Theme */
-[data-theme="peach"] {
-    --liquid-glass-base: rgba(255, 218, 185, 0.2);
-    --liquid-glass-tint: rgba(255, 229, 180, 0.25);
-    --liquid-glass-border: rgba(255, 218, 185, 0.4);
-    --liquid-action: #ff7f50;
-    /* Coral */
-}
-
-/* Slate Theme */
-[data-theme="slate"] {
-    --liquid-glass-base: rgba(112, 128, 144, 0.15);
-    --liquid-glass-tint: rgba(119, 136, 153, 0.2);
-    --liquid-glass-border: rgba(112, 128, 144, 0.3);
-    --liquid-action: #708090;
-    /* Slate Gray */
 }

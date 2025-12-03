@@ -28,8 +28,10 @@ const products = ref([
     originalPrice: 159.99,
     image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80',
     rating: 4.8,
-    reviews: 124,
-    isNew: true
+    reviewCount: 124,
+    isNew: true,
+    colors: ['#800020', '#000000'],
+    sizes: ['S', 'M', 'L']
   },
   {
     id: 102,
@@ -38,7 +40,8 @@ const products = ref([
     price: 45.00,
     image: 'https://images.unsplash.com/photo-1584030373081-f37b7bb4fa8e?auto=format&fit=crop&w=800&q=80',
     rating: 4.9,
-    reviews: 89
+    reviewCount: 89,
+    colors: ['#FFD700', '#C0C0C0']
   },
   {
     id: 103,
@@ -47,7 +50,9 @@ const products = ref([
     price: 199.50,
     image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80',
     rating: 4.7,
-    reviews: 210
+    reviewCount: 210,
+    colors: ['#8B4513', '#000000'],
+    isBestSeller: true
   },
   {
     id: 104,
@@ -56,7 +61,7 @@ const products = ref([
     price: 89.00,
     image: 'https://images.unsplash.com/photo-1635767798638-3e2523422c69?auto=format&fit=crop&w=800&q=80',
     rating: 4.6,
-    reviews: 56
+    reviewCount: 56
   }
 ]);
 </script>
@@ -96,8 +101,14 @@ const products = ref([
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-lg);
+}
+
+@media (max-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 768px) {

@@ -1,307 +1,294 @@
 <template>
   <div class="page-container">
+    <!-- Background Elements -->
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
     <AppHeader />
     
     <main class="main-content">
-      <!-- Desktop Layout -->
-      <div class="desktop-layout">
-        <div class="profile-grid">
-          <!-- Left Column: Identity & Actions -->
-          <LiquidCard variant="liquid" class="identity-card glass-panel">
-            <div class="profile-cover"></div>
-            <div class="profile-identity">
-              <div class="avatar-wrapper">
-                <img 
-                  :src="userProfile?.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (userProfile?.email || 'User')" 
-                  alt="Avatar" 
-                  class="avatar"
-                />
-                <div class="status-indicator online"></div>
-              </div>
-              <h1 class="username">{{ userProfile?.displayName || (isAnonymous ? 'Guest User' : 'User') }}</h1>
-              <p class="handle">@{{ userProfile?.username || (isAnonymous ? 'guest' : 'username') }}</p>
-              
-              <div class="roles-pills">
-                <span v-for="role in userProfile?.roles" :key="role" class="role-pill">
-                  {{ formatRole(role) }}
-                </span>
-              </div>
-
-              <div class="quick-stats">
-                <div class="stat-item">
-                  <span class="stat-value">{{ userProfile?.addresses?.length || 0 }}</span>
-                  <span class="stat-label">Addresses</span>
+      
+      <!-- DESKTOP VIEW -->
+      <div class="desktop-view">
+        
+        <!-- Hero Section -->
+        <div class="profile-hero">
+          <div class="hero-banner"></div>
+          <div class="hero-content">
+            <div class="profile-identity-card glass-panel">
+              <div class="identity-main">
+                <div class="avatar-wrapper-hero">
+                  <img 
+                    :src="userProfile?.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (userProfile?.email || 'User')" 
+                    alt="Avatar" 
+                    class="avatar-hero"
+                  />
+                  <div class="status-dot"></div>
                 </div>
-                <div class="stat-item">
-                  <span class="stat-value">{{ userProfile?.roles?.includes('vendor') ? '1' : '0' }}</span>
-                  <span class="stat-label">Stores</span>
+                <div class="identity-text">
+                  <h1 class="hero-name">{{ userProfile?.displayName || (isAnonymous ? 'Guest User' : 'User') }}</h1>
+                  <p class="hero-handle">@{{ userProfile?.username || (isAnonymous ? 'guest' : 'username') }}</p>
+                  <div class="hero-roles">
+                    <span v-for="role in userProfile?.roles" :key="role" class="hero-role-pill">
+                      {{ formatRole(role) }}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div class="desktop-actions">
-                <LiquidButton 
-                  text="Edit Profile" 
-                  type="secondary" 
-                  icon="edit"
-                  class="action-btn"
-                  @click="router.push('/profile/edit')"
-                />
-                <LiquidButton 
-                  v-if="isAnonymous"
-                  text="Log In / Sign Up" 
-                  type="primary" 
-                  icon="login"
-                  class="action-btn"
-                  @click="router.push('/login')"
-                />
-                <LiquidButton 
-                  v-if="!isAnonymous && !userProfile?.roles?.includes('vendor')"
-                  text="Create Store" 
-                  type="primary" 
-                  icon="store"
-                  class="action-btn"
-                  @click="handleCreateStore"
-                />
-                <LiquidButton 
-                  v-if="userProfile?.roles?.includes('vendor')"
-                  text="My Stores" 
-                  type="primary" 
-                  icon="storefront"
-                  class="action-btn"
-                  @click="router.push('/vendor/my-stores')"
-                />
-                <LiquidButton 
-                  text="Logout" 
-                  type="danger" 
-                  icon="logout"
-                  class="action-btn"
-                  @click="handleLogout"
-                />
+              <div class="hero-stats">
+                <div class="hero-stat-item">
+                  <span class="h-stat-val">{{ userProfile?.addresses?.length || 0 }}</span>
+                  <span class="h-stat-lbl">Addresses</span>
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat-item">
+                  <span class="h-stat-val">{{ userProfile?.roles?.includes('vendor') ? '1' : '0' }}</span>
+                  <span class="h-stat-lbl">Stores</span>
+                </div>
               </div>
             </div>
-          </LiquidCard>
+          </div>
+        </div>
 
-          <!-- Right Column: Details & Settings -->
-          <div class="details-column">
-            <LiquidCard variant="liquid" class="details-card glass-panel">
-              <h2 class="section-header">Profile Details</h2>
-              <LiquidAccordion>
-                <LiquidAccordionItem title="Account Information" id="account">
-                  <div class="info-grid">
-                    <div class="info-item">
-                      <span class="label">User ID</span>
-                      <span class="value mono">{{ userProfile?.uid }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">Email</span>
-                      <span class="value">{{ userProfile?.email }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">Phone</span>
-                      <span class="value">{{ userProfile?.phoneNumber || 'Not set' }}</span>
-                    </div>
+        <!-- Navigation Bar -->
+        <div class="desktop-nav-bar glass-panel">
+          <div class="nav-tabs">
+            <button 
+              v-for="tab in tabs" 
+              :key="tab.value"
+              class="desktop-tab-btn"
+              :class="{ active: activeTab === tab.value }"
+              @click="activeTab = tab.value"
+            >
+              <span class="material-icons-round">{{ getTabIcon(tab.value) }}</span>
+              <span>{{ tab.label }}</span>
+            </button>
+          </div>
+          <div class="nav-actions">
+            <LiquidButton 
+              text="Edit Profile" 
+              size="sm" 
+              icon="edit" 
+              type="secondary"
+              @click="router.push('/profile/edit')"
+            />
+          </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="desktop-content-area">
+          <!-- OVERVIEW CONTENT -->
+          <div v-if="activeTab === 'overview'" class="content-grid fade-in">
+            <div class="grid-col-main">
+              <LiquidCard class="detail-card">
+                <h3>Account Information</h3>
+                <div class="detail-row">
+                  <span class="d-label">Email Address</span>
+                  <span class="d-value">{{ userProfile?.email }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="d-label">Phone Number</span>
+                  <span class="d-value">{{ userProfile?.phoneNumber || 'Not set' }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="d-label">User ID</span>
+                  <span class="d-value mono">{{ userProfile?.uid }}</span>
+                </div>
+              </LiquidCard>
+
+              <LiquidCard class="detail-card">
+                <h3>Default Address</h3>
+                <div v-if="userProfile?.addresses && userProfile.addresses.length > 0" class="address-preview-hero">
+                  <div class="addr-icon-box">
+                    <span class="material-icons-round">home</span>
                   </div>
-                </LiquidAccordionItem>
+                  <div class="addr-info">
+                    <span class="addr-name">{{ userProfile.addresses[0].label }}</span>
+                    <p class="addr-line">{{ userProfile.addresses[0].addressLine }}</p>
+                  </div>
+                  <LiquidButton text="Manage" size="sm" type="ghost" @click="openAddressBook" />
+                </div>
+                <div v-else class="empty-state-card">
+                  <p>No addresses saved yet.</p>
+                  <LiquidButton text="Add Address" size="sm" @click="openAddressBook" />
+                </div>
+              </LiquidCard>
+            </div>
 
-                <LiquidAccordionItem title="Address Book" id="addresses">
-                  <div class="address-book-preview">
-                    <div v-if="userProfile?.addresses && userProfile.addresses.length > 0" class="address-list-preview">
-                        <div v-for="addr in userProfile.addresses.slice(0, 2)" :key="addr.id" class="address-preview-item">
-                            <span class="material-icons-round">place</span>
-                            <span>{{ addr.label }}: {{ addr.addressLine }}</span>
-                        </div>
-                        <p v-if="userProfile.addresses.length > 2" class="more-addresses">
-                            +{{ userProfile.addresses.length - 2 }} more
-                        </p>
-                    </div>
-                    <div v-else class="empty-state-preview">
-                        <p>No addresses saved.</p>
-                    </div>
-                    <LiquidButton 
-                        text="Manage Addresses" 
-                        icon="map" 
-                        type="secondary" 
-                        size="sm" 
-                        class="mt-2"
-                        @click="openAddressBook" 
+            <div class="grid-col-side">
+              <LiquidCard class="quick-actions-card">
+                <h3>Quick Actions</h3>
+                <div class="qa-grid">
+                  <button class="qa-btn" @click="router.push('/wishlist')">
+                    <span class="material-icons-round">favorite</span>
+                    <span>Wishlist</span>
+                  </button>
+                  <button class="qa-btn" @click="router.push('/orders')">
+                    <span class="material-icons-round">shopping_bag</span>
+                    <span>Orders</span>
+                  </button>
+                  <button 
+                    v-if="!userProfile?.roles?.includes('vendor')" 
+                    class="qa-btn primary" 
+                    @click="handleCreateStore"
+                  >
+                    <span class="material-icons-round">store</span>
+                    <span>Create Store</span>
+                  </button>
+                  <button 
+                    v-else 
+                    class="qa-btn primary" 
+                    @click="router.push('/vendor/my-stores')"
+                  >
+                    <span class="material-icons-round">storefront</span>
+                    <span>My Stores</span>
+                  </button>
+                </div>
+              </LiquidCard>
+            </div>
+          </div>
+
+          <!-- ORDERS CONTENT -->
+          <div v-if="activeTab === 'orders'" class="content-full fade-in">
+            <div class="empty-hero">
+              <span class="material-icons-round">shopping_cart</span>
+              <h3>No Recent Orders</h3>
+              <p>Your order history will appear here once you start shopping.</p>
+              <LiquidButton text="Browse Products" type="primary" @click="router.push('/')" />
+            </div>
+          </div>
+
+          <!-- SETTINGS CONTENT -->
+          <div v-if="activeTab === 'settings'" class="content-grid fade-in">
+            <div class="grid-col-main">
+              <LiquidCard class="detail-card">
+                <h3>Appearance Settings</h3>
+                <div class="setting-hero-row">
+                  <div class="setting-meta">
+                    <span class="s-name">Liquid Animations</span>
+                    <span class="s-desc">Enable fluid glass effects and animations</span>
+                  </div>
+                  <LiquidToggle 
+                    :modelValue="liquidAnimationsEnabled" 
+                    @update:modelValue="toggleLiquidAnimations" 
+                  />
+                </div>
+                <div class="setting-hero-row">
+                  <div class="setting-meta">
+                    <span class="s-name">Theme Preference</span>
+                    <span class="s-desc">Choose your preferred visual theme</span>
+                  </div>
+                  <div class="theme-controls">
+                    <LiquidDropdown 
+                      :modelValue="currentTheme" 
+                      :options="filteredThemeOptions" 
+                      @update:modelValue="setTheme"
+                      placeholder="Select Theme"
                     />
                   </div>
-                </LiquidAccordionItem>
+                </div>
+              </LiquidCard>
+            </div>
+            
+            <div class="grid-col-side">
+              <LiquidCard class="danger-zone-card">
+                <h3>Account Actions</h3>
+                <button class="danger-btn" @click="handleLogout">
+                  <span class="material-icons-round">logout</span>
+                  <span>Log Out</span>
+                </button>
+              </LiquidCard>
+            </div>
+          </div>
+        </div>
 
-                <LiquidAccordionItem title="Vendor Profile" id="vendor" v-if="userProfile?.roles?.includes('vendor')">
-                  <div class="info-grid">
-                    <div class="info-item">
-                      <span class="label">Store Name</span>
-                      <span class="value">{{ userProfile?.vendorProfile?.storeName }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">Status</span>
-                      <span class="status-badge" :class="userProfile?.vendorProfile?.status">
-                        {{ userProfile?.vendorProfile?.status }}
-                      </span>
-                    </div>
-                  </div>
-                </LiquidAccordionItem>
+      </div>
 
-                <LiquidAccordionItem title="Theme & Appearance" id="theme">
-                  <div class="theme-settings">
-                    <div class="setting-row">
-                      <span class="setting-label">Liquid Effects</span>
-                      <LiquidToggle 
-                        :modelValue="liquidAnimationsEnabled" 
-                        @update:modelValue="toggleLiquidAnimations" 
-                        label="Enable Liquid Animations"
-                      />
-                    </div>
+      <!-- MOBILE VIEW -->
+      <div class="mobile-view">
+        <div class="mobile-header-card glass-panel">
+          <div class="m-avatar-row">
+            <img 
+              :src="userProfile?.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (userProfile?.email || 'User')" 
+              alt="Avatar" 
+              class="avatar-md"
+            />
+            <div class="m-user-details">
+              <h2>{{ userProfile?.displayName || 'Guest' }}</h2>
+              <p>@{{ userProfile?.username || 'guest' }}</p>
+            </div>
+            <button class="icon-btn-glass" @click="router.push('/profile/edit')">
+              <span class="material-icons-round">edit</span>
+            </button>
+          </div>
+          
+          <div class="m-stats-row">
+            <div class="m-stat">
+              <b>{{ userProfile?.addresses?.length || 0 }}</b>
+              <span>Addresses</span>
+            </div>
+            <div class="m-stat">
+              <b>{{ userProfile?.roles?.includes('vendor') ? '1' : '0' }}</b>
+              <span>Stores</span>
+            </div>
+            <div class="m-stat">
+              <b>{{ userProfile?.roles?.length || 1 }}</b>
+              <span>Roles</span>
+            </div>
+          </div>
+        </div>
 
-                    <div class="setting-row column">
-                      <span class="setting-label">Theme Category</span>
-                      <LiquidSegmentedControl 
-                        v-model="themeCategory" 
-                        :options="[{label: 'Standard', value: 'standard'}, {label: 'Glass', value: 'glass'}]" 
-                        full-width
-                      />
-                    </div>
+        <div class="mobile-menu glass-panel">
+          <div class="menu-item" @click="activeTab = 'overview'; showAddressBookSheet = true">
+             <span class="material-icons-round icon-box">place</span>
+             <span>Address Book</span>
+             <span class="material-icons-round chevron">chevron_right</span>
+          </div>
+          <div class="menu-item" @click="router.push('/orders')">
+             <span class="material-icons-round icon-box">shopping_bag</span>
+             <span>My Orders</span>
+             <span class="material-icons-round chevron">chevron_right</span>
+          </div>
+          <div class="menu-item" @click="router.push('/wishlist')">
+             <span class="material-icons-round icon-box">favorite</span>
+             <span>Wishlist</span>
+             <span class="material-icons-round chevron">chevron_right</span>
+          </div>
+          <div class="menu-item" v-if="userProfile?.roles?.includes('vendor')" @click="router.push('/vendor/my-stores')">
+             <span class="material-icons-round icon-box">storefront</span>
+             <span>My Stores</span>
+             <span class="material-icons-round chevron">chevron_right</span>
+          </div>
+          <div class="menu-item" v-else @click="handleCreateStore">
+             <span class="material-icons-round icon-box">add_business</span>
+             <span>Create Store</span>
+             <span class="material-icons-round chevron">chevron_right</span>
+          </div>
+        </div>
 
-                    <div class="setting-row column">
-                      <span class="setting-label">Select Theme</span>
-                      <LiquidDropdown 
-                        :modelValue="currentTheme" 
-                        :options="filteredThemeOptions" 
-                        @update:modelValue="setTheme"
-                        placeholder="Choose a theme"
-                      />
-                    </div>
-                  </div>
-                </LiquidAccordionItem>
-              </LiquidAccordion>
-            </LiquidCard>
+        <div class="mobile-settings glass-panel">
+          <h3>Settings</h3>
+          <div class="menu-item">
+             <span class="material-icons-round icon-box">palette</span>
+             <span>Theme</span>
+             <LiquidDropdown 
+                class="mini-dropdown"
+                :modelValue="currentTheme" 
+                :options="filteredThemeOptions" 
+                @update:modelValue="setTheme"
+             />
+          </div>
+           <div class="menu-item" @click="handleLogout">
+             <span class="material-icons-round icon-box text-danger">logout</span>
+             <span class="text-danger">Log Out</span>
           </div>
         </div>
       </div>
 
-      <!-- Mobile Layout -->
-      <div class="mobile-layout">
-        <div class="mobile-header">
-          <h1 class="page-title">Account</h1>
-        </div>
-
-        <div class="mobile-content-wrapper">
-          <!-- Profile Card -->
-          <LiquidCard variant="liquid" class="m-profile-card">
-            <div class="m-profile-inner">
-              <div class="m-avatar-container">
-                <img 
-                  :src="userProfile?.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (userProfile?.email || 'User')" 
-                  alt="Avatar" 
-                  class="m-avatar"
-                />
-              </div>
-              <div class="m-profile-info">
-                <h2 class="m-username">{{ userProfile?.displayName || (isAnonymous ? 'Guest User' : 'User') }}</h2>
-                <p class="m-email">{{ userProfile?.email || (isAnonymous ? 'Anonymous' : 'No email set') }}</p>
-              </div>
-              <button v-if="!isAnonymous" class="m-edit-btn" @click="router.push('/profile/edit')">
-                Edit profile
-              </button>
-              <button v-else class="m-edit-btn primary" @click="router.push('/login')">
-                Log In / Sign Up
-              </button>
-            </div>
-          </LiquidCard>
-
-          <!-- Quick Actions (Pills) -->
-          <div class="m-section-title">My Roles</div>
-          <div class="m-pills-scroll">
-            <div class="m-pill active">Buyer</div>
-            <div class="m-pill" :class="{ active: userProfile?.roles?.includes('vendor') }">Vendor</div>
-            <div class="m-pill" :class="{ active: userProfile?.roles?.includes('delivery') }">Delivery</div>
-          </div>
-
-          <!-- Promo/Status Card -->
-          <div class="m-promo-card">
-            <div class="m-promo-icon">
-              <span class="material-icons-round">verified</span>
-            </div>
-            <div class="m-promo-content">
-              <h3>AuraShop Member</h3>
-              <p>You are enjoying full access to AuraShop</p>
-            </div>
-          </div>
-
-          <!-- Create Store Action -->
-          <LiquidButton 
-            v-if="!userProfile?.roles?.includes('vendor')"
-            text="Create Your Store" 
-            type="primary" 
-            icon="store"
-            class="m-action-btn"
-            @click="handleCreateStore"
-          />
-
-          <!-- Appearance Card -->
-          <LiquidCard class="m-appearance-card glass-panel mb-md">
-            <div class="m-section-title" style="margin-bottom: 16px;">Appearance</div>
-            <div class="theme-settings mobile">
-              <div class="setting-row">
-                <span class="setting-label">Liquid Effects</span>
-                <LiquidToggle 
-                  :modelValue="liquidAnimationsEnabled" 
-                  @update:modelValue="toggleLiquidAnimations" 
-                />
-              </div>
-
-              <div class="setting-row column">
-                <span class="setting-label">Theme Category</span>
-                <LiquidSegmentedControl 
-                  v-model="themeCategory" 
-                  :options="[{label: 'Standard', value: 'standard'}, {label: 'Glass', value: 'glass'}]" 
-                  full-width
-                />
-              </div>
-
-              <div class="setting-row column">
-                <span class="setting-label">Select Theme</span>
-                <LiquidDropdown 
-                  :modelValue="currentTheme" 
-                  :options="filteredThemeOptions" 
-                  @update:modelValue="setTheme"
-                  placeholder="Choose a theme"
-                />
-              </div>
-            </div>
-          </LiquidCard>
-
-          <!-- Settings List -->
-          <div class="m-settings-list">
-            <div class="m-list-item" @click="router.push('/orders')">
-              <span class="material-icons-round m-list-icon">shopping_bag</span>
-              <span class="m-list-label">My Orders</span>
-              <span class="material-icons-round m-list-chevron">chevron_right</span>
-            </div>
-            <div class="m-list-item" v-if="userProfile?.roles?.includes('vendor')" @click="router.push('/vendor/my-stores')">
-              <span class="material-icons-round m-list-icon">storefront</span>
-              <span class="m-list-label">My Stores</span>
-              <span class="material-icons-round m-list-chevron">chevron_right</span>
-            </div>
-            <div class="m-list-item" @click="router.push('/wishlist')">
-              <span class="material-icons-round m-list-icon">favorite_border</span>
-              <span class="m-list-label">Wishlist</span>
-              <span class="material-icons-round m-list-chevron">chevron_right</span>
-            </div>
-            <div class="m-list-item" @click="openAddressBook">
-              <span class="material-icons-round m-list-icon">place</span>
-              <span class="m-list-label">Address Book</span>
-              <span class="material-icons-round m-list-chevron">chevron_right</span>
-            </div>
-            <div class="m-list-item" @click="handleLogout">
-              <span class="material-icons-round m-list-icon">logout</span>
-              <span class="m-list-label">Log Out</span>
-              <span class="material-icons-round m-list-chevron">chevron_right</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </main>
 
     <!-- Address Book Action Sheet -->
@@ -352,8 +339,7 @@ import AppHeader from '../components/AppHeader.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidCard from '../components/liquid-ui-kit/LiquidCard/LiquidCard.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
-import LiquidAccordion from '../components/liquid-ui-kit/LiquidAccordion/LiquidAccordion.vue';
-import LiquidAccordionItem from '../components/liquid-ui-kit/LiquidAccordion/LiquidAccordionItem.vue';
+import LiquidTabs from '../components/liquid-ui-kit/LiquidTabs/LiquidTabs.vue';
 import LiquidToggle from '../components/liquid-ui-kit/LiquidToggle/LiquidToggle.vue';
 import LiquidSegmentedControl from '../components/liquid-ui-kit/LiquidSegmentedControl/LiquidSegmentedControl.vue';
 import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
@@ -379,8 +365,17 @@ const {
     toggleLiquidAnimations,
     setTheme,
     themeCategory,
-    filteredThemeOptions
+    filteredThemeOptions,
+    activeTab,
+    getTabIcon,
+    getTabLabel
 } = useProfilePage();
+
+const tabs = [
+  { label: 'Overview', value: 'overview' },
+  { label: 'Orders', value: 'orders' },
+  { label: 'Settings', value: 'settings' }
+];
 </script>
 
 <style scoped>

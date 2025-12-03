@@ -9,6 +9,7 @@ import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.
 import LiquidFileUpload from '../components/liquid-ui-kit/LiquidFileUpload/LiquidFileUpload.vue';
 import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
 import { useVendor } from '../composables/useVendor';
+import type { ProductOption, ProductVariant } from '../types/Product';
 
 export default defineComponent({
     name: 'AddProductPage',
@@ -34,6 +35,8 @@ export default defineComponent({
             { label: 'Essentials' },
             { label: 'Visuals' },
             { label: 'Details' },
+            { label: 'Variants' },
+            { label: 'Advanced' },
             { label: 'Review' }
         ];
 
@@ -49,11 +52,30 @@ export default defineComponent({
             name: '',
             description: '',
             category: '',
+            subCategory: '',
+            brand: '',
+            tags: [] as string[],
             images: [] as File[],
             price: '',
             comparePrice: '',
+            costPrice: '',
             stock: '',
-            sku: ''
+            sku: '',
+            material: '',
+            careInstructions: '',
+            warranty: '',
+            returnPolicy: '',
+            weight: '',
+            dimensions: { length: '', width: '', height: '' },
+            options: [] as ProductOption[],
+            variants: [] as ProductVariant[],
+            seo: {
+                title: '',
+                description: '',
+                keywords: '',
+                canonicalUrl: ''
+            },
+            status: 'active'
         });
 
         // Computed property to get the first image for preview
@@ -67,7 +89,77 @@ export default defineComponent({
 
         const getCategoryLabel = (value: string) => {
             const cat = categories.find(c => c.value === value);
-            return cat ? cat.label : value;
+            return cat?.label || value;
+        };
+
+        // Variant Logic
+        const newOptionName = ref('');
+        const newOptionValues = ref('');
+
+        const addOption = () => {
+            if (newOptionName.value && newOptionValues.value) {
+                const values = newOptionValues.value.split(',').map(v => v.trim()).filter(v => v);
+                if (values.length > 0) {
+                    formData.options.push({
+                        name: newOptionName.value,
+                        values: values
+                    });
+                    newOptionName.value = '';
+                    newOptionValues.value = '';
+                    generateVariants();
+                }
+            }
+        };
+
+        const removeOption = (index: number) => {
+            formData.options.splice(index, 1);
+            generateVariants();
+        };
+
+        const generateVariants = () => {
+            if (formData.options.length === 0) {
+                formData.variants = [];
+                return;
+            }
+
+            const cartesian = (args: string[][]) => {
+                const r: string[][] = [];
+                const max = args.length - 1;
+                function helper(arr: string[], i: number) {
+                    for (let j = 0, l = args[i].length; j < l; j++) {
+                        const a = arr.slice(0); // clone arr
+                        a.push(args[i][j]);
+                        if (i == max)
+                            r.push(a);
+                        else
+                            helper(a, i + 1);
+                    }
+                }
+                helper([], 0);
+                return r;
+            };
+
+            const optionValues = formData.options.map(o => o.values);
+            const combinations = cartesian(optionValues);
+
+            formData.variants = combinations.map((combo, index) => {
+                const optionsMap: { [key: string]: string } = {};
+                let nameParts: string[] = [];
+
+                formData.options.forEach((opt, i) => {
+                    optionsMap[opt.name] = combo[i];
+                    nameParts.push(`${opt.name}: ${combo[i]}`);
+                });
+
+                return {
+                    id: `var_${Date.now()}_${index}`,
+                    name: nameParts.join(' / '),
+                    options: optionsMap,
+                    price: Number(formData.price) || 0,
+                    stock: Number(formData.stock) || 0,
+                    sku: `${formData.sku || 'SKU'}-${index + 1}`
+                };
+            });
         };
 
         const handleSubmit = async () => {
@@ -78,17 +170,41 @@ export default defineComponent({
 
             submitting.value = true;
             try {
-                const storeId = route.params.id as string;
+                const storeId = (route.params.id as string) || '';
+                if (!storeId) throw new Error("Store ID is missing");
 
                 // Prepare data (exclude images as they are passed separately)
                 const productPayload = {
                     name: formData.name,
                     description: formData.description,
                     category: formData.category,
+                    subCategory: formData.subCategory,
+                    brand: formData.brand,
+                    tags: formData.tags,
                     price: Number(formData.price),
                     comparePrice: formData.comparePrice ? Number(formData.comparePrice) : null,
+                    costPrice: formData.costPrice ? Number(formData.costPrice) : null,
                     stock: Number(formData.stock),
-                    sku: formData.sku
+                    sku: formData.sku,
+                    material: formData.material,
+                    careInstructions: formData.careInstructions,
+                    warranty: formData.warranty,
+                    returnPolicy: formData.returnPolicy,
+                    weight: formData.weight ? Number(formData.weight) : null,
+                    dimensions: {
+                        length: formData.dimensions.length ? Number(formData.dimensions.length) : null,
+                        width: formData.dimensions.width ? Number(formData.dimensions.width) : null,
+                        height: formData.dimensions.height ? Number(formData.dimensions.height) : null
+                    },
+                    options: formData.options,
+                    variants: formData.variants,
+                    seo: {
+                        title: formData.seo.title || formData.name,
+                        description: formData.seo.description || formData.description.substring(0, 160),
+                        keywords: formData.seo.keywords ? formData.seo.keywords.split(',').map(k => k.trim()) : formData.tags,
+                        canonicalUrl: formData.seo.canonicalUrl
+                    },
+                    status: formData.status
                 };
 
                 await createProduct(storeId, productPayload, formData.images);
@@ -103,6 +219,59 @@ export default defineComponent({
             }
         };
 
+        const validateStep = (step: number): boolean => {
+            switch (step) {
+                case 0: // Essentials
+                    if (!formData.name) {
+                        showToast('Product Name is required', 'error');
+                        return false;
+                    }
+                    if (!formData.description) {
+                        showToast('Description is required', 'error');
+                        return false;
+                    }
+                    if (!formData.category) {
+                        showToast('Category is required', 'error');
+                        return false;
+                    }
+                    return true;
+                case 1: // Visuals
+                    if (formData.images.length === 0) {
+                        showToast('At least one image is required', 'error');
+                        return false;
+                    }
+                    return true;
+                case 2: // Details
+                    if (!formData.price) {
+                        showToast('Price is required', 'error');
+                        return false;
+                    }
+                    if (!formData.stock) {
+                        showToast('Stock is required', 'error');
+                        return false;
+                    }
+                    return true;
+                case 3: // Variants
+                    // Optional, but if options exist, variants should be generated
+                    if (formData.options.length > 0 && formData.variants.length === 0) {
+                        showToast('Please generate variants or remove options', 'warning');
+                        return false;
+                    }
+                    return true;
+                case 4: // Advanced
+                    // SEO fields are optional
+                    return true;
+                default:
+                    return true;
+            }
+        };
+
+        const handleNextStep = () => {
+            if (validateStep(currentStep.value)) {
+                currentStep.value++;
+            }
+        };
+
         return {
             router,
             currentStep,
@@ -112,7 +281,12 @@ export default defineComponent({
             formData,
             previewImage,
             getCategoryLabel,
-            handleSubmit
+            handleSubmit,
+            handleNextStep,
+            newOptionName,
+            newOptionValues,
+            addOption,
+            removeOption
         };
     }
 });

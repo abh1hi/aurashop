@@ -1,92 +1,407 @@
+/* Product Card Container */
 .product-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    background: var(--bg-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid var(--glass-border);
+    will-change: transform, box-shadow;
 }
 
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15),
+        0 0 0 1px var(--brand-primary-light, rgba(0, 0, 0, 0.05));
+    border-color: transparent;
+}
+
+/* HydraGlow Effect */
+.product-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.product-card:hover::after {
+    opacity: 1;
+}
+
+/* 1. Image Section */
 .card-image-wrapper {
     position: relative;
     width: 100%;
-    padding-top: 125%;
-    /* Aspect ratio for image */
-    background-color: #f0f0f0;
+    aspect-ratio: 4/5;
+    /* Portrait ratio */
+    overflow: hidden;
+    background: var(--secondary-pastel);
 }
 
 .card-image-wrapper img {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.discount-badge {
+.product-card:hover .card-image-wrapper img {
+    transform: scale(1.08);
+}
+
+/* 9. Badges */
+.badges-container {
     position: absolute;
     top: var(--spacing-sm);
     left: var(--spacing-sm);
-    background-color: var(--brand-primary);
-    /* Brown */
-    color: white;
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    font-size: var(--text-xs);
-    font-weight: var(--font-weight-bold);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
 }
 
-.wishlist-btn {
+.badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.badge.discount {
+    background: var(--error-color);
+    color: white;
+}
+
+.badge.new {
+    background: var(--brand-secondary);
+    color: white;
+}
+
+.badge.best-seller {
+    background: var(--warning-color);
+    color: black;
+}
+
+.badge.limited {
+    background: var(--text-color);
+    color: white;
+}
+
+/* 10. Top Actions */
+.card-actions-top {
     position: absolute;
     top: var(--spacing-sm);
     right: var(--spacing-sm);
-    background: white;
-    border: none;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+}
+
+.product-card:hover .card-actions-top {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.wishlist-btn .material-icons-round {
-    font-size: 16px;
+.action-btn:hover {
+    transform: scale(1.1);
     color: var(--text-color);
 }
 
+.action-btn.active {
+    color: var(--error-color);
+}
+
+/* Content Section */
 .card-content {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-md);
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    gap: 4px;
+    flex: 1;
 }
 
-.product-name {
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color);
-    flex-grow: 1;
-    margin-bottom: var(--spacing-sm);
+/* 3. Brand & 16. Seller */
+.brand-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 0;
+    /* Flex fix for truncation */
+}
+
+.brand-name {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    letter-spacing: 0.5px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.seller-name {
+    font-size: 9px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 40%;
 }
 
-.product-price {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-bold);
+/* 2. Title */
+.product-title {
+    font-size: 13px;
+    /* Slightly smaller for density */
+    font-weight: 600;
+    color: var(--text-color);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+    min-height: 34px;
+    /* Ensure consistent height */
+}
+
+/* 11. Feature Snippet */
+.feature-snippet {
+    font-size: 10px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 7. Rating */
+.rating-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stars {
+    display: flex;
+    color: var(--warning-color);
+}
+
+.stars .material-icons-round {
+    font-size: 12px;
+}
+
+.rating-text {
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+
+/* 4, 5, 6, 13. Price */
+.price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.price-main {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.current-price {
+    font-size: 14px;
+    font-weight: 700;
     color: var(--text-color);
 }
 
-.add-btn-override {
-    padding: 4px !important;
-    width: 28px;
-    height: 28px;
+.original-price {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-decoration: line-through;
+}
+
+.unit-price {
+    font-size: 9px;
+    color: var(--text-tertiary);
+}
+
+/* 17. Coupon */
+.coupon-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    color: var(--success-color);
+    font-weight: 600;
+    background: rgba(52, 199, 89, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    width: fit-content;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.coupon-tag .material-icons-round {
+    font-size: 10px;
+}
+
+/* 14. EMI */
+.emi-text {
+    font-size: 9px;
+    color: var(--text-tertiary);
+}
+
+/* 8. Variations */
+.options-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: 4px;
+}
+
+.colors {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sizes {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.size-text {
+    font-size: 9px;
+    color: var(--text-secondary);
+    border: 1px solid var(--glass-border);
+    padding: 1px 4px;
+    border-radius: 2px;
+}
+
+.more-count {
+    font-size: 9px;
+    color: var(--text-tertiary);
+}
+
+/* 12. Delivery */
+.delivery-info {
+    font-size: 9px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.delivery-info .material-icons-round {
+    font-size: 10px;
+    color: var(--brand-primary);
+}
+
+/* 10. Bottom CTA */
+.add-to-cart-btn {
+    margin-top: var(--spacing-sm);
+    width: 100%;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: var(--text-color);
+    color: var(--bg-color);
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.2s;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.product-card:hover .add-to-cart-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.add-to-cart-btn:hover {
+    background: var(--text-secondary);
+}
+
+.add-to-cart-btn .material-icons-round {
+    font-size: 14px;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .product-card {
+        min-height: auto;
+    }
+
+    .card-content {
+        padding: var(--spacing-sm);
+        gap: 2px;
+    }
+
+    .add-to-cart-btn {
+        height: 28px;
+        font-size: 11px;
+        opacity: 1;
+        /* Always visible on mobile */
+        transform: none;
+    }
+
+    .card-actions-top {
+        opacity: 1;
+        /* Always visible on mobile */
+        transform: none;
+    }
 }
