@@ -145,7 +145,7 @@ import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.
 import LiquidFileUpload from '../components/liquid-ui-kit/LiquidFileUpload/LiquidFileUpload.vue';
 import LiquidSpinner from '../components/liquid-ui-kit/LiquidSpinner/LiquidSpinner.vue';
 import { useVendor } from '../composables/useVendor';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 
 const router = useRouter();
 const route = useRoute();

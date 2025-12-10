@@ -88,7 +88,7 @@ import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidCard from '../components/liquid-ui-kit/LiquidCard/LiquidCard.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import { useCart } from '../composables/useCart';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 
 const { cartItems, loading, updateQuantity, removeFromCart, cartTotal } = useCart();
 const { showToast } = useToast();

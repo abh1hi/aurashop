@@ -246,7 +246,7 @@ import ProductCard from '../components/ProductCard.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
 import { useCart } from '../composables/useCart';
 import { useWishlist } from '../composables/useWishlist';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 
 const route = useRoute();
 const { addToCart } = useCart();

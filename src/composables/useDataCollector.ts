@@ -1,6 +1,6 @@
-import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { doc, setDoc, updateDoc, arrayUnion, serverTimestamp, collection } from 'firebase/firestore';
+import { ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { doc, setDoc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from './useAuth';
 import { useTheme } from './useTheme';
@@ -17,10 +17,10 @@ export function useDataCollector() {
     const { cartItems, cartTotal } = useCart();
     const { wishlistItems } = useWishlist();
     const route = useRoute();
-    const router = useRouter();
+    // const router = useRouter(); // Unused
 
     const sessionId = ref(localStorage.getItem('tracking_session_id') || uuidv4());
-    const startTime = Date.now();
+    // const startTime = Date.now(); // Unused
     const pageVisits = ref<any[]>([]);
 
     // Initialize Session
@@ -39,7 +39,7 @@ export function useDataCollector() {
             device: deviceInfo,
             location: {
                 // These might be null initially if useLocation hasn't finished
-                address: location.value || 'Unknown',
+                address: location.value?.address || 'Unknown',
                 ip: 'Captured by Server', // Client-side IP capture is tricky without external service
             },
             preferences: {

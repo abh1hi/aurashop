@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { collection, query, where, getDocs, Timestamp, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export function useAnalytics() {
@@ -29,7 +29,7 @@ export function useAnalytics() {
             );
 
             const snapshot = await getDocs(q);
-            const orders = snapshot.docs.map(doc => doc.data());
+            const orders: any[] = snapshot.docs.map(doc => doc.data());
 
             // Calculate metrics
             const totalOrders = orders.length;
@@ -79,7 +79,7 @@ export function useAnalytics() {
         }
     };
 
-    const fetchRevenueTrend = async (storeId: string, period = 'week') => {
+    const fetchRevenueTrend = async (storeId: string, _period = 'week') => {
         // Real implementation would aggregate by day
         // For now, we'll fetch orders and group them client-side
         loading.value = true;

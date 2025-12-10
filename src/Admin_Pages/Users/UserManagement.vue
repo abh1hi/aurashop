@@ -69,7 +69,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useAdmin } from '../../composables/useAdmin';
-import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import LiquidInput from '../../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
 import AdminLayout from '../components/AdminLayout.vue';
 

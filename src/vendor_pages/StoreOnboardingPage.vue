@@ -281,7 +281,7 @@ import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.
 import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
 import LiquidOTPInput from '../components/liquid-ui-kit/LiquidOTPInput/LiquidOTPInput.vue';
 import LiquidStepper from '../components/liquid-ui-kit/LiquidStepper/LiquidStepper.vue';
-import { useStoreOnboardingLogic } from './StoreOnboardingPage.js';
+import { useStoreOnboardingLogic } from './StoreOnboardingPage';
 
 const {
   currentStep,

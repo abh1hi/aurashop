@@ -118,7 +118,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import LiquidButton from './liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidThemeSwitcher from './LiquidThemeSwitcher.vue';
 import LiquidBreadcrumbs from './liquid-ui-kit/LiquidBreadcrumbs/LiquidBreadcrumbs.vue';
-import { useLocation } from '../composables/useLocation.js';
+import { useLocation } from '../composables/useLocation';
 import { useAuth } from '../composables/useAuth';
 
 const { location, detectLocation } = useLocation();

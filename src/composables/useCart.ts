@@ -87,7 +87,7 @@ export function useCart() {
         if (!user.value) return;
         // In a real app, maybe call a backend function. Here, delete one by one or batch.
         // For simplicity, we'll just delete one by one for now (not efficient for large carts)
-        const promises = cartItems.value.map(item => deleteDoc(doc(db, 'users', user.value.uid, 'cart', item.id)));
+        const promises = cartItems.value.map((item: any) => deleteDoc(doc(db, 'users', user.value!.uid, 'cart', String(item.id))));
         await Promise.all(promises);
         cartItems.value = [];
     };

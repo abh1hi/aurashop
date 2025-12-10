@@ -1,10 +1,10 @@
 import { ref } from 'vue';
-import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
-import { useAuth } from './useAuth';
+
 
 export function useMarketing() {
-    const { user } = useAuth();
+    // const { user } = useAuth(); // Unused
     const loading = ref(false);
     const error = ref<string | null>(null);
 

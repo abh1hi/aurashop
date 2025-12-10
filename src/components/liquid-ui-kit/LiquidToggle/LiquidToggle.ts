@@ -7,7 +7,7 @@ export const liquidToggleProps = {
     icon: String, // Icon inside the thumb
 };
 
-export function useLiquidToggle(props, emit) {
+export function useLiquidToggle(props: any, emit: any) {
     const toggleClasses = computed(() => [
         'selection-control',
         {
@@ -15,7 +15,7 @@ export function useLiquidToggle(props, emit) {
         },
     ]);
 
-    const handleChange = (event) => {
+    const handleChange = (event: any) => {
         if (!props.disabled) {
             emit('update:modelValue', event.target.checked);
         }

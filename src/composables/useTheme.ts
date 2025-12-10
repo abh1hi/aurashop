@@ -14,7 +14,7 @@ export function useTheme() {
         }, 86400000); // 24 hours TTL
     };
 
-    const setTheme = (theme) => {
+    const setTheme = (theme: string) => {
         currentTheme.value = theme;
         document.getElementById('app')?.setAttribute('data-theme', theme);
         cacheManager.set('user_preferences', {
@@ -33,7 +33,7 @@ export function useTheme() {
 
     onMounted(() => {
         // Initialize state based on cache or defaults
-        const cachedPrefs = cacheManager.get('user_preferences');
+        const cachedPrefs = cacheManager.get('user_preferences') as any;
 
         if (cachedPrefs) {
             currentTheme.value = cachedPrefs.theme;

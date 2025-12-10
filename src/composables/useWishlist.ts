@@ -1,5 +1,5 @@
 import { ref, watch } from 'vue';
-import { collection, doc, getDocs, setDoc, deleteDoc, getDoc, query, orderBy, limit } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from './useAuth';
 import { cacheManager } from '../utils/cacheManager';
@@ -17,7 +17,7 @@ export function useWishlist() {
         }
 
         // 1. Try to get cached data
-        const cachedWishlist = cacheManager.get(`wishlist_${user.value.uid}`);
+        const cachedWishlist = cacheManager.get(`wishlist_${user.value.uid}`) as any[];
         if (cachedWishlist) {
             wishlistItems.value = cachedWishlist;
             // Don't return yet, we need to check for updates in background

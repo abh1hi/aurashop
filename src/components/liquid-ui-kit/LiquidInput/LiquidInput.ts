@@ -15,7 +15,7 @@ export const liquidInputProps = {
     search: Boolean,
 };
 
-export function useLiquidInput(props) {
+export function useLiquidInput(props: any) {
     const inputClasses = computed(() => [
         'input-field',
         {

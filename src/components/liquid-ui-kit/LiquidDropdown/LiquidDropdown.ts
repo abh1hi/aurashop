@@ -13,24 +13,24 @@ export const liquidDropdownProps = {
     label: String,
 };
 
-export function useLiquidDropdown(props, emit) {
+export function useLiquidDropdown(props: any, emit: any) {
     const isOpen = ref(false);
-    const dropdownRef = ref(null);
+    const dropdownRef = ref<any>(null);
 
     const selectedOption = computed(() => {
-        return props.options.find(opt => opt.value === props.modelValue);
+        return props.options.find((opt: any) => opt.value === props.modelValue);
     });
 
     const toggleDropdown = () => {
         isOpen.value = !isOpen.value;
     };
 
-    const selectOption = (value) => {
+    const selectOption = (value: any) => {
         emit('update:modelValue', value);
         isOpen.value = false;
     };
 
-    const closeDropdown = (e) => {
+    const closeDropdown = (e: any) => {
         if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
             isOpen.value = false;
         }

@@ -111,7 +111,7 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCart } from '../composables/useCart';
 import { useWishlist } from '../composables/useWishlist';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import { useQuickView } from '../composables/useQuickView';
 
 const props = defineProps({

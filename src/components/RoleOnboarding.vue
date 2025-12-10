@@ -90,7 +90,7 @@ import LiquidInput from './liquid-ui-kit/LiquidInput/LiquidInput.vue';
 import LiquidButton from './liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import { useUser } from '../composables/useUser';
 import { useVendor } from '../composables/useVendor';
-import { useToast } from './liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from './liquid-ui-kit/LiquidToast/LiquidToast';
 
 const router = useRouter();
 const { addRole } = useUser();

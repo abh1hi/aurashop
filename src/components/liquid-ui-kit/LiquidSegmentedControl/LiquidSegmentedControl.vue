@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { liquidSegmentedControlProps, useLiquidSegmentedControl } from './LiquidSegmentedControl.js';
+import { liquidSegmentedControlProps, useLiquidSegmentedControl } from './LiquidSegmentedControl';
 
 const props = defineProps(liquidSegmentedControlProps);
 const emit = defineEmits(['update:modelValue']);

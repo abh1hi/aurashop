@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { useToast } from './LiquidToast.js';
+import { useToast } from './LiquidToast';
 import './LiquidToast.css';
 
 const { toasts, removeToast } = useToast();

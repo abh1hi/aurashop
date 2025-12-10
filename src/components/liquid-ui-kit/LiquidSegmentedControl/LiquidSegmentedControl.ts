@@ -13,14 +13,14 @@ export const liquidSegmentedControlProps = {
     fullWidth: Boolean,
 };
 
-export function useLiquidSegmentedControl(props, emit) {
+export function useLiquidSegmentedControl(props: any, emit: any) {
     const containerClasses = computed(() => [
         'segmented-control',
         props.size,
         { 'full-width': props.fullWidth }
     ]);
 
-    const selectOption = (value) => {
+    const selectOption = (value: any) => {
         emit('update:modelValue', value);
     };
 

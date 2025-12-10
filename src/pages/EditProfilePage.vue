@@ -91,7 +91,7 @@ import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidCard from '../components/liquid-ui-kit/LiquidCard/LiquidCard.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
-import { useEditProfilePage } from './EditProfilePage.js';
+import { useEditProfilePage } from './EditProfilePage';
 
 const {
     router,

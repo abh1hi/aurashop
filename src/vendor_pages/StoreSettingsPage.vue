@@ -58,7 +58,7 @@ import StoreSettings from '../components/StoreSettings.vue';
 import LiquidSettingsLayout from '../components/liquid-ui-kit/LiquidSettingsLayout/LiquidSettingsLayout.vue';
 import LiquidSpinner from '../components/liquid-ui-kit/LiquidSpinner/LiquidSpinner.vue';
 import { useVendor } from '../composables/useVendor';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 
 const route = useRoute();
 const router = useRouter();

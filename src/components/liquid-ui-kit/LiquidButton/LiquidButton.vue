@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { liquidButtonProps, useLiquidButton } from './LiquidButton.js';
+import { liquidButtonProps, useLiquidButton } from './LiquidButton';
 
 const props = defineProps(liquidButtonProps);
 const { buttonClasses, handleClick } = useLiquidButton(props);

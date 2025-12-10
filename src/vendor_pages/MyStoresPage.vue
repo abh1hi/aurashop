@@ -114,7 +114,7 @@ import LiquidCard from '../components/liquid-ui-kit/LiquidCard/LiquidCard.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidSegmentedControl from '../components/liquid-ui-kit/LiquidSegmentedControl/LiquidSegmentedControl.vue';
 import { useVendor } from '../composables/useVendor';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 
 const router = useRouter();
 const { fetchMyStores, deleteStore, toggleStoreStatus, createStore, subscribeToMyStores } = useVendor();

@@ -25,7 +25,7 @@ export const liquidButtonProps = {
     }
 };
 
-export function useLiquidButton(props) {
+export function useLiquidButton(props: any) {
     const buttonClasses = computed(() => [
         'btn',
         `btn-${props.type}`,
@@ -37,8 +37,9 @@ export function useLiquidButton(props) {
         },
     ]);
 
-    const handleClick = (event) => {
+    const handleClick = (event: Event) => {
         // Ripple effect can be added here if needed
+        console.log(event);
     };
 
     return {

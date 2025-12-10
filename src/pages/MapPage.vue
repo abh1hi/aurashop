@@ -139,7 +139,7 @@
 </template>
 
 <script setup>
-import { useMapPage } from './MapPage.js';
+import { useMapPage } from './MapPage';
 import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidAutocomplete from '../components/liquid-ui-kit/LiquidAutocomplete/LiquidAutocomplete.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';

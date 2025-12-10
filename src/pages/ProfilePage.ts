@@ -2,17 +2,16 @@ import { useRouter } from 'vue-router';
 import { ref, computed } from 'vue';
 import { useUser } from '../composables/useUser';
 import { useAuth } from '../composables/useAuth';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import { useTheme } from '../composables/useTheme';
 
 export function useProfilePage() {
     const router = useRouter();
-    const { userProfile, addAddress, removeAddress, updateAddress } = useUser();
+    const { userProfile, removeAddress } = useUser();
     const { logout, user } = useAuth();
     const { showToast } = useToast();
     const { liquidAnimationsEnabled, currentTheme, toggleLiquidAnimations, setTheme } = useTheme();
 
-    const isAnonymous = ref(false); // This should be computed from user but ref for now to match usage
     const showAddressBookSheet = ref(false);
     const themeCategory = ref('standard');
     const activeTab = ref('overview');
@@ -52,18 +51,18 @@ export function useProfilePage() {
         router.push({ path: '/map', query: { mode: 'save' } });
     };
 
-    const editAddress = (id) => {
+    const editAddress = (id: string) => {
         showAddressBookSheet.value = false;
         router.push({ path: '/map', query: { mode: 'edit', id } });
     };
 
-    const confirmDeleteAddress = async (id) => {
+    const confirmDeleteAddress = async (id: string) => {
         if (confirm('Are you sure you want to delete this address?')) {
             await handleDeleteAddress(id);
         }
     };
 
-    const handleDeleteAddress = async (id) => {
+    const handleDeleteAddress = async (id: string) => {
         try {
             await removeAddress(id);
             showToast('Address removed', 'info');
@@ -72,7 +71,7 @@ export function useProfilePage() {
         }
     };
 
-    const formatRole = (role) => {
+    const formatRole = (role: string) => {
         return role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     };
 
@@ -94,8 +93,8 @@ export function useProfilePage() {
         }
     };
 
-    const getTabIcon = (tab) => {
-        const icons = {
+    const getTabIcon = (tab: string) => {
+        const icons: Record<string, string> = {
             overview: 'dashboard',
             orders: 'shopping_bag',
             settings: 'settings'
@@ -103,8 +102,8 @@ export function useProfilePage() {
         return icons[tab] || 'circle';
     };
 
-    const getTabLabel = (tab) => {
-        const labels = {
+    const getTabLabel = (tab: string) => {
+        const labels: Record<string, string> = {
             overview: 'Overview',
             orders: 'Order History',
             settings: 'Settings'

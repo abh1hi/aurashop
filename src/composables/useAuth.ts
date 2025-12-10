@@ -11,11 +11,11 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     type User,
-    type ConfirmationResult,
+
     linkWithPopup,
     EmailAuthProvider,
     linkWithCredential,
-    AuthCredential
+
 } from 'firebase/auth';
 import { auth } from '../firebase';
 

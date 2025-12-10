@@ -79,7 +79,7 @@ import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidSpinner from '../components/liquid-ui-kit/LiquidSpinner/LiquidSpinner.vue';
 import { useVendor } from '../composables/useVendor';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 
 const router = useRouter();
 const route = useRoute();

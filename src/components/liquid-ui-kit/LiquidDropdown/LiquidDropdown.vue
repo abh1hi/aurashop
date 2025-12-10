@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { liquidDropdownProps, useLiquidDropdown } from './LiquidDropdown.js';
+import { liquidDropdownProps, useLiquidDropdown } from './LiquidDropdown';
 
 const props = defineProps(liquidDropdownProps);
 const emit = defineEmits(['update:modelValue']);

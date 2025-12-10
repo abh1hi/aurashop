@@ -59,79 +59,79 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/vendor/onboarding',
         name: 'VendorOnboarding',
-        component: () => import('./pages/VendorOnboardingPage.vue'),
+        component: () => import('./vendor_pages/VendorOnboardingPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/create-store',
         name: 'CreateStore',
-        component: () => import('./pages/CreateStorePage.vue'),
+        component: () => import('./vendor_pages/CreateStorePage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/my-stores',
         name: 'MyStores',
-        component: () => import('./pages/MyStoresPage.vue'),
+        component: () => import('./vendor_pages/MyStoresPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/onboarding',
         name: 'StoreOnboarding',
-        component: () => import('./pages/StoreOnboardingPage.vue'),
+        component: () => import('./vendor_pages/StoreOnboardingPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/dashboard',
         name: 'StoreDashboard',
-        component: () => import('./pages/StoreDashboardPage.vue'),
+        component: () => import('./vendor_pages/StoreDashboardPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/settings',
         name: 'StoreSettings',
-        component: () => import('./pages/StoreSettingsPage.vue'),
+        component: () => import('./vendor_pages/StoreSettingsPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/add-product',
         name: 'AddProduct',
-        component: () => import('./pages/AddProductPage.vue'),
+        component: () => import('./vendor_pages/AddProductPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/orders',
         name: 'StoreOrders',
-        component: () => import('./pages/StoreOrdersPage.vue'),
+        component: () => import('./vendor_pages/StoreOrdersPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/orders/:orderId',
         name: 'StoreOrderDetails',
-        component: () => import('./pages/StoreOrderDetailsPage.vue'),
+        component: () => import('./vendor_pages/StoreOrderDetailsPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/marketing',
         name: 'StoreMarketing',
-        component: () => import('./pages/StoreMarketingPage.vue'),
+        component: () => import('./vendor_pages/StoreMarketingPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/analytics',
         name: 'StoreAnalytics',
-        component: () => import('./pages/StoreAnalyticsPage.vue'),
+        component: () => import('./vendor_pages/StoreAnalyticsPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/products',
         name: 'StoreProducts',
-        component: () => import('./pages/StoreProductsPage.vue'),
+        component: () => import('./vendor_pages/StoreProductsPage.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/vendor/store/:id/products/:productId/edit',
         name: 'EditProduct',
-        component: () => import('./pages/EditProductPage.vue'),
+        component: () => import('./vendor_pages/EditProductPage.vue'),
         meta: { requiresAuth: true }
     },
     // Admin Routes

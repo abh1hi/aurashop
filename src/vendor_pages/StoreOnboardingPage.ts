@@ -2,7 +2,7 @@ import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useVendor } from '../composables/useVendor';
 import { useAuth } from '../composables/useAuth';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import vendorCats from '../../vendorcat.json';
 
 export function useStoreOnboardingLogic() {
@@ -12,13 +12,29 @@ export function useStoreOnboardingLogic() {
     const { user, setupRecaptcha, linkWithPhone } = useAuth();
     const { showToast } = useToast();
 
+    // Type definitions
+    interface Category {
+        id: string;
+        name: string;
+        description: string;
+    }
+
+    interface Categories {
+        [key: string]: Category[];
+    }
+
     const currentStep = ref(1);
     const totalSteps = 8;
-    const storeId = ref(route.params.id); // Get from route
-    const videoFile = ref(null);
-    const docFile = ref(null);
-    const videoInput = ref(null);
-    const docInput = ref(null);
+    const getRouteParam = (param: string | string[] | undefined) => {
+        if (!param) return '';
+        return Array.isArray(param) ? param[0] : param;
+    };
+
+    const storeId = ref(getRouteParam(route.params.id));
+    const videoFile = ref<File | null>(null);
+    const docFile = ref<File | null>(null);
+    const videoInput = ref<HTMLInputElement | null>(null);
+    const docInput = ref<HTMLInputElement | null>(null);
     const videoError = ref('');
     const docError = ref('');
 
@@ -26,7 +42,7 @@ export function useStoreOnboardingLogic() {
     const verificationSent = ref(false);
     const otpCode = ref('');
     const verifying = ref(false);
-    const confirmationResult = ref(null);
+    const confirmationResult = ref<any>(null);
     const rawPhone = ref('');
     const isValidPhone = ref(false);
 
@@ -47,7 +63,7 @@ export function useStoreOnboardingLogic() {
 
     const isPhoneVerified = computed(() => !!user.value?.phoneNumber);
 
-    const existingKYC = ref(null);
+    const existingKYC = ref<any>(null);
     const useExistingKYC = ref(false);
 
     const isNextDisabled = computed(() => {
@@ -75,18 +91,19 @@ export function useStoreOnboardingLogic() {
         useExistingKYC.value = !useExistingKYC.value;
     };
 
-    const onPhoneValidate = (phoneObject) => {
+    const onPhoneValidate = (phoneObject: any) => {
         isValidPhone.value = phoneObject.valid;
         if (phoneObject.valid) {
             formData.phone = phoneObject.number; // Store formatted number (E.164)
         }
     };
 
-    const triggerVideoUpload = () => videoInput.value.click();
-    const triggerDocUpload = () => docInput.value.click();
+    const triggerVideoUpload = () => videoInput.value?.click();
+    const triggerDocUpload = () => docInput.value?.click();
 
-    const handleVideoChange = (event) => {
-        const file = event.target.files[0];
+    const handleVideoChange = (event: Event) => {
+        const target = event.target as HTMLInputElement;
+        const file = target.files?.[0];
         if (!file) return;
 
         videoError.value = '';
@@ -104,8 +121,9 @@ export function useStoreOnboardingLogic() {
         video.src = URL.createObjectURL(file);
     };
 
-    const handleDocChange = (event) => {
-        const file = event.target.files[0];
+    const handleDocChange = (event: Event) => {
+        const target = event.target as HTMLInputElement;
+        const file = target.files?.[0];
         if (!file) return;
 
         docError.value = '';
@@ -122,18 +140,21 @@ export function useStoreOnboardingLogic() {
         docFile.value = file;
     };
 
-    const categories = vendorCats.categories;
+    const categories: Categories = (vendorCats as any).categories;
 
     const categoryOptions = computed(() => {
-        const options = [];
+        const options: any[] = [];
         for (const group in categories) {
-            categories[group].forEach(cat => {
-                options.push({
-                    label: cat.name,
-                    value: cat.id,
-                    icon: 'category'
+            const items = categories[group];
+            if (items) {
+                items.forEach((cat: Category) => {
+                    options.push({
+                        label: cat.name,
+                        value: cat.id,
+                        icon: 'category'
+                    });
                 });
-            });
+            }
         }
         return options;
     });
@@ -182,11 +203,11 @@ export function useStoreOnboardingLogic() {
         { label: "Review", description: "Submit" }
     ];
 
-    const getStepTitle = (step) => {
+    const getStepTitle = (step: number) => {
         return steps[step - 1]?.label || "";
     };
 
-    const getStepDescription = (step) => {
+    const getStepDescription = (step: number) => {
         const descs = [
             "Get started with your store setup.",
             "Tell us the basics about your business.",
@@ -219,13 +240,13 @@ export function useStoreOnboardingLogic() {
                     }
                     break;
                 case 3: // KYC
-                    if (useExistingKYC.value && existingKYC.value) {
+                    if (useExistingKYC.value && existingKYC.value && storeId.value) {
                         await updateStore(storeId.value, {
                             kycVideoUrl: existingKYC.value.videoUrl,
                             kycDocUrl: existingKYC.value.docUrl,
                             kycStatus: 'submitted'
                         });
-                    } else if (videoFile.value && docFile.value) {
+                    } else if (videoFile.value && docFile.value && storeId.value) {
                         try {
                             const { videoUrl, docUrl } = await uploadKYC(videoFile.value, docFile.value);
                             await updateStore(storeId.value, {
@@ -240,19 +261,19 @@ export function useStoreOnboardingLogic() {
                     }
                     break;
                 case 4: // Category
-                    await updateStore(storeId.value, { category: formData.category });
+                    if (storeId.value) await updateStore(storeId.value, { category: formData.category });
                     break;
                 case 5: // Details
-                    await updateStore(storeId.value, { address: formData.address, city: formData.city, hours: formData.hours });
+                    if (storeId.value) await updateStore(storeId.value, { address: formData.address, city: formData.city, hours: formData.hours });
                     break;
                 case 6: // Bank
-                    await updateStore(storeId.value, { bankDetails: { name: formData.bankName, account: formData.accountNumber, ifsc: formData.ifsc } });
+                    if (storeId.value) await updateStore(storeId.value, { bankDetails: { name: formData.bankName, account: formData.accountNumber, ifsc: formData.ifsc } });
                     break;
                 case 7: // Branding
-                    await updateStore(storeId.value, { description: formData.description, logoUrl: formData.logoUrl, bannerUrl: formData.bannerUrl });
+                    if (storeId.value) await updateStore(storeId.value, { description: formData.description, logoUrl: formData.logoUrl, bannerUrl: formData.bannerUrl });
                     break;
                 case 8: // Submit
-                    await submitForReview(storeId.value);
+                    if (storeId.value) await submitForReview(storeId.value);
                     showToast('Store submitted successfully! 🎉', 'success');
                     router.push('/profile');
                     return;
@@ -264,10 +285,13 @@ export function useStoreOnboardingLogic() {
         }
     };
 
-    const getCategoryName = (id) => {
+    const getCategoryName = (id: string) => {
         for (const group in categories) {
-            const found = categories[group].find(c => c.id === id);
-            if (found) return found.name;
+            const items = categories[group];
+            if (items) {
+                const found = items.find((c: Category) => c.id === id);
+                if (found) return found.name;
+            }
         }
         return id;
     };

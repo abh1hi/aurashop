@@ -1,10 +1,10 @@
 import { ref } from 'vue';
 
 const visible = ref(false);
-const product = ref(null);
+const product = ref<any>(null);
 
 export function useQuickView() {
-    const openQuickView = (p) => {
+    const openQuickView = (p: any) => {
         product.value = p;
         visible.value = true;
     };

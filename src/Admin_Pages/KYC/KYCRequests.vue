@@ -94,7 +94,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useAdmin } from '../../composables/useAdmin';
-import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import AdminLayout from '../components/AdminLayout.vue';
 import LiquidButton from '../../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 

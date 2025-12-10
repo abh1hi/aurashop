@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { liquidInputProps, useLiquidInput } from './LiquidInput.js';
+import { liquidInputProps, useLiquidInput } from './LiquidInput';
 
 const props = defineProps(liquidInputProps);
 const emit = defineEmits(['update:modelValue']);

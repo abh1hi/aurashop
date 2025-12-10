@@ -74,7 +74,7 @@ import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue'; // Assuming this exists or using select
 import { useVendor } from '../composables/useVendor';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 
 const router = useRouter();
 const { createStore, loading, error } = useVendor();

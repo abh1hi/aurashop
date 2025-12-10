@@ -11,7 +11,7 @@ export const liquidCardProps = {
     },
 };
 
-export function useLiquidCard(props) {
+export function useLiquidCard(props: any) {
     const cardClasses = computed(() => [
         'card',
         {

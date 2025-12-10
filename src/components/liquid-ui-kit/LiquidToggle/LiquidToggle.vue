@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { liquidToggleProps, useLiquidToggle } from './LiquidToggle.js';
+import { liquidToggleProps, useLiquidToggle } from './LiquidToggle';
 
 const props = defineProps(liquidToggleProps);
 const emit = defineEmits(['update:modelValue']);

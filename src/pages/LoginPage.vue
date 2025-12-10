@@ -124,7 +124,7 @@ import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import { useAuth } from '../composables/useAuth';
 import { useUser } from '../composables/useUser';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import { useWishlist } from '../composables/useWishlist';
 
 const router = useRouter();

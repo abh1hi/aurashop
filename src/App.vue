@@ -23,7 +23,7 @@ import { onMounted, watch } from 'vue';
 import LiquidToast from './components/liquid-ui-kit/LiquidToast/LiquidToast.vue';
 import QuickViewModal from './components/QuickViewModal.vue';
 import { useAuth } from './composables/useAuth';
-import { useToast } from './components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from './components/liquid-ui-kit/LiquidToast/LiquidToast';
 import { useDataCollector } from './composables/useDataCollector';
 
 const { initAuth, user, loginAnonymously } = useAuth();

@@ -1,17 +1,17 @@
 import { ref, reactive, onMounted, watch, computed } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useLocation } from '../composables/useLocation.js';
-import { useUser } from '../composables/useUser.js';
-import { useAuth } from '../composables/useAuth.js';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useLocation } from '../composables/useLocation';
+import { useUser } from '../composables/useUser';
+import { useAuth } from '../composables/useAuth';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import { useRouter, useRoute } from 'vue-router';
 
 export function useMapPage() {
-    const map = ref(null);
-    const marker = ref(null);
-    const circle = ref(null);
-    const selectedLocation = ref(null);
+    const map = ref<any>(null);
+    const marker = ref<any>(null);
+    const circle = ref<any>(null);
+    const selectedLocation = ref<any>(null);
     const showAddressSheet = ref(false);
     const isSettingCurrent = ref(false);
     const isSavingNew = ref(false);
@@ -63,21 +63,21 @@ export function useMapPage() {
         }).addTo(map.value);
 
         // Map Click Event
-        map.value.on('click', async (e) => {
+        map.value.on('click', async (e: any) => {
             const { lat, lng } = e.latlng;
             updateMarker(lat, lng);
             await fetchAddress(lat, lng);
         });
     };
 
-    const updateMapView = (lat, lng) => {
+    const updateMapView = (lat: number, lng: number) => {
         if (map.value) {
             map.value.setView([lat, lng], 13);
             updateMarker(lat, lng);
         }
     };
 
-    const updateMarker = (lat, lng) => {
+    const updateMarker = (lat: number, lng: number) => {
         if (!map.value) return;
         if (marker.value) {
             marker.value.setLatLng([lat, lng]);
@@ -86,7 +86,7 @@ export function useMapPage() {
         }
     };
 
-    const drawAccuracyCircle = (lat, lng, radius) => {
+    const drawAccuracyCircle = (lat: number, lng: number, radius: number) => {
         if (!map.value) return;
         if (circle.value) {
             circle.value.setLatLng([lat, lng]);
@@ -101,7 +101,7 @@ export function useMapPage() {
         }
     };
 
-    const handleLocationSelect = (item) => {
+    const handleLocationSelect = (item: any) => {
         let lat, lng, address;
 
         if (item.geometry && item.geometry.coordinates) {
@@ -124,7 +124,7 @@ export function useMapPage() {
         };
     };
 
-    const fetchAddress = async (lat, lng) => {
+    const fetchAddress = async (lat: number, lng: number) => {
         try {
             const response = await fetch(`https://photon.komoot.io/reverse?lon=${lng}&lat=${lat}`);
             if (!response.ok) throw new Error('Network response was not ok');
@@ -249,7 +249,8 @@ export function useMapPage() {
             };
 
             if (mode.value === 'edit' && route.query.id) {
-                await updateAddress({ ...addressData, id: route.query.id });
+                const id = Array.isArray(route.query.id) ? route.query.id[0] : route.query.id;
+                if (id) await updateAddress({ ...addressData, id });
                 showToast('Address updated successfully!', 'success');
             } else {
                 await addAddress(addressData);
@@ -276,7 +277,7 @@ export function useMapPage() {
 
         // Check for Edit Mode
         if (route.query.mode === 'edit' && route.query.id) {
-            const addrId = route.query.id;
+            const addrId = Array.isArray(route.query.id) ? route.query.id[0] : route.query.id;
             const addr = userProfile.value?.addresses?.find(a => a.id === addrId);
 
             if (addr) {

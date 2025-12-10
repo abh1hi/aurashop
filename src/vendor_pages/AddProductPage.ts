@@ -7,7 +7,7 @@ import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue
 import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidFileUpload from '../components/liquid-ui-kit/LiquidFileUpload/LiquidFileUpload.vue';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import { useVendor } from '../composables/useVendor';
 import type { ProductOption, ProductVariant } from '../types/Product';
 
@@ -26,7 +26,7 @@ export default defineComponent({
         const router = useRouter();
         const route = useRoute();
         const { showToast } = useToast();
-        const { createProduct, loading: vendorLoading } = useVendor();
+        const { createProduct } = useVendor();
 
         const currentStep = ref(0);
         const submitting = ref(false);
@@ -82,7 +82,9 @@ export default defineComponent({
         const previewImage = computed(() => {
             if (formData.images && formData.images.length > 0) {
                 const file = formData.images[0];
-                return URL.createObjectURL(file);
+                if (file) {
+                    return URL.createObjectURL(file);
+                }
             }
             return null;
         });
@@ -126,9 +128,13 @@ export default defineComponent({
                 const r: string[][] = [];
                 const max = args.length - 1;
                 function helper(arr: string[], i: number) {
+                    if (!args[i]) return;
                     for (let j = 0, l = args[i].length; j < l; j++) {
                         const a = arr.slice(0); // clone arr
-                        a.push(args[i][j]);
+                        const val = args[i][j];
+                        if (val) {
+                            a.push(val);
+                        }
                         if (i == max)
                             r.push(a);
                         else
@@ -147,8 +153,10 @@ export default defineComponent({
                 let nameParts: string[] = [];
 
                 formData.options.forEach((opt, i) => {
-                    optionsMap[opt.name] = combo[i];
-                    nameParts.push(`${opt.name}: ${combo[i]}`);
+                    if (opt && combo[i]) {
+                        optionsMap[opt.name] = combo[i];
+                        nameParts.push(`${opt.name}: ${combo[i]}`);
+                    }
                 });
 
                 return {

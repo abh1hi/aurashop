@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { doc, setDoc, updateDoc, collection, addDoc, getDocs, getDoc, deleteDoc, query, where, serverTimestamp, arrayUnion, onSnapshot, limit } from 'firebase/firestore';
+import { doc, updateDoc, collection, addDoc, getDocs, getDoc, deleteDoc, query, where, serverTimestamp, arrayUnion, onSnapshot, limit } from 'firebase/firestore';
 import { db, storage } from '../firebase';
 import { ref as refStorage, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from './useAuth';
@@ -149,7 +149,7 @@ export function useVendor() {
             const storeSnap = await getDocs(q);
 
             if (!storeSnap.empty) {
-                const storeData = storeSnap.docs[0].data();
+                const storeData: any = storeSnap.docs[0]!.data();
                 if (storeData.kycVideoUrl && storeData.kycDocUrl) {
                     const kycData = {
                         videoUrl: storeData.kycVideoUrl,
@@ -325,11 +325,13 @@ export function useVendor() {
 
             for (let i = 0; i < images.length; i++) {
                 const file = images[i];
-                // Compress image before upload
-                const compressedFile = await compressImage(file);
-                const path = `products/${storeId}/${timestamp}_${i}_${file.name}`;
-                const url = await uploadFile(compressedFile, path);
-                imageUrls.push(url);
+                if (file) {
+                    // Compress image before upload
+                    const compressedFile = await compressImage(file);
+                    const path = `products/${storeId}/${timestamp}_${i}_${file.name}`;
+                    const url = await uploadFile(compressedFile, path);
+                    imageUrls.push(url);
+                }
             }
 
             // 2. Create Product Document
@@ -409,9 +411,11 @@ export function useVendor() {
 
                 for (let i = 0; i < newImages.length; i++) {
                     const file = newImages[i];
-                    const path = `products/${storeId}/${timestamp}_${i}_${file.name}`;
-                    const url = await uploadFile(file, path);
-                    imageUrls.push(url);
+                    if (file) {
+                        const path = `products/${storeId}/${timestamp}_${i}_${file.name}`;
+                        const url = await uploadFile(file, path);
+                        imageUrls.push(url);
+                    }
                 }
 
                 // Append new images to existing ones or replace? 

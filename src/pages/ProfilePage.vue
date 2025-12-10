@@ -344,7 +344,7 @@ import LiquidToggle from '../components/liquid-ui-kit/LiquidToggle/LiquidToggle.
 import LiquidSegmentedControl from '../components/liquid-ui-kit/LiquidSegmentedControl/LiquidSegmentedControl.vue';
 import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
 import LiquidActionSheet from '../components/liquid-ui-kit/LiquidActionSheet/LiquidActionSheet.vue';
-import { useProfilePage } from './ProfilePage.js';
+import { useProfilePage } from './ProfilePage';
 
 const {
     router,

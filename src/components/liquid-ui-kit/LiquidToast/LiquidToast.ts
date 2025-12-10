@@ -1,9 +1,15 @@
 import { ref } from 'vue';
 
-const toasts = ref([]);
+interface Toast {
+    id: number;
+    message: string;
+    type: string;
+}
+
+const toasts = ref<Toast[]>([]);
 
 export function useToast() {
-    const showToast = (message, type = 'info') => {
+    const showToast = (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
         const id = Date.now() + Math.random();
         toasts.value.push({ id, message, type });
 
@@ -13,7 +19,7 @@ export function useToast() {
         }, 4000);
     };
 
-    const removeToast = (id) => {
+    const removeToast = (id: number) => {
         toasts.value = toasts.value.filter(t => t.id !== id);
     };
 

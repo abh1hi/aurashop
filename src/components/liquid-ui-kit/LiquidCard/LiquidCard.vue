@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { liquidCardProps, useLiquidCard } from './LiquidCard.js';
+import { liquidCardProps, useLiquidCard } from './LiquidCard';
 
 const props = defineProps(liquidCardProps);
 const { cardClasses } = useLiquidCard(props);

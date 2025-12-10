@@ -71,7 +71,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useAdmin } from '../../composables/useAdmin';
 import LiquidInput from '../../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
-import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import AdminLayout from '../components/AdminLayout.vue';
 
 const { fetchStores, toggleStoreStatus, loading } = useAdmin();

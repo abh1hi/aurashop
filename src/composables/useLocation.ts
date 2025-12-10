@@ -1,7 +1,7 @@
 import { ref } from 'vue';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast.js';
+import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
 
-const location = ref({
+const location = ref<any>({
     address: 'Locating...',
     lat: null,
     lng: null,
@@ -9,7 +9,7 @@ const location = ref({
 });
 const hasInitialLocation = ref(false);
 const { showToast } = useToast();
-let watchId = null;
+let watchId: number | null = null;
 
 export function useLocation() {
     const fetchIpLocation = async (silent = false) => {
@@ -55,7 +55,7 @@ export function useLocation() {
         }
 
         watchId = navigator.geolocation.watchPosition(
-            (position) => {
+            (position: any) => {
                 // Success - GPS available
                 location.value = {
                     address: "New York, USA", // Mocked for now
@@ -71,7 +71,7 @@ export function useLocation() {
                     showToast("Location updated via GPS", "success");
                 }
             },
-            async (error) => {
+            async (error: any) => {
                 console.warn("GPS Watch failed:", error.message);
                 // Only fallback to IP if we haven't established location yet
                 if (!hasInitialLocation.value) {
@@ -93,7 +93,7 @@ export function useLocation() {
         }
     };
 
-    const setLocation = (newLocation) => {
+    const setLocation = (newLocation: any) => {
         if (typeof newLocation === 'string') {
             location.value = { ...location.value, address: newLocation, source: 'manual' };
         } else {
