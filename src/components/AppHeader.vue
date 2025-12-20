@@ -1,150 +1,145 @@
 <template>
-  <header class="app-header" :class="{ 'is-scrolled': scrollY > 10 }">
-    <!-- Minimal Header (Stage 3) -->
-    <div class="minimal-header" :class="{ 'visible': showMinimalHeader }">
-        <div class="container minimal-content">
-            <div class="minimal-location">
-                <span class="material-icons-round location-icon">place</span>
-                <span class="location-text">{{ location.address ? location.address.split(',')[0] : 'Select Location' }}</span>
-            </div>
+  <header 
+    class="app-header" 
+    :class="{ 
+      'is-scrolled': scrollY > 20,
+      'is-hidden': scrollY > 50 && scrollDirection === 'down'
+    }"
+  >
+    <!-- DESKTOP HEADER -->
+    <div class="header-container desktop-only-flex">
+      <router-link to="/" class="brand-section">
+        <div class="logo-sphere">
+          <span class="material-icons-round">diamond</span>
         </div>
+        <span class="brand-name">AuraShop</span>
+      </router-link>
+
+      <div class="search-and-location">
+        <div class="location-pill-desktop" @click="router.push('/map')">
+          <span class="material-icons-round">place</span>
+          <span class="loc-text">{{ location.address ? location.address.split(',')[0] : 'Set Location' }}</span>
+        </div>
+        
+        <div class="search-bar-refined">
+          <span class="material-icons-round search-icon-dim">search</span>
+          <input type="text" placeholder="Search for products..." />
+          <button class="search-btn-inner">
+            <span class="material-icons-round">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="actions-section">
+        <LiquidThemeSwitcher />
+        <button class="icon-action-btn"><span class="material-icons-round">favorite_border</span></button>
+        <router-link to="/cart" class="icon-action-btn">
+          <span class="material-icons-round">shopping_bag</span>
+          <span class="dot-badge"></span>
+        </router-link>
+        <router-link v-if="user" to="/profile" class="profile-trigger">
+          <img :src="user.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user.email || 'User')" alt="User" class="avatar-mini" />
+          <span class="user-first-name">{{ user.displayName?.split(' ')[0] || 'Me' }}</span>
+        </router-link>
+        <router-link v-else to="/login">
+          <LiquidButton text="Sign In" type="primary" size="sm" />
+        </router-link>
+      </div>
     </div>
 
-    <div class="container header-content" :class="{ 'hidden': showMinimalHeader }">
-      <!-- Mobile Header -->
-      <div class="mobile-header" :class="{ 'compact': hideTopBar }">
-        <div class="brand-logo-mobile">
-            <span class="material-icons-round logo-icon">diamond</span>
-            <span class="brand-name">Aura</span>
-        </div>
-        
-        <div class="location-wrapper-mobile">
-          <router-link to="/map" class="location-pill">
-            <span class="material-icons-round location-icon">place</span>
-            <span class="location-text">{{ location.address ? location.address.split(',')[0] : 'Select Location' }}</span>
-          </router-link>
-        </div>
-
-        <div class="header-actions">
-          <LiquidButton icon="notifications_none" type="ghost" class="icon-btn-glass" />
+    <!-- MOBILE HEADER (Different UI) -->
+    <div class="header-container mobile-only-flex">
+      <div class="mobile-left">
+        <router-link to="/" class="mobile-logo">
+           <span class="material-icons-round">diamond</span>
+        </router-link>
+        <div class="mobile-location-pill" @click="router.push('/map')">
+          <span class="material-icons-round">place</span>
+          <span class="loc-text">{{ location.address ? location.address.split(',')[0] : 'Location' }}</span>
         </div>
       </div>
-      
-      <!-- Mobile Breadcrumbs -->
-      <div class="mobile-breadcrumbs" :class="{ 'collapsed': hideBottomBar }">
-        <LiquidBreadcrumbs />
+
+      <div class="mobile-right">
+        <button class="icon-action-btn"><span class="material-icons-round">search</span></button>
+        <router-link to="/cart" class="icon-action-btn">
+          <span class="material-icons-round">shopping_bag</span>
+          <span class="dot-badge"></span>
+        </router-link>
+        <router-link v-if="user" to="/profile" class="mobile-avatar-link">
+          <img :src="user.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user.email || 'User')" alt="User" class="avatar-mini" />
+        </router-link>
+        <router-link v-else to="/login" class="mobile-login-icon">
+          <span class="material-icons-round">account_circle</span>
+        </router-link>
       </div>
+    </div>
 
-      <!-- Desktop Header -->
-      <div class="desktop-header">
-        <!-- Top Bar: Logo | Search | Actions (Stage 1 Hide) -->
-        <div class="header-top-bar" :class="{ 'collapsed': hideTopBar }">
-            <div class="brand-logo">
-              <div class="logo-circle">
-                <span class="material-icons-round logo-icon">diamond</span>
-              </div>
-              <span class="brand-name">AuraShop</span>
-            </div>
-
-            <div class="desktop-search-wrapper">
-               <div class="search-bar-glass">
-                  <span class="material-icons-round search-icon">search</span>
-                  <input type="text" placeholder="Search for products, brands and more..." />
-                  <LiquidButton icon="search" type="primary" size="sm" class="search-btn-inner" />
-               </div>
-            </div>
-
-            <div class="desktop-actions">
-               <router-link to="/map" class="action-item">
-                 <span class="material-icons-round action-icon">location_on</span>
-                 <div class="action-label">
-                    <span class="label-tiny">Location</span>
-                    <span class="label-main">{{ location.address ? location.address.split(',')[0] : 'Select' }}</span>
-                 </div>
-               </router-link>
-               
-               <div class="action-divider"></div>
-
-               <LiquidThemeSwitcher />
-               
-               <button class="action-btn">
-                 <span class="material-icons-round">favorite_border</span>
-               </button>
-               
-               <button class="action-btn cart-btn">
-                 <span class="material-icons-round">shopping_bag</span>
-                 <span class="badge">2</span>
-               </button>
-               
-               <router-link v-if="user" to="/profile" class="profile-link">
-                 <div class="header-avatar">
-                   <img :src="user.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user.email || 'User')" alt="User" />
-                 </div>
-               </router-link>
-               <router-link v-else to="/login">
-                 <LiquidButton text="Login" type="primary" size="sm" />
-               </router-link>
-            </div>
-        </div>
-        
-        <!-- Bottom Bar: Nav | Breadcrumbs (Stage 2 Hide) -->
-        <div class="header-bottom-bar" :class="{ 'collapsed': hideBottomBar }">
-            <nav class="desktop-nav">
-              <div class="nav-category-btn">
-                <span class="material-icons-round">grid_view</span>
-                <span>All Categories</span>
-              </div>
-              <div class="nav-links">
-                  <router-link to="/" class="nav-item" active-class="active">Home</router-link>
-                  <a href="#" class="nav-item">Electronics</a>
-                  <a href="#" class="nav-item">Fashion</a>
-                  <a href="#" class="nav-item">Home</a>
-                  <a href="#" class="nav-item">Beauty</a>
-                  <a href="#" class="nav-item highlight">Best Deals</a>
-              </div>
-            </nav>
-            
-            <div class="breadcrumbs-wrapper">
-                <LiquidBreadcrumbs />
-            </div>
-        </div>
+    <!-- Breadcrumbs Section -->
+    <div 
+      class="header-bottom-area" 
+      v-if="!isHomePage && showBreadcrumbs"
+      :class="{ 'hiding': scrollY > 10 }"
+    >
+      <div class="container breadcrumb-wrap">
+        <LiquidBreadcrumbs :minimized="isBreadcrumbsMinimized" />
+        <button 
+          class="breadcrumb-control-btn" 
+          @click="toggleBreadcrumbMode"
+          :title="isBreadcrumbsMinimized ? 'Maximize' : 'Minimize'"
+        >
+          <span class="material-icons-round">
+            {{ isBreadcrumbsMinimized ? 'unfold_more' : 'unfold_less' }}
+          </span>
+        </button>
       </div>
     </div>
   </header>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import LiquidButton from './liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidThemeSwitcher from './LiquidThemeSwitcher.vue';
 import LiquidBreadcrumbs from './liquid-ui-kit/LiquidBreadcrumbs/LiquidBreadcrumbs.vue';
-import { useLocation } from '../composables/useLocation';
 import { useAuth } from '../composables/useAuth';
+import { useLocation } from '../composables/useLocation';
 
-const { location, detectLocation } = useLocation();
+const router = useRouter();
+const route = useRoute();
 const { user } = useAuth();
+const { location, detectLocation } = useLocation();
 
 const scrollY = ref(0);
-const hideTopBar = ref(false);
-const hideBottomBar = ref(false);
-const showMinimalHeader = ref(false);
+const lastScrollY = ref(0);
+const scrollDirection = ref<'up' | 'down'>('up');
+
+const isHomePage = computed(() => route.path === '/');
+
+const showBreadcrumbs = ref(localStorage.getItem('breadcrumbs_visible') !== 'false');
+const isBreadcrumbsMinimized = ref(localStorage.getItem('breadcrumbs_minimized') === 'true');
+
+const toggleBreadcrumbMode = () => {
+    isBreadcrumbsMinimized.value = !isBreadcrumbsMinimized.value;
+    localStorage.setItem('breadcrumbs_minimized', isBreadcrumbsMinimized.value.toString());
+};
 
 const handleScroll = () => {
-    scrollY.value = window.scrollY;
+    const currentScrollY = window.scrollY;
     
-    // Stage 1: Hide Top Bar > 50px
-    hideTopBar.value = scrollY.value > 50;
+    if (currentScrollY > lastScrollY.value && currentScrollY > 50) {
+        scrollDirection.value = 'down';
+    } else {
+        scrollDirection.value = 'up';
+    }
     
-    // Stage 2: Hide Bottom Bar > 150px
-    hideBottomBar.value = scrollY.value > 150;
-    
-    // Stage 3: Show Minimal Header > 300px
-    showMinimalHeader.value = scrollY.value > 300;
+    scrollY.value = currentScrollY;
+    lastScrollY.value = currentScrollY;
 };
 
 onMounted(() => {
     detectLocation();
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 });
 
 onUnmounted(() => {
@@ -155,19 +150,71 @@ onUnmounted(() => {
 <style scoped>
 @import './AppHeader.css';
 
-.header-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid var(--brand-primary);
-  cursor: pointer;
+/* Visibility Controllers */
+.desktop-only-flex {
+    display: none;
 }
 
-.header-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.mobile-only-flex {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+@media (min-width: 1024px) {
+    .desktop-only-flex {
+        display: flex;
+    }
+    .mobile-only-flex {
+        display: none;
+    }
+}
+
+/* Mobile Specific UI */
+.mobile-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mobile-logo {
+    color: var(--brand-primary);
+    display: flex;
+    font-size: 24px;
+    text-decoration: none;
+}
+
+.mobile-location-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: color-mix(in srgb, var(--brand-primary) 8%, transparent);
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary-text);
+    max-width: 110px;
+}
+
+.mobile-location-pill .material-icons-round {
+    font-size: 14px;
+    color: var(--brand-primary);
+}
+
+.mobile-avatar-link {
+    display: flex;
+    margin-left: 4px;
+}
+
+.mobile-login-icon {
+    color: var(--secondary-text);
+    display: flex;
 }
 </style>
-

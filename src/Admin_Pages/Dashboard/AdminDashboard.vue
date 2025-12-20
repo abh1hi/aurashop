@@ -1,62 +1,88 @@
 <template>
   <AdminLayout>
-    <div class="dashboard-title-section">
-      <div>
-        <h1>Dashboard</h1>
-        <p>Plan, prioritize, and accomplish your tasks with ease.</p>
+    <div class="dashboard-header">
+      <div class="header-intro">
+        <h1 class="page-title">Aura<span>Core</span> Command</h1>
+        <p class="page-subtitle">Unified administrative oversight and system intelligence.</p>
       </div>
       <div class="header-actions">
-         <LiquidButton text="Add Project" icon="add" type="primary" />
-         <LiquidButton text="Import Data" type="secondary" />
+        <LiquidButton text="Reports" icon="assessment" type="ghost" size="sm" />
+        <LiquidButton text="Deploy Phase" icon="rocket_launch" type="primary" size="sm" />
       </div>
     </div>
 
-    <div class="stats-grid" v-if="stats">
+    <div class="stats-overview" v-if="stats">
       <StatCard 
-        title="Total Projects" 
+        title="Total Ecosystem Users" 
         :value="stats.totalUsers" 
+        icon="groups"
+        trend-value="+14.2%"
+        trend-status="up"
         variant="primary"
-        trend="5+"
       />
       <StatCard 
-        title="Ended Projects" 
+        title="Active Marketplace Vendors" 
         :value="stats.activeVendors" 
-        trend="10"
+        icon="storefront"
+        trend-value="+3.8%"
+        trend-status="up"
       />
       <StatCard 
-        title="Running Projects" 
+        title="Pending Security Verifications" 
         :value="stats.pendingKYC" 
-        trend="12"
+        icon="verified_user"
+        trend-value="-2"
+        trend-status="down"
       />
       <StatCard 
-        title="Pending Project" 
-        value="2" 
-        trend="On Discuss"
+        title="Total Revenue Protocol" 
+        :value="'$' + (stats.totalSales / 1000).toFixed(1) + 'k'" 
+        icon="payments"
+        trend-value="+22%"
+        trend-status="up"
       />
     </div>
 
-    <div class="dashboard-grid">
-      <!-- Left Column -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
-         <!-- Placeholder for Project Analytics Chart -->
-         <div class="chart-placeholder">
-            Project Analytics Chart (Coming Soon)
-         </div>
-         
-         <TeamList />
+    <div class="dashboard-content">
+      <div class="main-column">
+        <div class="glass-card chart-hero">
+          <div class="card-header">
+            <h3 class="card-title">System Inflow Dynamics</h3>
+            <div class="card-controls">
+              <button class="control-btn active">Live</button>
+              <button class="control-btn">Cycle</button>
+            </div>
+          </div>
+          <div class="chart-viewport">
+            <!-- Integration Point for Chart.js -->
+            <div class="chart-skeleton"></div>
+          </div>
+        </div>
+        
+        <TeamList />
       </div>
 
-      <!-- Right Column -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
-         <!-- Placeholder for Reminders -->
-         <div class="chart-placeholder" style="height: 180px; background: white;">
-            Reminders Widget
-         </div>
-         
-         <!-- Placeholder for Project Progress -->
-         <div class="chart-placeholder" style="height: 240px;">
-            Project Progress Donut
-         </div>
+      <div class="side-column">
+        <div class="glass-card status-widget">
+          <h3 class="card-title">Security Protocols</h3>
+          <div class="status-list">
+            <div class="status-item">
+              <span class="status-label">KYC Pipeline</span>
+              <span class="status-value active">Optimization Req.</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">Auth Gateway</span>
+              <span class="status-value success">Operational</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card progress-widget">
+          <h3 class="card-title">deployment_v2_alpha</h3>
+          <div class="progress-ring-wrap">
+            <div class="ring-core">74%</div>
+          </div>
+        </div>
       </div>
     </div>
   </AdminLayout>

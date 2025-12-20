@@ -145,8 +145,36 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    /* Center vertically */
+    justify-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--text-tertiary) transparent;
+}
+
+/* Vertical centering only if content is not overflowing */
+@supports (justify-content: safe center) {
+    .step-container {
+        justify-content: safe center;
+    }
+}
+
+.step-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.step-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.step-container::-webkit-scrollbar-thumb {
+    background: var(--text-tertiary);
+    border-radius: 10px;
+}
+
+.step-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
 }
 
 .step-content {

@@ -47,6 +47,8 @@ export function useCart() {
                     price: typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) : product.price,
                     image: product.image,
                     quantity: 1,
+                    variantId: product.variantId || null,
+                    selectedOptions: product.selectedOptions || null,
                     addedAt: new Date()
                 });
             }

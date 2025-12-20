@@ -1,28 +1,60 @@
 <template>
   <AdminLayout>
-    <div class="team-page-header">
-      <h1>Team Members</h1>
-      <p>Manage your admin team and collaborators.</p>
+    <div class="team-management-header">
+      <div class="header-content">
+        <h1 class="page-title">Operational<span>Team</span></h1>
+        <p class="page-subtitle">Manage system administrators, developers, and data architects.</p>
+      </div>
+      <div class="header-actions">
+        <LiquidButton text="Role Mapping" icon="security" type="ghost" size="sm" />
+      </div>
     </div>
 
-    <div class="team-grid">
-      <div class="member-card" v-for="member in teamMembers" :key="member.id">
-        <img :src="member.avatar" class="member-avatar-large" />
-        <h3 class="member-name-large">{{ member.name }}</h3>
-        <span class="member-role-large">{{ member.role }}</span>
+    <div class="team-viewport">
+      <div class="team-masonry">
+        <div class="member-glass-card" v-for="member in teamMembers" :key="member.id">
+          <div class="card-glow"></div>
+          <div class="member-identity">
+            <div class="avatar-wrap">
+              <img :src="member.avatar" class="member-img" />
+              <div class="status-dot online"></div>
+            </div>
+            <div class="member-details">
+              <h3 class="member-name">{{ member.name }}</h3>
+              <span class="member-handle">@sys_admin_{{ member.id }}</span>
+            </div>
+          </div>
+          
+          <div class="member-role-tag">
+            <span class="material-icons-round">shield</span>
+            {{ member.role }}
+          </div>
+          
+          <div class="member-stats">
+            <div class="stat-item">
+              <span class="val">142</span>
+              <span class="lbl">Commits</span>
+            </div>
+            <div class="stat-item">
+              <span class="val">12</span>
+              <span class="lbl">Deploy</span>
+            </div>
+          </div>
+
+          <div class="member-actions">
+            <LiquidButton text="Message" type="ghost" size="sm" style="flex: 1" />
+            <LiquidButton text="Profile" type="primary" size="sm" style="flex: 1" />
+          </div>
+        </div>
         
-        <div class="member-actions">
-          <LiquidButton text="Edit" type="secondary" style="flex: 1" />
-          <LiquidButton text="Message" type="primary" style="flex: 1" />
+        <!-- Add New Member Glass Card -->
+        <div class="member-glass-card add-new">
+          <div class="add-icon-wrap">
+              <span class="material-icons-round">person_add_alt</span>
+          </div>
+          <h3 class="add-title">Invite Protocol</h3>
+          <p class="add-desc">Provision new access keys for collaborators.</p>
         </div>
-      </div>
-      
-      <!-- Add New Member Card -->
-      <div class="member-card" style="justify-content: center; border: 2px dashed #e5e7eb; box-shadow: none;">
-        <div style="width: 64px; height: 64px; background: #f3f4f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-            <span class="material-icons-round" style="font-size: 32px; color: #9ca3af;">add</span>
-        </div>
-        <h3 class="member-name-large" style="color: #9ca3af;">Add Member</h3>
       </div>
     </div>
   </AdminLayout>

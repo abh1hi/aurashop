@@ -1,28 +1,45 @@
 <template>
-  <div class="page-container">
+  <div class="page-container glass-bg-bleed">
     <AppHeader />
     
-    <main class="main-content">
-      <div class="wishlist-container">
-        <h1 class="page-title">My Wishlist</h1>
+    <main class="main-content container">
+      <div class="wishlist-wrapper fade-in">
+        <header class="page-header-row">
+          <div class="title-stack">
+            <h1 class="page-title">
+              <span class="material-icons-round accent-icon">favorite</span>
+              Curated Favorites
+            </h1>
+            <p class="page-subtitle">Your personal collection of premium finds.</p>
+          </div>
+          <div class="header-actions">
+            <span class="count-pill">{{ wishlistItems.length }} Items</span>
+          </div>
+        </header>
         
-        <div v-if="wishlistItems.length > 0" class="wishlist-grid">
-          <ProductCard 
-            v-for="item in wishlistItems" 
-            :key="item.id" 
-            :product="item" 
-          />
+        <div v-if="wishlistItems.length > 0" class="wishlist-masonry">
+          <TransitionGroup name="grid-fade">
+            <div v-for="item in wishlistItems" :key="item.id" class="grid-item">
+              <ProductCard :product="item" />
+            </div>
+          </TransitionGroup>
         </div>
 
-        <div v-else class="empty-state">
-          <span class="material-icons-round empty-icon">favorite_border</span>
-          <h3>Your wishlist is empty</h3>
-          <p>Save items you love to buy later.</p>
+        <div v-else class="empty-state-card">
+          <div class="empty-visual">
+            <div class="pulse-heart">
+              <span class="material-icons-round">favorite_border</span>
+            </div>
+          </div>
+          <h2 class="empty-title">Your Wishlist is Empty</h2>
+          <p class="empty-desc">Create your own collection of luxury and style. Start by exploring our latest arrivals.</p>
           <LiquidButton 
-            text="Explore Products" 
+            text="Explore Collections" 
             type="primary" 
+            size="lg"
+            icon="explore"
             @click="$router.push('/')"
-            class="mt-md"
+            class="mt-xl"
           />
         </div>
       </div>
@@ -45,84 +62,175 @@ const { wishlistItems, loading } = useWishlist();
 
 <style scoped>
 .page-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-  background-color: transparent;
+  min-height: 100vh;
+  background: var(--bg-color);
+  position: relative;
+}
+
+.glass-bg-bleed::before {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--brand-secondary) 5%, transparent) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .main-content {
-  flex: 1;
-  overflow-y: auto;
-  padding-top: var(--spacing-lg);
-  padding-bottom: calc(80px + env(safe-area-inset-bottom));
-  -webkit-overflow-scrolling: touch;
-  display: flex;
-  justify-content: center;
-  padding-left: 20px;
-  padding-right: 20px;
+  position: relative;
+  z-index: 1;
+  padding-top: calc(var(--header-height) + var(--spacing-xl));
+  padding-bottom: 120px;
 }
 
-.wishlist-container {
-  width: 100%;
-  max-width: 1200px;
+.page-header-row {
+  margin-bottom: var(--spacing-2xl);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
 }
 
 .page-title {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--text-color);
-  margin-bottom: 24px;
+  font-size: var(--text-3xl);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--primary-text);
+  margin: 0;
 }
 
-.wishlist-grid {
+.accent-icon {
+  color: var(--error-color);
+  font-size: 32px;
+}
+
+.page-subtitle {
+  color: var(--secondary-text);
+  font-size: var(--text-base);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.count-pill {
+  background: var(--liquid-glass-base);
+  border: 1px solid var(--glass-border);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--brand-primary);
+  backdrop-filter: blur(10px);
+}
+
+.wishlist-masonry {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: var(--spacing-lg);
 }
 
 @media (min-width: 768px) {
-  .wishlist-grid {
+  .wishlist-masonry {
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
   }
 }
 
-@media (min-width: 1024px) {
-  .wishlist-grid {
+@media (min-width: 1200px) {
+  .wishlist-masonry {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-.empty-state {
+.grid-item {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.grid-item:hover {
+  transform: translateY(-4px);
+}
+
+/* Empty State */
+.empty-state-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 100px 24px;
   text-align: center;
+  background: var(--liquid-glass-base);
+  border-radius: var(--radius-3xl);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  margin-top: var(--spacing-xl);
 }
 
-.empty-icon {
+.empty-visual {
+  width: 140px;
+  height: 140px;
+  background: color-mix(in srgb, var(--error-color) 5%, transparent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.pulse-heart {
+  animation: heart-beat 2s ease-in-out infinite;
+  color: var(--error-color);
+}
+
+.pulse-heart .material-icons-round {
   font-size: 64px;
-  color: var(--text-tertiary);
+}
+
+@keyframes heart-beat {
+  0% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+  60% { transform: scale(1); }
+}
+
+.empty-title {
+  font-size: var(--text-2xl);
+  font-weight: 900;
   margin-bottom: 16px;
-  opacity: 0.5;
 }
 
-.empty-state h3 {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 8px;
+.empty-desc {
+  max-width: 360px;
+  color: var(--secondary-text);
+  line-height: 1.6;
+  font-size: var(--text-base);
 }
 
-.empty-state p {
-  color: var(--text-secondary);
-  margin-bottom: 24px;
+/* Transitions */
+.grid-fade-enter-active {
+  transition: all 0.5s ease;
+}
+.grid-fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-.mt-md {
-  margin-top: 16px;
+.mt-xl {
+  margin-top: 32px;
+}
+
+@media (max-width: 640px) {
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .wishlist-masonry {
+    gap: var(--spacing-md);
+  }
 }
 </style>

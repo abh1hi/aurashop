@@ -8,6 +8,13 @@ service cloud.firestore {
       return request.auth != null;
     }
     
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true || 
+        request.auth.token.email in ['admin@aurashop.com', 'admin@example.com']
+      );
+    }
+    
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
@@ -22,7 +29,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.auth.uid == userId;
-      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
       
       // Subcollections
       match /cart/{itemId} {
@@ -43,7 +50,7 @@ service cloud.firestore {
     match /stores/{storeId} {
       allow read: if true; // Public stores
       allow create: if isAuthenticated(); // Any auth user can create a store (become vendor)
-      allow update: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+      allow update: if isAuthenticated() && (resource.data.ownerId == request.auth.uid || isAdmin());
       allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
     }
 

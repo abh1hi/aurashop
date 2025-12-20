@@ -15,6 +15,7 @@
                 v-model="formData.name" 
                 placeholder="e.g. Urban Threads" 
                 required 
+                class="glass-input"
               />
             </div>
 
@@ -24,6 +25,7 @@
                 v-model="formData.description" 
                 placeholder="What do you sell?" 
                 required 
+                class="glass-input"
               />
             </div>
 
@@ -33,6 +35,7 @@
                 :options="categories"
                 v-model="formData.category"
                 placeholder="Select Category"
+                class="glass-input"
               />
             </div>
 
@@ -41,6 +44,7 @@
               <LiquidInput 
                 v-model="formData.logoUrl" 
                 placeholder="https://..." 
+                class="glass-input"
               />
             </div>
 
@@ -51,6 +55,7 @@
                 size="lg" 
                 :loading="loading"
                 submit
+                class="w-full"
               />
             </div>
             
@@ -65,114 +70,23 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
 import AppHeader from '../components/AppHeader.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidCard from '../components/liquid-ui-kit/LiquidCard/LiquidCard.vue';
 import LiquidInput from '../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
 import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
-import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue'; // Assuming this exists or using select
-import { useVendor } from '../composables/useVendor';
-import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
+import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
+import { useCreateStorePage } from './CreateStorePage';
 
-const router = useRouter();
-const { createStore, loading, error } = useVendor();
-const { showToast } = useToast();
-
-const formData = reactive({
-  name: '',
-  description: '',
-  category: '',
-  logoUrl: ''
-});
-
-const categories = [
-  { label: 'Fashion', value: 'fashion' },
-  { label: 'Electronics', value: 'electronics' },
-  { label: 'Home & Living', value: 'home' },
-  { label: 'Beauty', value: 'beauty' }
-];
-
-const handleSubmit = async () => {
-  if (!formData.name || !formData.description || !formData.category) {
-    showToast('Please fill in all required fields', 'warning');
-    return;
-  }
-
-  try {
-    const storeId = await createStore(formData);
-    showToast('Store created! Let\'s set it up. 🚀', 'success');
-    router.push(`/vendor/store/${storeId}/onboarding`);
-  } catch (e) {
-    showToast('Failed to create store', 'error');
-  }
-};
+const {
+    formData,
+    categories,
+    loading,
+    error,
+    handleSubmit
+} = useCreateStorePage();
 </script>
 
 <style scoped>
-.page-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: var(--spacing-lg);
-}
-
-.form-container {
-  width: 100%;
-  max-width: 500px;
-}
-
-.store-form-card {
-  padding: var(--spacing-xl);
-}
-
-.form-title {
-  font-size: 24px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: var(--spacing-xs);
-}
-
-.form-subtitle {
-  text-align: center;
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-xl);
-}
-
-.store-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.form-group label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-left: 4px;
-}
-
-.form-actions {
-  margin-top: var(--spacing-md);
-}
-
-.error-text {
-  color: var(--danger-color);
-  text-align: center;
-  font-size: 14px;
-}
+@import './CreateStorePage.css';
 </style>

@@ -1,11 +1,17 @@
 import { ref } from 'vue';
 import { useAuth } from './useAuth';
 import { db } from '../firebase';
-import { collection, query, where, getDocs, doc, updateDoc, limit, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, limit, onSnapshot, getCountFromServer, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 const isAdmin = ref(false);
 const loading = ref(false);
 const error = ref<string | null>(null);
+
+// Centralized Admin List (Dev Only)
+const devAdmins = [
+    'admin@aurashop.com',
+    'admin@example.com'
+];
 
 export function useAdmin() {
     const { user } = useAuth();
@@ -20,12 +26,9 @@ export function useAdmin() {
             const idTokenResult = await user.value.getIdTokenResult();
             isAdmin.value = !!idTokenResult.claims.admin;
 
-            // Fallback for development/testing if custom claims aren't set up yet
-            // In production, strictly rely on claims
+            // Fallback for development/testing
             if (!isAdmin.value && import.meta.env.DEV) {
-                // Temporary: Check a hardcoded list or a specific field in Firestore for dev
-                // For now, let's assume if the email matches a specific one, they are admin (DEV ONLY)
-                if (user.value.email === 'admin@aurashop.com') {
+                if (user.value.email && devAdmins.includes(user.value.email)) {
                     isAdmin.value = true;
                 }
             }
@@ -38,13 +41,21 @@ export function useAdmin() {
     const fetchDashboardStats = async () => {
         loading.value = true;
         try {
-            // Mocking stats for now as we don't have aggregation queries set up
-            // In a real app, you'd use aggregation queries or a dedicated stats document updated via Cloud Functions
+            const usersColl = collection(db, 'users');
+            const storesColl = collection(db, 'stores');
+
+            // Parallel Aggregation
+            const [usersSnap, activeStoresSnap, pendingKYCSnap] = await Promise.all([
+                getCountFromServer(usersColl),
+                getCountFromServer(query(storesColl, where('status', '==', 'active'))),
+                getCountFromServer(query(storesColl, where('kycStatus', '==', 'pending_review')))
+            ]);
+
             return {
-                totalUsers: 1250,
-                totalSales: 45000,
-                activeVendors: 45,
-                pendingKYC: 12
+                totalUsers: usersSnap.data().count,
+                totalSales: 45000, // Revenue calculation needs separate aggregation logic or dedicated stats doc
+                activeVendors: activeStoresSnap.data().count,
+                pendingKYC: pendingKYCSnap.data().count
             };
         } catch (e: any) {
             error.value = e.message;
@@ -58,9 +69,19 @@ export function useAdmin() {
         loading.value = true;
         try {
             const usersRef = collection(db, 'users');
-            const q = query(usersRef, limit(50)); // Pagination needed in real app
+            const q = query(usersRef, limit(50));
             const snapshot = await getDocs(q);
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            return snapshot.docs.map(doc => {
+                const data = doc.data();
+                const isDevAdmin = import.meta.env.DEV && data.email && devAdmins.includes(data.email);
+
+                return {
+                    id: doc.id,
+                    ...data,
+                    isAdmin: data.isAdmin || isDevAdmin
+                };
+            });
         } catch (e: any) {
             error.value = e.message;
             return [];
@@ -85,8 +106,6 @@ export function useAdmin() {
     const fetchVendors = async () => {
         loading.value = true;
         try {
-            // Assuming vendors are users with isVendor: true or a separate collection
-            // Based on useVendor, we update 'users' doc. So we query users where isVendor == true
             const usersRef = collection(db, 'users');
             const q = query(usersRef, where('isVendor', '==', true));
             const snapshot = await getDocs(q);
@@ -137,8 +156,7 @@ export function useAdmin() {
         loading.value = true;
         try {
             const storesRef = collection(db, 'stores');
-            // Query for stores that have explicitly submitted for review
-            const q = query(storesRef, where('status', '==', 'pending_review'));
+            const q = query(storesRef, where('kycStatus', '==', 'pending_review'));
             const snapshot = await getDocs(q);
             return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         } catch (e: any) {
@@ -172,10 +190,69 @@ export function useAdmin() {
             const storeRef = doc(db, 'stores', storeId);
             await updateDoc(storeRef, {
                 kycStatus: 'rejected',
-                status: 'rejected',
+                status: 'rejected', // Or 'suspended' depending on business logic
                 rejectionReason: reason,
                 rejectedAt: new Date()
             });
+        } catch (e: any) {
+            error.value = e.message;
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const updateUserRole = async (userId: string, newRole: 'admin' | 'vendor' | 'customer') => {
+        loading.value = true;
+        try {
+            const userRef = doc(db, 'users', userId);
+
+            // Map simple role selection to database booleans
+            const updates: any = {
+                isAdmin: newRole === 'admin',
+                isVendor: newRole === 'vendor'
+            };
+
+            await updateDoc(userRef, updates);
+        } catch (e: any) {
+            error.value = e.message;
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const updateStoreCommission = async (storeId: string, rate: number) => {
+        loading.value = true;
+        try {
+            const storeRef = doc(db, 'stores', storeId);
+            await updateDoc(storeRef, { commissionRate: rate });
+        } catch (e: any) {
+            error.value = e.message;
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const toggleStoreVisibility = async (storeId: string, isVisible: boolean) => {
+        loading.value = true;
+        try {
+            const storeRef = doc(db, 'stores', storeId);
+            await updateDoc(storeRef, { isVisible });
+        } catch (e: any) {
+            error.value = e.message;
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const updateStoreStatus = async (storeId: string, status: 'active' | 'suspended' | 'under_review') => {
+        loading.value = true;
+        try {
+            const storeRef = doc(db, 'stores', storeId);
+            await updateDoc(storeRef, { status, isActive: status === 'active' });
         } catch (e: any) {
             error.value = e.message;
             throw e;
@@ -198,6 +275,10 @@ export function useAdmin() {
         toggleStoreStatus,
         fetchPendingKYCRequests,
         approveKYC,
-        rejectKYC
+        rejectKYC,
+        updateUserRole,
+        updateStoreCommission,
+        toggleStoreVisibility,
+        updateStoreStatus
     };
 }

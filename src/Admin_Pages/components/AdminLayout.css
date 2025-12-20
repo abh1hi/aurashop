@@ -1,83 +1,199 @@
-/* Base Layout */
+/* Mobile First Design */
 .admin-layout {
+    display: flex;
     min-height: 100vh;
-    background-color: #f3f4f6;
+    background-color: var(--bg-color);
     position: relative;
     overflow-x: hidden;
-    /* Prevent horizontal scroll */
 }
 
-/* Sidebar Wrapper - Desktop Default */
-.sidebar-wrapper {
+/* Background Blobs - Global */
+.background-blobs {
     position: fixed;
     top: 0;
     left: 0;
-    width: 280px;
-    height: 100vh;
-    z-index: 50;
-    background-color: white;
-    border-right: 1px solid #e5e7eb;
-    transition: transform 0.3s ease-in-out;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
 }
 
-/* Main Content - Desktop Default */
+.blob {
+    position: absolute;
+    filter: blur(100px);
+    opacity: 0.35;
+    border-radius: 50%;
+}
+
+.blob-1 {
+    width: 600px;
+    height: 600px;
+    background: var(--liquid-glass-accent-1);
+    top: -200px;
+    right: -100px;
+    animation: rotate 20s infinite linear;
+}
+
+.blob-2 {
+    width: 500px;
+    height: 500px;
+    background: var(--liquid-glass-accent-2);
+    bottom: -100px;
+    left: -100px;
+    animation: pulse 15s infinite alternate;
+}
+
+.blob-3 {
+    width: 300px;
+    height: 300px;
+    background: var(--primary-color);
+    top: 40%;
+    left: 40%;
+    opacity: 0.1;
+    animation: float 12s infinite ease-in-out;
+}
+
+/* Sidebar Shell */
+.sidebar-wrapper {
+    width: 280px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: all 0.4s var(--ease-out);
+}
+
+.sidebar-wrapper.hidden {
+    transform: translateX(-100%) !important;
+}
+
+.sidebar-toggle-trigger {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 48px;
+    background: var(--liquid-glass-shine-2);
+    border: 1px solid var(--liquid-glass-border);
+    border-left: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 99;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+}
+
+.sidebar-toggle-trigger:hover {
+    background: var(--primary-color);
+    color: white;
+    width: 32px;
+}
+
+.sidebar-wrapper.open {
+    transform: translateX(0);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Main Content Wrapper */
 .main-content {
-    margin-left: 280px;
-    /* Match sidebar width */
-    width: calc(100% - 280px);
+    flex: 1;
+    margin-left: 0;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 32px 48px;
-    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+    position: relative;
+    z-index: 1;
+    transition: margin-left 0.4s var(--ease-out);
 }
 
-/* Mobile Overlay */
+.main-content.expanded {
+    margin-left: 0 !important;
+}
+
+.page-viewport {
+    flex: 1;
+    padding: 16px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Mobile Interaction */
 .mobile-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 40;
-    display: none;
-    /* Hidden on desktop */
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 90;
 }
 
-/* Responsive Styles (Tablets and Mobile) */
-@media (max-width: 1024px) {
+/* Animations */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
 
-    /* Sidebar becomes off-canvas */
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+        opacity: 0.35;
+    }
+
+    to {
+        transform: scale(1.2);
+        opacity: 0.5;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+
+    50% {
+        transform: translate(30px, -30px);
+    }
+}
+
+/* Desktop Enhancements (1024px+) */
+@media (min-width: 1024px) {
     .sidebar-wrapper {
-        transform: translateX(-100%);
-        /* Hidden by default */
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
-        /* Shadow when open */
-    }
-
-    .sidebar-wrapper.open {
         transform: translateX(0);
-        /* Slide in */
+        box-shadow: none;
     }
 
-    /* Main Content takes full width */
     .main-content {
-        margin-left: 0;
-        width: 100%;
-        padding: 24px;
+        margin-left: 280px;
     }
 
-    /* Show overlay when sidebar is open */
+    /* Override hidden transform for desktop "open" state which is default */
+    .sidebar-wrapper:not(.hidden) {
+        transform: translateX(0);
+    }
+
+    .page-viewport {
+        padding: 32px;
+    }
+
     .mobile-overlay {
-        display: block;
-        /* Only visible when needed via v-if in Vue, but CSS allows it */
-    }
-}
-
-/* Mobile Specific Adjustments */
-@media (max-width: 768px) {
-    .main-content {
-        padding: 16px;
+        display: none;
     }
 }

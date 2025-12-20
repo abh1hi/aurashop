@@ -1,5 +1,11 @@
 <template>
   <div class="page-container">
+    <!-- Background Blobs -->
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
     <AppHeader />
     
     <main class="main-content">
@@ -12,18 +18,19 @@
         <div class="form-panel">
           <div class="panel-header">
             <div class="back-link" @click="router.back()">
-              <span class="material-icons-round">arrow_back</span>
+              <span class="material-icons-round">west</span>
               Cancel
             </div>
             <h1 class="page-title">Edit Product</h1>
           </div>
 
           <div class="form-content">
-            <h2 class="step-title">Product Details</h2>
+            <h2 class="step-title">Product Information</h2>
+            <p class="step-desc">Update the core details and attributes of your product.</p>
             
             <div class="form-group">
               <label class="form-label">Product Name</label>
-              <LiquidInput v-model="formData.name" placeholder="e.g. Neon Cyber Jacket" />
+              <LiquidInput v-model="formData.name" placeholder="e.g. Premium Cotton T-Shirt" />
             </div>
 
             <div class="form-group">
@@ -31,7 +38,7 @@
               <textarea 
                 v-model="formData.description" 
                 class="form-textarea" 
-                placeholder="Tell a story about your product..."
+                placeholder="Update your product's key features and benefits..."
               ></textarea>
             </div>
 
@@ -46,33 +53,33 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Price ($)</label>
+                <label class="form-label">Selling Price ($)</label>
                 <LiquidInput v-model="formData.price" type="number" placeholder="0.00" />
               </div>
               <div class="form-group">
-                <label class="form-label">Compare at ($)</label>
+                <label class="form-label">Compare Price ($)</label>
                 <LiquidInput v-model="formData.comparePrice" type="number" placeholder="0.00" />
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Stock</label>
+                <label class="form-label">Stock Units</label>
                 <LiquidInput v-model="formData.stock" type="number" placeholder="0" />
               </div>
               <div class="form-group">
                 <label class="form-label">SKU</label>
-                <LiquidInput v-model="formData.sku" placeholder="Optional" />
+                <LiquidInput v-model="formData.sku" placeholder="Unique identifier" />
               </div>
             </div>
 
             <!-- Image Management -->
             <div class="form-group">
-              <label class="form-label">Images</label>
+              <label class="form-label">Product Images</label>
               <div class="current-images" v-if="existingImages.length">
                 <div v-for="(img, index) in existingImages" :key="index" class="image-preview-item">
                   <img :src="img" />
-                  <button class="remove-btn" @click="removeExistingImage(index)">
+                  <button class="remove-btn" @click="removeExistingImage(index)" title="Remove Image">
                     <span class="material-icons-round">close</span>
                   </button>
                 </div>
@@ -82,8 +89,8 @@
                 v-model="newImages" 
                 multiple 
                 accept="image/*" 
-                label="Add more photos"
-                hint="New images will be appended"
+                label="Add More Images"
+                hint="New images will be added to your current gallery"
                 class="mt-md"
               />
             </div>
@@ -182,6 +189,7 @@ const getCategoryLabel = (value) => {
 
 const previewImage = computed(() => {
   if (newImages.value.length > 0) {
+    if (typeof newImages.value[0] === 'string') return newImages.value[0];
     return URL.createObjectURL(newImages.value[0]);
   }
   if (existingImages.value.length > 0) {
@@ -197,18 +205,23 @@ const removeExistingImage = (index) => {
 onMounted(async () => {
   const productId = route.params.productId;
   if (productId) {
-    const product = await getProduct(productId);
-    if (product) {
-      formData.name = product.name;
-      formData.description = product.description;
-      formData.category = product.category;
-      formData.price = product.price;
-      formData.comparePrice = product.comparePrice;
-      formData.stock = product.stock;
-      formData.sku = product.sku;
-      existingImages.value = product.images || [];
-    } else {
-      showToast('Product not found', 'error');
+    try {
+      const product = await getProduct(productId);
+      if (product) {
+        formData.name = product.name;
+        formData.description = product.description;
+        formData.category = product.category;
+        formData.price = product.price;
+        formData.comparePrice = product.comparePrice;
+        formData.stock = product.stock;
+        formData.sku = product.sku;
+        existingImages.value = product.images || [];
+      } else {
+        showToast('Product not found', 'error');
+        router.back();
+      }
+    } catch (e) {
+      showToast('Failed to load product', 'error');
       router.back();
     }
   }
@@ -228,7 +241,7 @@ const handleUpdate = async () => {
       comparePrice: formData.comparePrice ? Number(formData.comparePrice) : null,
       stock: Number(formData.stock),
       sku: formData.sku,
-      images: existingImages.value // Keep existing images (backend logic might need adjustment to merge)
+      images: existingImages.value 
     };
 
     await updateProduct(productId, updateData, newImages.value);
@@ -242,7 +255,7 @@ const handleUpdate = async () => {
 };
 
 const handleDelete = async () => {
-  if (confirm('Are you sure? This cannot be undone.')) {
+  if (confirm('Delete this product? This action is irreversible.')) {
     try {
       await deleteProduct(route.params.productId);
       showToast('Product deleted', 'success');
@@ -255,6 +268,80 @@ const handleDelete = async () => {
 </script>
 
 <style scoped src="./AddProductPage.css"></style>
+<style scoped>
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--liquid-glass-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(var(--liquid-blur));
+}
+
+.current-images {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.image-preview-item {
+  width: 90px;
+  height: 90px;
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--liquid-glass-border);
+  background: var(--liquid-glass-shine-1);
+}
+
+.image-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s var(--ease-out);
+}
+
+.image-preview-item:hover img {
+    transform: scale(1.1);
+}
+
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s;
+  z-index: 2;
+}
+
+.remove-btn:hover {
+    background: var(--error-color);
+    transform: scale(1.1);
+}
+
+.remove-btn .material-icons-round {
+  font-size: 16px;
+}
+
+.mt-md { margin-top: 16px; }
+.mr-auto { margin-right: auto; }
+</style>
 <style scoped>
 .loading-overlay {
   position: fixed;

@@ -1,16 +1,22 @@
 <template>
   <div class="page-container">
+    <!-- Background Blobs -->
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
     <AppHeader />
     
     <main class="main-content">
       <div class="back-link" @click="router.back()">
-        <span class="material-icons-round">arrow_back</span>
+        <span class="material-icons-round">west</span>
         Back to Dashboard
       </div>
 
-      <div class="page-header">
-        <h1 class="page-title">Store Settings</h1>
-      </div>
+      <header class="page-header">
+        <h1 class="page-title">Entity Configuration</h1>
+      </header>
 
       <LiquidSettingsLayout v-model="activeTab" :menuItems="menuItems">
         <!-- General Settings -->
@@ -18,6 +24,8 @@
           <StoreSettings 
             v-if="store" 
             :store="store" 
+            title="Core Identity"
+            description="Fine-tune your entity's public presence and identifiers."
             @update="handleUpdate" 
             @cancel="router.back()" 
           />
@@ -26,20 +34,28 @@
           </div>
         </div>
 
-        <!-- Appearance (Placeholder) -->
+        <!-- Appearance -->
         <div v-if="activeTab === 'appearance'">
           <div class="settings-section">
-            <h3 class="settings-section-title">Appearance</h3>
-            <p class="text-secondary">Customize your store's look and feel.</p>
+            <h3 class="settings-section-title">Visual Signature</h3>
+            <p class="text-secondary">Tailor the aesthetic elements of your digital domain.</p>
             <!-- Add appearance settings here -->
           </div>
         </div>
 
-        <!-- Notifications (Placeholder) -->
+        <!-- Notifications -->
         <div v-if="activeTab === 'notifications'">
           <div class="settings-section">
-            <h3 class="settings-section-title">Notifications</h3>
-            <p class="text-secondary">Manage your email and push notifications.</p>
+            <h3 class="settings-section-title">Signal Center</h3>
+            <p class="text-secondary">Configure broadcast and reporting protocols.</p>
+          </div>
+        </div>
+        
+        <!-- Security -->
+        <div v-if="activeTab === 'security'">
+          <div class="settings-section">
+            <h3 class="settings-section-title">Shield Protocol</h3>
+            <p class="text-secondary">Manage access credentials and protection layers.</p>
           </div>
         </div>
       </LiquidSettingsLayout>
@@ -69,10 +85,10 @@ const store = ref(null);
 const activeTab = ref('general');
 
 const menuItems = [
-  { label: 'General', value: 'general', icon: 'settings' },
-  { label: 'Appearance', value: 'appearance', icon: 'palette' },
-  { label: 'Notifications', value: 'notifications', icon: 'notifications' },
-  { label: 'Security', value: 'security', icon: 'lock' }
+  { label: 'Identity', value: 'general', icon: 'fingerprint' },
+  { label: 'Signature', value: 'appearance', icon: 'auto_awesome' },
+  { label: 'Signals', value: 'notifications', icon: 'sensors' },
+  { label: 'Shield', value: 'security', icon: 'verified_user' }
 ];
 
 const handleUpdate = async (updatedData) => {
@@ -91,10 +107,10 @@ const handleUpdate = async (updatedData) => {
     });
 
     store.value = { ...store.value, ...updatedData, logoUrl };
-    showToast('Store updated successfully!', 'success');
+    showToast('Entity configuration synchronized.', 'success');
   } catch (error) {
     console.error('Error updating store:', error);
-    showToast('Failed to update store.', 'error');
+    showToast('Failed to synchronize parameters.', 'error');
   }
 };
 
@@ -106,49 +122,4 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-.page-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--bg-color);
-  background-image: var(--gradient-mesh);
-  background-attachment: fixed;
-  background-size: cover;
-}
-
-.main-content {
-  flex: 1;
-  padding: 24px;
-  max-width: 1000px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.back-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  margin-bottom: 24px;
-  font-weight: 600;
-  width: fit-content;
-}
-
-.page-header {
-  margin-bottom: 24px;
-}
-
-.page-title {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--text-color);
-}
-
-.loading-state {
-  display: flex;
-  justify-content: center;
-  padding: 40px;
-}
-</style>
+<style scoped src="./StoreSettingsPage.css"></style>

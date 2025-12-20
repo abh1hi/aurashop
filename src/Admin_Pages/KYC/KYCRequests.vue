@@ -1,93 +1,157 @@
 <template>
   <AdminLayout>
-    <div class="page-header">
-      <h1>KYC Requests</h1>
+    <div class="kyc-management-header">
+      <div class="header-content">
+        <h1 class="page-title">KYC<span>Verification</span></h1>
+        <p class="page-subtitle">Tiered review pipeline for vendor identity and compliance artifacts.</p>
+      </div>
     </div>
 
-    <div class="kyc-table-container">
+    <div class="kyc-viewport">
       <div v-if="loading" class="loading-state">
-         <div class="spinner"></div>
+         <div class="skeleton-loader"></div>
       </div>
       
-      <table v-else-if="requests.length > 0" class="kyc-table">
-        <thead>
-          <tr>
-            <th>Store Name</th>
-            <th>Owner ID</th>
-            <th>Submitted At</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="req in requests" :key="req.id">
-            <td>{{ req.name }}</td>
-            <td>{{ req.ownerId }}</td>
-            <td>{{ formatDate(req.createdAt) }}</td>
-            <td>
-              <span class="status-badge pending">Pending Review</span>
-            </td>
-            <td>
-              <button class="action-btn" @click="openReviewModal(req)">Review</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-else-if="requests.length > 0" class="table-container">
+        <!-- Desktop Header -->
+        <div class="grid-header">
+          <div class="col-entity">Commercial Entity</div>
+          <div class="col-uid">Identity UID</div>
+          <div class="col-timestamp">Submission Cycle</div>
+          <div class="col-status">Risk State</div>
+          <div class="col-actions">Protocol</div>
+        </div>
+
+        <div class="grid-rows">
+          <div v-for="req in requests" :key="req.id" class="data-row">
+            <div class="col-entity">
+              <div class="entity-card">
+                <div class="entity-orb">
+                  {{ req.name?.charAt(0).toUpperCase() }}
+                </div>
+                <div class="entity-details">
+                  <span class="entity-name">{{ req.name }}</span>
+                  <span class="entity-sub">Vendor Applicant</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-uid">
+              <span class="mono-id">{{ req.ownerId?.substring(0, 12) }}...</span>
+            </div>
+
+            <div class="col-timestamp">
+              <span class="timestamp-val">{{ formatDate(req.createdAt) }}</span>
+            </div>
+
+            <div class="col-status">
+              <div class="status-chip pending">
+                <span class="pulse-dot"></span>
+                Awaiting Review
+              </div>
+            </div>
+
+            <div class="col-actions">
+              <button class="action-btn-glass review" @click="openReviewModal(req)">
+                <span class="material-icons-round">rule</span>
+                <span class="btn-text">Review Pipeline</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div v-else class="empty-state">
-        <p>No pending KYC requests.</p>
+        <span class="material-icons-round">verified</span>
+        <h3>KYC Pipeline Clear</h3>
+        <p>No high-risk entities awaiting verification at this time.</p>
       </div>
     </div>
 
-    <!-- Review Modal -->
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Review Application</h2>
-          <button class="close-btn" @click="closeModal">
-            <span class="material-icons-round">close</span>
-          </button>
-        </div>
-        
-        <div class="kyc-details" v-if="selectedRequest">
-          <div class="detail-group">
-            <label>Store Name</label>
-            <p>{{ selectedRequest.name }}</p>
-          </div>
-          
-          <div class="detail-group">
-            <label>Phone</label>
-            <p>{{ selectedRequest.phone }}</p>
-          </div>
+    <!-- Tiered Review Modal -->
+    <Transition name="modal">
+      <div v-if="showModal" class="glass-modal-overlay" @click.self="closeModal">
+        <div class="glass-modal-container tall">
+          <div class="modal-glow"></div>
+          <div class="modal-content">
+            <header class="modal-header">
+              <div class="header-info">
+                <h2>Compliance Assessment</h2>
+                <p>Cycle ID: {{ selectedRequest?.id?.substring(0, 8) }}</p>
+              </div>
+              <button class="modal-close" @click="closeModal">
+                <span class="material-icons-round">close</span>
+              </button>
+            </header>
+            
+            <div class="modal-body" v-if="selectedRequest">
+              <div class="tiered-layout">
+                <div class="review-sidebar">
+                  <div class="identity-section">
+                    <span class="section-label">Source Identity</span>
+                    <div class="id-info">
+                      <h3>{{ selectedRequest.name }}</h3>
+                      <p>{{ selectedRequest.phone || 'No direct comms' }}</p>
+                    </div>
+                  </div>
+                </div>
 
-          <div class="detail-group">
-            <label>Documents</label>
-            <div class="document-preview" v-if="selectedRequest.kycDocUrl">
-              <span class="material-icons-round">description</span>
-              <a :href="selectedRequest.kycDocUrl" target="_blank">View ID Document</a>
-            </div>
-            <div class="document-preview" v-else>
-               <span class="material-icons-round" style="color: #ef4444;">error</span>
-               <span>No ID Document Uploaded</span>
+                <div class="artifact-viewport">
+                  <span class="section-label">Identity Artifacts</span>
+                  <div class="artifact-grid">
+                    <div class="artifact-card" :class="{ 'missing': !selectedRequest.kycDocUrl }">
+                      <div class="card-top">
+                        <span class="material-icons-round">badge</span>
+                        <span class="art-type">Government ID</span>
+                      </div>
+                      <div class="card-preview">
+                        <template v-if="selectedRequest.kycDocUrl">
+                          <img :src="selectedRequest.kycDocUrl" alt="ID Preview" class="preview-img" />
+                          <div class="preview-overlay">
+                            <a :href="selectedRequest.kycDocUrl" target="_blank" class="liquid-btn-sm">Inspect Hash</a>
+                          </div>
+                        </template>
+                        <div v-else class="empty-artifact">
+                          <span class="material-icons-round">error</span>
+                          <p>Artifact Absent</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="artifact-card" :class="{ 'missing': !selectedRequest.kycVideoUrl }">
+                      <div class="card-top">
+                        <span class="material-icons-round">videocam</span>
+                        <span class="art-type">Liveness Probe</span>
+                      </div>
+                      <div class="card-preview">
+                        <template v-if="selectedRequest.kycVideoUrl">
+                          <div class="video-placeholder">
+                             <span class="material-icons-round">play_circle</span>
+                             <p>Stream Ready</p>
+                          </div>
+                          <div class="preview-overlay">
+                            <a :href="selectedRequest.kycVideoUrl" target="_blank" class="liquid-btn-sm">Review Stream</a>
+                          </div>
+                        </template>
+                        <div v-else class="empty-artifact">
+                          <span class="material-icons-round">error</span>
+                          <p>Artifact Absent</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="document-preview" style="margin-top: 8px;" v-if="selectedRequest.kycVideoUrl">
-              <span class="material-icons-round">videocam</span>
-              <a :href="selectedRequest.kycVideoUrl" target="_blank">View Verification Video</a>
-            </div>
-            <div class="document-preview" style="margin-top: 8px;" v-else>
-               <span class="material-icons-round" style="color: #ef4444;">error</span>
-               <span>No Verification Video Uploaded</span>
-            </div>
+            <footer class="modal-footer">
+              <LiquidButton text="Revoke Signal" type="danger" variant="ghost" @click="handleReject" :loading="processing" />
+              <LiquidButton text="Confirm Compliance" type="primary" @click="handleApprove" :loading="processing" />
+            </footer>
           </div>
-        </div>
-
-        <div class="modal-actions">
-          <LiquidButton text="Reject" type="danger" @click="handleReject" :loading="processing" />
-          <LiquidButton text="Approve" type="primary" @click="handleApprove" :loading="processing" />
         </div>
       </div>
-    </div>
+    </Transition>
   </AdminLayout>
 </template>
 

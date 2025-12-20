@@ -1,5 +1,11 @@
 <template>
   <div class="page-container">
+    <!-- Background Blobs -->
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
     <AppHeader />
     
     <main class="main-content">
@@ -8,10 +14,10 @@
         <div class="form-panel">
           <div class="panel-header">
             <div class="back-link" @click="router.back()">
-              <span class="material-icons-round">arrow_back</span>
+              <span class="material-icons-round">close</span>
               Cancel
             </div>
-            <h1 class="page-title">Add Product</h1>
+            <h1 class="page-title">Add New Product</h1>
           </div>
 
           <LiquidStepper 
@@ -23,12 +29,12 @@
           <div class="form-content">
             <!-- Step 1: Essentials -->
             <div v-if="currentStep === 0" class="step-content">
-              <h2 class="step-title">The Essentials</h2>
-              <p class="step-desc">Let's start with the basics of your product.</p>
+              <h2 class="step-title">Basic Information</h2>
+              <p class="step-desc">Enter the primary details for your new product.</p>
               
               <div class="form-group">
                 <label class="form-label">Product Name</label>
-                <LiquidInput v-model="formData.name" placeholder="e.g. Neon Cyber Jacket" />
+                <LiquidInput v-model="formData.name" placeholder="e.g. Premium Cotton T-Shirt" />
               </div>
 
               <div class="form-group">
@@ -36,7 +42,7 @@
                 <textarea 
                   v-model="formData.description" 
                   class="form-textarea" 
-                  placeholder="Tell a story about your product..."
+                  placeholder="Describe your product's key features and benefits..."
                 ></textarea>
               </div>
 
@@ -49,111 +55,91 @@
                 />
               </div>
 
-              <div class="form-group" v-if="formData.category">
-                <label class="form-label">Sub-Category</label>
-                <LiquidInput v-model="formData.subCategory" placeholder="e.g. Jackets, T-Shirts" />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Brand</label>
-                <LiquidInput v-model="formData.brand" placeholder="e.g. Nike, Adidas" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Sub-Category</label>
+                  <LiquidInput v-model="formData.subCategory" placeholder="e.g. Menswear, Summer" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Brand</label>
+                  <LiquidInput v-model="formData.brand" placeholder="e.g. Aura Wear" />
+                </div>
               </div>
 
               <div class="form-group">
                 <label class="form-label">Tags</label>
-                <LiquidInput v-model="formData.tags" placeholder="Enter tags separated by commas" />
+                <LiquidInput v-model="formData.tags" placeholder="summer, cotton, breathable (comma separated)" />
               </div>
             </div>
 
             <!-- Step 2: Visuals -->
             <div v-if="currentStep === 1" class="step-content">
-              <h2 class="step-title">Visuals</h2>
-              <p class="step-desc">Showcase your product with high-quality images.</p>
+              <h2 class="step-title">Product Media</h2>
+              <p class="step-desc">Upload high-quality images to showcase your product.</p>
               
               <LiquidFileUpload 
                 v-model="formData.images" 
                 multiple 
                 accept="image/*" 
-                label="Drop your photos here"
+                label="Upload Product Images"
                 hint="We recommend 1:1 square images"
               />
             </div>
 
-            <!-- Step 3: Details -->
+            <!-- Step 3: Pricing & Inventory -->
             <div v-if="currentStep === 2" class="step-content">
-              <h2 class="step-title">The Details</h2>
-              <p class="step-desc">Set your price and inventory.</p>
+              <h2 class="step-title">Pricing & Stock</h2>
+              <p class="step-desc">Configure your product's valuation and availability.</p>
               
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Price ($)</label>
+                  <label class="form-label">Selling Price ($)</label>
                   <LiquidInput v-model="formData.price" type="number" placeholder="0.00" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Compare at ($)</label>
+                  <label class="form-label">Compare Price ($)</label>
                   <LiquidInput v-model="formData.comparePrice" type="number" placeholder="0.00" />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Cost Price ($)</label>
-                  <LiquidInput v-model="formData.costPrice" type="number" placeholder="0.00" hint="For margin calculation" />
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Stock</label>
-                  <LiquidInput v-model="formData.stock" type="number" placeholder="0" />
+                  <label class="form-label">Cost per Item ($)</label>
+                  <LiquidInput v-model="formData.costPrice" type="number" placeholder="0.00" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">SKU</label>
-                  <LiquidInput v-model="formData.sku" placeholder="Optional" />
+                  <label class="form-label">Initial Stock</label>
+                  <LiquidInput v-model="formData.stock" type="number" placeholder="0" />
                 </div>
               </div>
 
-              <h3 class="section-subtitle mt-md">Additional Info</h3>
+              <h3 class="section-subtitle mt-md">Additional Details</h3>
               <div class="form-group">
-                <label class="form-label">Material</label>
-                <LiquidInput v-model="formData.material" placeholder="e.g. 100% Cotton" />
+                <label class="form-label">Materials</label>
+                <LiquidInput v-model="formData.material" placeholder="e.g. 100% Organic Cotton" />
               </div>
               <div class="form-group">
                 <label class="form-label">Care Instructions</label>
-                <textarea v-model="formData.careInstructions" class="form-textarea" placeholder="e.g. Machine wash cold"></textarea>
+                <textarea v-model="formData.careInstructions" class="form-textarea" placeholder="e.g. Machine wash cold, tumble dry low"></textarea>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label">Warranty</label>
-                  <LiquidInput v-model="formData.warranty" placeholder="e.g. 1 Year" />
+                  <label class="form-label">Warranty Info</label>
+                  <LiquidInput v-model="formData.warranty" placeholder="e.g. 1 Year Limited" />
                 </div>
                 <div class="form-group">
                   <label class="form-label">Return Policy</label>
-                  <LiquidInput v-model="formData.returnPolicy" placeholder="e.g. 30 Days" />
-                </div>
-              </div>
-
-              <h3 class="section-subtitle mt-md">Shipping</h3>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Weight (kg)</label>
-                  <LiquidInput v-model="formData.weight" type="number" placeholder="0.0" />
-                </div>
-                <div class="form-group">
-                   <label class="form-label">Dimensions (L x W x H cm)</label>
-                   <div class="flex gap-sm">
-                     <LiquidInput v-model="formData.dimensions.length" type="number" placeholder="L" />
-                     <LiquidInput v-model="formData.dimensions.width" type="number" placeholder="W" />
-                     <LiquidInput v-model="formData.dimensions.height" type="number" placeholder="H" />
-                   </div>
+                  <LiquidInput v-model="formData.returnPolicy" placeholder="e.g. 30 Days Easy Returns" />
                 </div>
               </div>
             </div>
 
             <!-- Step 4: Variants -->
             <div v-if="currentStep === 3" class="step-content">
-              <h2 class="step-title">Variants</h2>
+              <h2 class="step-title">Product Variants</h2>
               <p class="step-desc">Add options like size or color to create variants.</p>
 
-              <!-- Add Option Section -->
               <div class="add-option-card">
                 <h3 class="section-subtitle">Add Option</h3>
                 <div class="form-row">
@@ -163,10 +149,10 @@
                   </div>
                   <div class="form-group" style="flex: 2;">
                     <label class="form-label">Option Values</label>
-                    <LiquidInput v-model="newOptionValues" placeholder="e.g. S, M, L (comma separated)" />
+                    <LiquidInput v-model="newOptionValues" placeholder="S, M, L (comma separated)" />
                   </div>
                   <div class="form-group" style="flex: 0; align-self: flex-end;">
-                     <LiquidButton text="Add" type="secondary" @click="addOption" />
+                     <LiquidButton text="Add Option" type="secondary" @click="addOption" />
                   </div>
                 </div>
               </div>
@@ -186,7 +172,7 @@
 
               <!-- Variants Table -->
               <div v-if="formData.variants.length > 0" class="variants-table-container mt-lg">
-                <h3 class="section-subtitle">Preview Variants</h3>
+                <h3 class="section-subtitle">Generated Variants</h3>
                 <table class="variants-table">
                   <thead>
                     <tr>
@@ -214,55 +200,18 @@
               </div>
             </div>
 
-            <!-- Step 5: Advanced -->
-            <div v-if="currentStep === 4" class="step-content">
-              <h2 class="step-title">Advanced Settings</h2>
-              <p class="step-desc">Optimize for search engines and manage visibility.</p>
-
-              <h3 class="section-subtitle">SEO (Search Engine Optimization)</h3>
-              <div class="form-group">
-                <label class="form-label">Meta Title</label>
-                <LiquidInput v-model="formData.seo.title" placeholder="e.g. Neon Cyber Jacket - Best Techwear" hint="Leave blank to use product name" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Meta Description</label>
-                <textarea v-model="formData.seo.description" class="form-textarea" placeholder="Brief summary for search results..." style="min-height: 100px;"></textarea>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Keywords</label>
-                <LiquidInput v-model="formData.seo.keywords" placeholder="e.g. techwear, cyberpunk, jacket" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Canonical URL</label>
-                <LiquidInput v-model="formData.seo.canonicalUrl" placeholder="https://..." />
-              </div>
-
-              <h3 class="section-subtitle mt-lg">Visibility</h3>
-              <div class="form-group">
-                <label class="form-label">Product Status</label>
-                <LiquidDropdown 
-                  v-model="formData.status" 
-                  :options="[
-                    { label: 'Active', value: 'active' },
-                    { label: 'Draft', value: 'draft' },
-                    { label: 'Archived', value: 'archived' }
-                  ]" 
-                />
-              </div>
-            </div>
-
-            <!-- Step 6: Review -->
+            <!-- Review -->
             <div v-if="currentStep === 5" class="step-content">
-              <h2 class="step-title">Ready to Launch?</h2>
-              <p class="step-desc">Review your product before publishing.</p>
+              <h2 class="step-title">Review & Publish</h2>
+              <p class="step-desc">Double-check your product details before going live.</p>
               
               <div class="review-card">
                 <div class="review-row">
-                  <span>Name</span>
-                  <strong>{{ formData.name || 'Untitled Product' }}</strong>
+                  <span>Product Name</span>
+                  <strong>{{ formData.name || 'Untitled' }}</strong>
                 </div>
                 <div class="review-row">
-                  <span>Price</span>
+                  <span>Selling Price</span>
                   <strong>${{ formData.price || '0.00' }}</strong>
                 </div>
                 <div class="review-row">
@@ -270,7 +219,7 @@
                   <strong>{{ getCategoryLabel(formData.category) }}</strong>
                 </div>
                 <div class="review-row">
-                  <span>Stock</span>
+                  <span>Stock Units</span>
                   <strong>{{ formData.stock }} units</strong>
                 </div>
               </div>
@@ -326,7 +275,7 @@
             
             <div class="preview-tip">
               <span class="material-icons-round">tips_and_updates</span>
-              <p>Tip: Great images increase sales by 40%!</p>
+              <p>Pro Tip: Great product photography can increase sales by up to 40%!</p>
             </div>
           </div>
         </div>

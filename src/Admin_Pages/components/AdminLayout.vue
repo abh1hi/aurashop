@@ -1,14 +1,27 @@
 <template>
   <div class="admin-layout">
-    <div class="sidebar-wrapper" :class="{ 'open': isSidebarOpen }">
-      <AdminSidebar @close="closeSidebar" />
+    <!-- Background Blobs -->
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <div class="sidebar-wrapper" :class="{ 'open': isSidebarOpen, 'hidden': isSidebarHidden }">
+      <AdminSidebar @close="closeSidebar" @toggle-hide="toggleSidebarHide" />
+    </div>
+    
+    <div class="sidebar-toggle-trigger" v-if="isSidebarHidden" @click="toggleSidebarHide">
+        <span class="material-icons-round">chevron_right</span>
     </div>
     
     <div class="mobile-overlay" v-if="isSidebarOpen" @click="closeSidebar"></div>
     
-    <main class="main-content">
+    <main class="main-content" :class="{ 'expanded': isSidebarHidden }">
       <AdminTopBar @toggle-sidebar="toggleSidebar" />
-      <slot></slot>
+      <div class="page-viewport">
+        <slot></slot>
+      </div>
     </main>
   </div>
 </template>
@@ -21,6 +34,11 @@ import AdminTopBar from '../Dashboard/components/AdminTopBar.vue';
 
 const route = useRoute();
 const isSidebarOpen = ref(false);
+const isSidebarHidden = ref(false); // Desktop only state
+
+const toggleSidebarHide = () => {
+    isSidebarHidden.value = !isSidebarHidden.value;
+};
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;

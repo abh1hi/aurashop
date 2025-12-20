@@ -1,30 +1,38 @@
 <template>
   <header class="admin-topbar">
-    <div class="search-container">
-      <button class="menu-btn-mobile" @click="$emit('toggle-sidebar')">
+    <div class="topbar-left">
+      <button class="menu-btn" @click="$emit('toggle-sidebar')">
         <span class="material-icons-round">menu</span>
       </button>
-      <LiquidInput 
-        placeholder="Search task" 
-        icon="search"
-        v-model="searchQuery"
-      />
+      <div class="search-wrap">
+        <LiquidInput 
+          placeholder="Search AuraCore..." 
+          icon="search"
+          v-model="searchQuery"
+          size="sm"
+        />
+      </div>
     </div>
 
-    <div class="topbar-actions">
-      <button class="action-btn">
-        <span class="material-icons-round">mail_outline</span>
-      </button>
-      <button class="action-btn">
-        <span class="material-icons-round">notifications_none</span>
-      </button>
+    <div class="topbar-right">
+      <div class="status-indicator">
+        <span class="dot"></span>
+        <span class="label">Live</span>
+      </div>
+
+      <div class="action-buttons">
+        <button class="icon-btn">
+          <span class="material-icons-round">chat_bubble_outline</span>
+          <span class="badge"></span>
+        </button>
+        <button class="icon-btn">
+          <span class="material-icons-round">notifications_none</span>
+        </button>
+      </div>
       
-      <div class="user-profile">
-        <img :src="photoURL" alt="User" class="avatar" />
-        <div class="user-info">
-          <span class="user-name">{{ displayName }}</span>
-          <span class="user-email">{{ email }}</span>
-        </div>
+      <div class="user-chip">
+        <img :src="photoURL" alt="Admin" class="avatar" />
+        <span class="material-icons-round">expand_more</span>
       </div>
     </div>
   </header>
@@ -38,8 +46,6 @@ import { useAuth } from '../../../composables/useAuth';
 const { user } = useAuth();
 const searchQuery = ref('');
 
-const displayName = computed(() => user.value?.displayName || 'Admin User');
-const email = computed(() => user.value?.email || 'No Email');
 const photoURL = computed(() => user.value?.photoURL || 'https://i.pravatar.cc/150?img=12');
 </script>
 

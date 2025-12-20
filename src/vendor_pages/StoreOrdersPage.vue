@@ -1,22 +1,43 @@
 <template>
   <div class="page-container">
+    <!-- Background Blobs -->
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
     <AppHeader />
     
     <main class="main-content">
       <div class="back-link" @click="router.back()">
-        <span class="material-icons-round">arrow_back</span>
-        Back to Dashboard
+        <span class="material-icons-round">west</span>
+        Dashboard
       </div>
 
       <div class="page-header">
-        <h1 class="page-title">Manage Orders</h1>
+        <h1 class="page-title">Orders Management</h1>
         <div class="header-actions">
            <LiquidButton 
-            text="Export CSV" 
-            icon="download" 
+            text="Export Data" 
+            icon="file_download" 
             type="ghost" 
             size="sm"
           />
+        </div>
+      </div>
+
+      <div class="stats-ribbon mb-lg">
+        <div class="stat-pill">
+          <span class="label">Total Orders</span>
+          <span class="value">{{ orders.length }}</span>
+        </div>
+        <div class="stat-pill">
+          <span class="label">Pending</span>
+          <span class="value">{{ orders.filter(o => o.status === 'pending').length }}</span>
+        </div>
+        <div class="stat-pill highlight">
+          <span class="label">Revenue</span>
+          <span class="value">${{ totalRevenue.toFixed(2) }}</span>
         </div>
       </div>
 
@@ -28,37 +49,63 @@
       />
 
       <!-- Orders List -->
-      <div class="orders-container">
+      <div class="orders-viewport">
         <div v-if="loading" class="loading-state">
           <LiquidSpinner />
         </div>
         
         <div v-else-if="filteredOrders.length === 0" class="empty-state">
-          <span class="material-icons-round">shopping_bag</span>
-          <h3>No orders found</h3>
-          <p>There are no orders in this category.</p>
+          <div class="empty-icon-wrap">
+            <span class="material-icons-round">history_toggle_off</span>
+          </div>
+          <h3>Void Pipeline</h3>
+          <p>No transactions detected in this status protocol.</p>
         </div>
 
-        <div v-else class="orders-list">
-          <div v-for="order in filteredOrders" :key="order.id" class="order-item" @click="viewOrder(order.id)">
-            <div class="order-main">
-              <div class="order-header">
-                <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
-                <span class="order-date">{{ formatDate(order.createdAt) }}</span>
-              </div>
-              <div class="order-customer">
-                <span class="material-icons-round">person</span>
-                {{ order.customerName || 'Guest Customer' }}
-              </div>
+        <div v-else class="orders-grid">
+          <!-- Table Header (Desktop) -->
+          <div class="grid-header">
+            <span>Identifier</span>
+            <span>Customer</span>
+            <span>Valuation</span>
+            <span>Protocal Status</span>
+            <span>Temporal Data</span>
+            <span class="text-right">Action</span>
+          </div>
+
+          <div v-for="order in filteredOrders" :key="order.id" class="order-row" @click="viewOrder(order.id)">
+            <div class="order-id-col">
+              <span class="id-symbol">#</span>
+              <span class="id-value">{{ order.id.slice(0, 8).toUpperCase() }}</span>
             </div>
             
-            <div class="order-meta">
-              <div class="order-total">${{ order.total?.toFixed(2) }}</div>
-              <span class="status-pill" :class="order.status">{{ order.status }}</span>
+            <div class="customer-col">
+              <div class="avatar-sm">
+                {{ (order.customerName || 'G')[0].toUpperCase() }}
+              </div>
+              <span class="customer-name text-truncate">{{ order.customerName || 'Anonymous Guest' }}</span>
+            </div>
+
+            <div class="valuation-col">
+              <span class="currency">$</span>
+              <span class="amount">{{ order.total?.toFixed(2) }}</span>
             </div>
             
-            <div class="order-action">
-              <span class="material-icons-round">chevron_right</span>
+            <div class="status-col">
+              <div class="status-badge" :class="order.status">
+                <span class="dot"></span>
+                {{ order.status }}
+              </div>
+            </div>
+
+            <div class="date-col">
+              {{ formatDate(order.createdAt) }}
+            </div>
+            
+            <div class="action-col">
+              <button class="view-btn">
+                <span class="material-icons-round">open_in_new</span>
+              </button>
             </div>
           </div>
         </div>
@@ -88,12 +135,18 @@ const orders = ref([]);
 const activeTab = ref('all');
 
 const tabs = [
-  { label: 'All', value: 'all' },
+  { label: 'All Protocols', value: 'all' },
   { label: 'Pending', value: 'pending' },
   { label: 'Processing', value: 'processing' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Cancelled', value: 'cancelled' }
+  { label: 'Complete', value: 'completed' },
+  { label: 'Voided', value: 'cancelled' }
 ];
+
+const totalRevenue = computed(() => {
+    return orders.value
+        .filter(o => o.status !== 'cancelled')
+        .reduce((sum, o) => sum + (o.total || 0), 0);
+});
 
 const filteredOrders = computed(() => {
   if (activeTab.value === 'all') return orders.value;
@@ -101,16 +154,15 @@ const filteredOrders = computed(() => {
 });
 
 const formatDate = (timestamp) => {
-  if (!timestamp) return '';
-  return new Date(timestamp.seconds * 1000).toLocaleDateString(undefined, {
-    year: 'numeric', month: 'short', day: 'numeric'
+  if (!timestamp) return '---';
+  const date = timestamp.seconds ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
+  return date.toLocaleDateString(undefined, {
+    month: 'short', day: 'numeric', year: '2-digit'
   });
 };
 
 const viewOrder = (orderId) => {
-  // router.push(`/vendor/store/${route.params.id}/orders/${orderId}`);
-  // For now, just log or show a toast as the details page isn't fully ready
-  console.log('View order', orderId);
+  router.push(`/vendor/store/${route.params.id}/orders/${orderId}`);
 };
 
 onMounted(async () => {
@@ -118,10 +170,9 @@ onMounted(async () => {
   if (storeId) {
     loading.value = true;
     try {
-      // Fetch more orders for the list page
-      orders.value = await fetchStoreOrders(storeId, 50); 
+      orders.value = await fetchStoreOrders(storeId, 100); 
     } catch (e) {
-      console.error("Failed to load orders", e);
+      console.error("Pipeline Sync Failure", e);
     } finally {
       loading.value = false;
     }

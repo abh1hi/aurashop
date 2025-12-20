@@ -1,4 +1,4 @@
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUser } from '../composables/useUser';
 import { useToast } from '../components/liquid-ui-kit/LiquidToast/LiquidToast';
@@ -16,16 +16,19 @@ export function useEditProfilePage() {
         phoneNumber: ''
     });
 
-    onMounted(() => {
-        if (userProfile.value) {
+
+
+    // Sync form with user profile whenever it changes
+    watch(userProfile, (newProfile) => {
+        if (newProfile) {
             form.value = {
-                displayName: userProfile.value.displayName || '',
-                username: userProfile.value.username || '',
-                email: userProfile.value.email || '',
-                phoneNumber: userProfile.value.phoneNumber || ''
+                displayName: newProfile.displayName || '',
+                username: newProfile.username || '',
+                email: newProfile.email || '',
+                phoneNumber: newProfile.phoneNumber || ''
             };
         }
-    });
+    }, { immediate: true });
 
     const handleSave = async () => {
         loading.value = true;

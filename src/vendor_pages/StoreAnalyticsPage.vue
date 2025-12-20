@@ -1,19 +1,27 @@
 <template>
   <div class="page-container">
+    <!-- Background Blobs -->
+    <div class="background-blobs">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+    </div>
+
     <AppHeader />
     
     <main class="main-content">
       <div class="back-link" @click="router.back()">
-        <span class="material-icons-round">arrow_back</span>
-        Back to Dashboard
+        <span class="material-icons-round">west</span>
+        Dashboard
       </div>
 
       <div class="page-header">
-        <h1 class="page-title">Analytics</h1>
-        <div class="date-range">
-          <span class="material-icons-round">calendar_today</span>
-          Last 30 Days
-          <span class="material-icons-round">expand_more</span>
+        <h1 class="page-title">Analytics Engine</h1>
+        <div class="header-actions">
+          <div class="date-range-pill">
+            <span class="material-icons-round">calendar_today</span>
+            <span>Last 30 Cycles</span>
+            <span class="material-icons-round">expand_more</span>
+          </div>
         </div>
       </div>
 
@@ -25,11 +33,11 @@
         <!-- Revenue Chart -->
         <div class="chart-card large">
           <div class="chart-header">
-            <h3>Revenue Trend</h3>
+            <h3>Revenue Projection</h3>
             <div class="chart-actions">
-              <button class="chart-filter active">Week</button>
-              <button class="chart-filter">Month</button>
-              <button class="chart-filter">Year</button>
+              <button class="chart-filter active">Cycle</button>
+              <button class="chart-filter">Phase</button>
+              <button class="chart-filter">Epoch</button>
             </div>
           </div>
           <div class="chart-container">
@@ -40,7 +48,7 @@
         <!-- Traffic Sources -->
         <div class="chart-card">
           <div class="chart-header">
-            <h3>Traffic Sources</h3>
+            <h3>Traffic Inflow</h3>
           </div>
           <div class="chart-container donut">
             <Doughnut :data="trafficData" :options="donutOptions" />
@@ -50,7 +58,7 @@
         <!-- Sales Funnel -->
         <div class="chart-card">
           <div class="chart-header">
-            <h3>Sales Funnel</h3>
+            <h3>Conversion Pipeline</h3>
           </div>
           <div class="chart-container">
             <Bar :data="funnelData" :options="barOptions" />
@@ -60,38 +68,51 @@
 
       <!-- Top Products Table -->
       <section class="analytics-section">
-        <h2 class="section-title">Top Performing Products</h2>
-        <div class="data-table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Views</th>
-                <th>Sales</th>
-                <th>Revenue</th>
-                <th>Conversion</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="product in topProducts" :key="product.id">
-                <td class="product-cell">
-                  <div class="product-thumb"></div>
-                  {{ product.name }}
-                </td>
-                <td>{{ product.views }}</td>
-                <td>{{ product.sales }}</td>
-                <td>${{ product.revenue }}</td>
-                <td>
-                  <span class="conversion-pill" :class="getConversionClass(product.conversion)">
-                    {{ product.conversion }}%
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="section-header">
+          <h2 class="section-title">High-Performance Products</h2>
+          <LiquidButton text="Export Report" type="ghost" size="xs" icon="file_download" />
+        </div>
+        
+        <div class="table-viewport">
+          <div class="grid-header">
+            <span>Product Identity</span>
+            <span class="text-center">Exposure</span>
+            <span class="text-center">Conversions</span>
+            <span class="text-right">Revenue</span>
+            <span class="text-right">Efficiency</span>
+          </div>
+
+          <div class="grid-rows">
+            <div v-for="product in topProducts" :key="product.id" class="data-row">
+              <div class="product-col">
+                <div class="product-chip">
+                  <div class="chip-inner"></div>
+                </div>
+                <span class="product-name text-truncate">{{ product.name }}</span>
+              </div>
+              
+              <div class="metric-col text-center">
+                {{ product.views }}
+              </div>
+              
+              <div class="metric-col text-center">
+                {{ product.sales }}
+              </div>
+              
+              <div class="revenue-col text-right">
+                <span class="currency">$</span>
+                <span class="amount">{{ product.revenue }}</span>
+              </div>
+              
+              <div class="efficiency-col text-right">
+                <div class="efficiency-badge" :class="getConversionClass(product.conversion)">
+                  {{ product.conversion }}%
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
-
     </main>
 
     <BottomNavBar />
@@ -118,6 +139,7 @@ import { Line, Bar, Doughnut } from 'vue-chartjs';
 import AppHeader from '../components/AppHeader.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
 import LiquidStats from '../components/liquid-ui-kit/LiquidStats/LiquidStats.vue';
+import LiquidButton from '../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import { useAnalytics } from '../composables/useAnalytics';
 
 // Register ChartJS components
@@ -156,16 +178,36 @@ const getConversionClass = (rate) => {
   return 'low';
 };
 
-// Chart Options
+// Chart Options with matching Liquid aesthetic
 const commonOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { display: false }
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+      titleColor: '#1e293b',
+      bodyColor: '#1e293b',
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+      borderWidth: 1,
+      padding: 12,
+      displayColors: false,
+      callbacks: {
+        label: function(context) {
+          return `${context.dataset.label}: ${context.parsed.y}`;
+        }
+      }
+    }
   },
   scales: {
-    x: { grid: { display: false } },
-    y: { grid: { color: 'rgba(0,0,0,0.05)' } }
+    x: { 
+      grid: { display: false },
+      ticks: { color: '#64748b', font: { size: 10, weight: '600' } }
+    },
+    y: { 
+      grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
+      ticks: { color: '#64748b', font: { size: 10, weight: '600' } }
+    }
   }
 };
 
@@ -175,15 +217,23 @@ const donutOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { position: 'bottom' }
+    legend: { 
+      position: 'bottom',
+      labels: {
+        color: '#64748b',
+        usePointStyle: true,
+        pointStyle: 'circle',
+        padding: 20,
+        font: { size: 11, weight: '600' }
+      }
+    }
   },
-  cutout: '70%'
+  cutout: '75%'
 };
 
 onMounted(async () => {
   const storeId = route.params.id;
   if (storeId) {
-    // Fetch all data in parallel
     const [stats, revenue, products, traffic, funnel] = await Promise.all([
       fetchAnalyticsOverview(storeId),
       fetchRevenueTrend(storeId),

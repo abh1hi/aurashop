@@ -1,10 +1,9 @@
 /* Container */
 .product-details-container {
-    padding-top: var(--header-height);
+    padding-top: calc(var(--header-height) + var(--spacing-md));
     min-height: 100vh;
     background: var(--bg-color);
     padding-bottom: 100px;
-    /* Space for mobile sticky footer */
 }
 
 .product-main-grid {

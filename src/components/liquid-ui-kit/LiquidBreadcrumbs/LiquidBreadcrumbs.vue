@@ -24,6 +24,10 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+const props = defineProps({
+  minimized: Boolean
+});
+
 const route = useRoute();
 const router = useRouter();
 
@@ -46,8 +50,6 @@ const breadcrumbs = computed(() => {
     // Format label: capitalize and replace hyphens
     let label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
     
-    // Handle dynamic params (basic heuristic)
-    // In a real app, you might look up the route name or meta title
     const matchedRoute = router.getRoutes().find(r => r.path === currentPath);
     if (matchedRoute && matchedRoute.meta && matchedRoute.meta.title) {
         label = matchedRoute.meta.title;
@@ -61,6 +63,11 @@ const breadcrumbs = computed(() => {
 
   // Don't show breadcrumbs on home page only
   if (crumbs.length === 1) return [];
+
+  if (props.minimized && crumbs.length > 2) {
+    // Show Home icon and just the last crumb if minimized
+    return [crumbs[0], { label: '...', path: '#', isSeparator: true }, crumbs[crumbs.length - 1]];
+  }
 
   return crumbs;
 });

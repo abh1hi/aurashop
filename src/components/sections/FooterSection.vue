@@ -1,260 +1,412 @@
 <template>
-  <footer class="app-footer">
-    <div class="footer-content">
-      <!-- Brand & Social -->
-      <div class="footer-section brand-section">
-        <div class="brand-logo">
-           <span class="material-icons-round logo-icon">diamond</span>
-           <span class="brand-name">AuraShop</span>
+  <footer class="app-footer glass-footer">
+    <div class="footer-container container">
+      <!-- Brand & Info Section -->
+      <div class="footer-brand-grid">
+        <div class="brand-wrap">
+          <div class="premium-logo">
+            <span class="material-icons-round logo-glow">diamond</span>
+            <span class="logo-text">AURASHOP</span>
+          </div>
+          <p class="brand-mission">
+            Defining the future of luxury commerce through curated selection and AI-driven personalization.
+          </p>
+          <div class="social-dock">
+            <a href="#" class="social-circle" aria-label="Instagram">
+              <span class="material-icons-round">camera_alt</span>
+            </a>
+            <a href="#" class="social-circle" aria-label="X">
+              <span class="material-icons-round">alternate_email</span>
+            </a>
+            <a href="#" class="social-circle" aria-label="Facebook">
+              <span class="material-icons-round">facebook</span>
+            </a>
+          </div>
         </div>
-        <p class="footer-desc">Premium fashion and lifestyle products curated just for you.</p>
-        <div class="social-links">
-            <a href="#" class="social-link"><span class="material-icons-round">facebook</span></a>
-            <a href="#" class="social-link"><span class="material-icons-round">camera_alt</span></a>
-            <a href="#" class="social-link"><span class="material-icons-round">alternate_email</span></a>
+
+        <!-- Newsletter Section -->
+        <div class="newsletter-card-glass">
+          <h4 class="newsletter-title">Join The Inner Circle</h4>
+          <p class="newsletter-sub">Get exclusive access to pre-launch drops and seasonal curations.</p>
+          <div class="newsletter-input-group">
+            <input type="email" placeholder="Your email address" class="glass-input" />
+            <button class="glass-submit">Join</button>
+          </div>
         </div>
       </div>
-      
-      <!-- Mobile Accordion / Desktop Grid -->
-      <div class="footer-links-container">
-          <!-- Shop -->
-          <div class="footer-section link-group">
-            <h4 class="footer-heading" @click="toggleSection('shop')">
-                Shop 
-                <span class="material-icons-round expand-icon mobile-only" :class="{ rotated: openSections.shop }">expand_more</span>
-            </h4>
-            <div class="link-list" :class="{ open: openSections.shop }">
-                <a href="#" class="footer-link">New Arrivals</a>
-                <a href="#" class="footer-link">Best Sellers</a>
-                <a href="#" class="footer-link">Sale</a>
-                <a href="#" class="footer-link">Collections</a>
-            </div>
-          </div>
+
+      <div class="footer-divider-glow"></div>
+
+      <!-- Links Accordion Grid -->
+      <div class="footer-accordion-grid">
+        <div v-for="(group, id) in linkGroups" :key="id" class="accordion-item-glass">
+          <button class="accordion-trigger" @click="toggleSection(id)">
+            <span class="trigger-label">{{ group.title }}</span>
+            <span class="material-icons-round trigger-icon" :class="{ rotated: openSections[id] }">
+              add
+            </span>
+          </button>
           
-          <!-- Support -->
-          <div class="footer-section link-group">
-            <h4 class="footer-heading" @click="toggleSection('support')">
-                Support
-                <span class="material-icons-round expand-icon mobile-only" :class="{ rotated: openSections.support }">expand_more</span>
-            </h4>
-            <div class="link-list" :class="{ open: openSections.support }">
-                <a href="#" class="footer-link">Help Center</a>
-                <a href="#" class="footer-link">Shipping & Returns</a>
-                <a href="#" class="footer-link">Size Guide</a>
-                <a href="#" class="footer-link">Contact Us</a>
+          <div class="accordion-content" :class="{ expanded: openSections[id] }">
+            <div class="link-list-premium">
+              <a v-for="link in group.links" :key="link.text" :href="link.url" class="premium-footer-link">
+                {{ link.text }}
+              </a>
             </div>
           </div>
-          
-          <!-- Legal -->
-          <div class="footer-section link-group">
-            <h4 class="footer-heading" @click="toggleSection('legal')">
-                Legal
-                <span class="material-icons-round expand-icon mobile-only" :class="{ rotated: openSections.legal }">expand_more</span>
-            </h4>
-            <div class="link-list" :class="{ open: openSections.legal }">
-                <a href="#" class="footer-link">Privacy Policy</a>
-                <a href="#" class="footer-link">Terms of Service</a>
-                <a href="#" class="footer-link">Cookie Policy</a>
-            </div>
-          </div>
+        </div>
       </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; 2024 AuraShop. All rights reserved.</p>
+
+      <div class="footer-legal-bar">
+        <div class="legal-left">
+          &copy; 2024 AURASHOP. DEFINING PREMIUM.
+        </div>
+        <div class="legal-right">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
     </div>
   </footer>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { reactive } from 'vue';
 
 const openSections = reactive({
-    shop: false,
-    support: false,
-    legal: false
+  shop: true,
+  support: false,
+  legal: false
 });
 
-const toggleSection = (section) => {
-    // Only toggle on mobile where the icon is visible/logic applies
-    if (window.innerWidth <= 768) {
-        openSections[section] = !openSections[section];
-    }
+const linkGroups = {
+  shop: {
+    title: 'Shop Collections',
+    links: [
+      { text: 'New Arrivals', url: '#' },
+      { text: 'Best Sellers', url: '#' },
+      { text: 'Limited Drops', url: '#' },
+      { text: 'Lookbook', url: '#' }
+    ]
+  },
+  support: {
+    title: 'Client Service',
+    links: [
+      { text: 'Help Center', url: '#' },
+      { text: 'Concierge', url: '#' },
+      { text: 'Shipping & Returns', url: '#' },
+      { text: 'Size Guide', url: '#' }
+    ]
+  },
+  legal: {
+    title: 'Information',
+    links: [
+      { text: 'Our Story', url: '#' },
+      { text: 'Privacy Policy', url: '#' },
+      { text: 'Terms of Use', url: '#' },
+      { text: 'Sustainability', url: '#' }
+    ]
+  }
+};
+
+const toggleSection = (id) => {
+  openSections[id] = !openSections[id];
 };
 </script>
 
 <style scoped>
-.app-footer {
+.glass-footer {
   background: var(--bg-color);
   border-top: 1px solid var(--glass-border);
-  padding: var(--spacing-2xl) var(--spacing-lg) var(--spacing-xl);
-  margin-top: var(--spacing-2xl);
+  padding: 80px 0 40px;
   position: relative;
   overflow: hidden;
+  margin-top: 80px;
 }
 
-/* Glass effect background for footer */
-.app-footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.05) 100%);
-    pointer-events: none;
+.glass-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brand-primary), transparent);
+  opacity: 0.3;
 }
 
-.footer-content {
-  max-width: 1280px;
+.footer-container {
+  max-width: 1200px;
   margin: 0 auto;
+}
+
+/* Brand Grid */
+.footer-brand-grid {
   display: grid;
-  grid-template-columns: 1.5fr 3fr;
-  gap: var(--spacing-2xl);
-  position: relative;
-  z-index: 1;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 60px;
+  margin-bottom: 60px;
+  align-items: center;
 }
 
-.footer-links-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-xl);
-}
-
-.brand-logo {
+.premium-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.logo-glow {
+  font-size: 32px;
   color: var(--brand-primary);
-  font-weight: var(--font-weight-bold);
-  font-size: var(--text-xl);
-  margin-bottom: var(--spacing-md);
+  text-shadow: 0 0 15px color-mix(in srgb, var(--brand-primary) 30%, transparent);
 }
 
-.footer-desc {
-  color: var(--text-secondary);
+.logo-text {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--primary-text);
+}
+
+.brand-mission {
+  color: var(--secondary-text);
+  font-size: var(--text-base);
   line-height: 1.6;
-  margin-bottom: var(--spacing-lg);
-  max-width: 300px;
+  max-width: 380px;
+  margin-bottom: 32px;
 }
 
-.social-links {
+.social-dock {
   display: flex;
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
-.social-link {
-  width: 40px;
-  height: 40px;
+.social-circle {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--glass-bg);
+  background: var(--liquid-glass-base);
   border: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
-  transition: all 0.3s ease;
+  color: var(--primary-text);
+  transition: all 0.4s var(--ease-out);
 }
 
-.social-link:hover {
-  color: var(--brand-primary);
-  background: var(--glass-bg-hover);
-  transform: translateY(-2px);
+.social-circle:hover {
+  background: var(--brand-primary);
+  color: white;
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 8px 20px rgba(0, 113, 227, 0.2);
+}
+
+/* Newsletter Card */
+.newsletter-card-glass {
+  background: var(--liquid-glass-base);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  padding: 40px;
+  border-radius: var(--radius-2xl);
   box-shadow: var(--glass-shadow);
 }
 
-.footer-heading {
-  font-size: var(--text-lg);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--spacing-lg);
-  color: var(--text-color);
+.newsletter-title {
+  font-size: var(--text-xl);
+  font-weight: 900;
+  margin-bottom: 8px;
+  color: var(--primary-text);
+}
+
+.newsletter-sub {
+  color: var(--secondary-text);
+  margin-bottom: 24px;
+  font-size: var(--text-sm);
+}
+
+.newsletter-input-group {
+  display: flex;
+  gap: 12px;
+}
+
+.glass-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  padding: 14px 24px;
+  color: var(--primary-text);
+  outline: none;
+  transition: all 0.3s;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--brand-primary);
+}
+
+.glass-submit {
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+  padding: 0 32px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.glass-submit:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}
+
+.footer-divider-glow {
+  height: 1px;
+  background: linear-gradient(90deg, var(--glass-border), rgba(255, 255, 255, 0.1), var(--glass-border));
+  margin-bottom: 40px;
+}
+
+/* Accordion Grid */
+.footer-accordion-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-bottom: 60px;
+}
+
+.accordion-item-glass {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.accordion-trigger {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 20px 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
 }
 
-.footer-link {
-  display: block;
-  color: var(--text-secondary);
-  text-decoration: none;
-  margin-bottom: var(--spacing-sm);
-  transition: color 0.2s;
-  font-size: var(--text-base);
+.trigger-label {
+  font-size: var(--text-lg);
+  font-weight: 800;
+  color: var(--primary-text);
+  letter-spacing: -0.02em;
 }
 
-.footer-link:hover {
+.trigger-icon {
+  font-size: 20px;
   color: var(--brand-primary);
-  padding-left: 4px;
+  transition: transform 0.4s var(--ease-elastic);
 }
 
-.footer-bottom {
-  max-width: 1280px;
-  margin: var(--spacing-2xl) auto 0;
-  padding-top: var(--spacing-lg);
+.trigger-icon.rotated {
+  transform: rotate(45deg);
+  color: var(--secondary-text);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.accordion-content.expanded {
+  max-height: 400px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.link-list-premium {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 30px;
+}
+
+.premium-footer-link {
+  color: var(--secondary-text);
+  text-decoration: none;
+  font-size: var(--text-base);
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.premium-footer-link:hover {
+  color: var(--brand-primary);
+  transform: translateX(6px);
+}
+
+/* Legal Bar */
+.footer-legal-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 32px;
   border-top: 1px solid var(--glass-border);
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  position: relative;
-  z-index: 1;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
-/* Mobile Styles */
-@media (max-width: 768px) {
-  .footer-content {
+.legal-right {
+  display: flex;
+  gap: 24px;
+}
+
+.legal-right a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.legal-right a:hover {
+  color: var(--primary-text);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .footer-brand-grid {
     grid-template-columns: 1fr;
-    gap: var(--spacing-xl);
-  }
-
-  .footer-links-container {
-      display: flex;
-      flex-direction: column;
-      gap: 0; /* Remove gap for accordion style */
-  }
-
-  .footer-section.link-group {
-      border-bottom: 1px solid var(--glass-border);
+    gap: 40px;
+    text-align: center;
   }
   
-  .footer-section.link-group:last-child {
-      border-bottom: none;
-  }
-
-  .footer-heading {
-      margin-bottom: 0;
-      padding: var(--spacing-md) 0;
-      cursor: pointer;
-      font-size: var(--text-base);
-  }
-
-  .link-list {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-  }
-
-  .link-list.open {
-      max-height: 200px; /* Adjust based on content */
-      padding-bottom: var(--spacing-md);
-  }
-
-  .expand-icon {
-      transition: transform 0.3s ease;
-  }
-
-  .expand-icon.rotated {
-      transform: rotate(180deg);
+  .brand-mission {
+    margin-left: auto;
+    margin-right: auto;
   }
   
-  .brand-section {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+  .social-dock {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-accordion-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
   
-  .footer-desc {
-      text-align: center;
+  .accordion-item-glass {
+    border-bottom: 1px solid var(--glass-border);
+    border-radius: 0;
+  }
+  
+  .accordion-trigger {
+    padding: 24px 0;
   }
 }
 </style>

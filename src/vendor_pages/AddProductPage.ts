@@ -34,7 +34,7 @@ export default defineComponent({
         const steps = [
             { label: 'Essentials' },
             { label: 'Visuals' },
-            { label: 'Details' },
+            { label: 'Pricing' },
             { label: 'Variants' },
             { label: 'Advanced' },
             { label: 'Review' }
