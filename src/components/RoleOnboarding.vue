@@ -180,7 +180,8 @@ const handleSubmit = async () => {
       await becomeVendor();
       const storeId = await createStore({ name: formData.storeName });
       showToast('Welcome to the seller community! 🚀', 'success');
-      router.push(`/vendor/store/${storeId}/onboarding`);
+      // Full page redirect to Vendor App
+      window.location.href = `/vendor/store/${storeId}/onboarding`;
       return;
     } 
     

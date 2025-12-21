@@ -98,6 +98,7 @@ const managementLinks = [
   { name: 'Vendors', path: '/admin/vendors', icon: 'storefront' },
   { name: 'Stores', path: '/admin/stores', icon: 'corporate_fare' },
   { name: 'KYC Verification', path: '/admin/kyc', icon: 'verified_user' },
+  { name: 'Notifications', path: '/admin/notifications', icon: 'notifications' },
   { name: 'Settings', path: '/admin/settings', icon: 'settings' },
 ];
 

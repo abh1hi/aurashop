@@ -44,6 +44,11 @@ service cloud.firestore {
       match /addresses/{addressId} {
         allow read, write: if isOwner(userId);
       }
+      match /notifications/{notificationId} {
+        // User can read/write their own notifications, Admin can write to anyone's
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId) || isAdmin();
+      }
     }
 
     // Stores Collection

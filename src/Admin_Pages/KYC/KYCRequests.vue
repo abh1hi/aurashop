@@ -94,6 +94,31 @@
                       <p>{{ selectedRequest.phone || 'No direct comms' }}</p>
                     </div>
                   </div>
+
+                  <div class="rejection-section">
+                    <span class="section-label">Compliance Defects</span>
+                    <div class="checklist">
+                        <label 
+                            v-for="reason in rejectionReasonsOptions" 
+                            :key="reason.id"
+                            class="checklist-item"
+                        >
+                            <input 
+                                type="checkbox" 
+                                :checked="selectedRejectionReasons.includes(reason.label)"
+                                @change="toggleRejectionReason(reason.label)"
+                            />
+                            <span class="reason-label">{{ reason.label }}</span>
+                        </label>
+                    </div>
+                    <div class="custom-note">
+                        <textarea 
+                            v-model="customRejectionNote" 
+                            placeholder="Additional rejection details..."
+                            rows="2"
+                        ></textarea>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="artifact-viewport">
@@ -184,37 +209,44 @@ const formatDate = (timestamp: any) => {
   return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 };
 
-const openReviewModal = (req: any) => {
-  selectedRequest.value = req;
-  showModal.value = true;
-};
+const rejectionReasonsOptions = [
+    { id: 'id_blur', label: 'Government ID is blurry or unreadable' },
+    { id: 'id_mismatch', label: 'ID Name does not match Profile Name' },
+    { id: 'video_issue', label: 'Liveness Video could not be played' },
+    { id: 'video_content', label: 'Video does not clearly show face' },
+    { id: 'store_details', label: 'Store Description is incomplete' },
+    { id: 'contact_info', label: 'Contact Information verification failed' }
+];
 
-const closeModal = () => {
-  showModal.value = false;
-  selectedRequest.value = null;
-};
+const selectedRejectionReasons = ref<string[]>([]);
+const customRejectionNote = ref('');
 
-const handleApprove = async () => {
-  if (!selectedRequest.value) return;
-  processing.value = true;
-  try {
-    await approveKYC(selectedRequest.value.id);
-    showToast('Store approved successfully!', 'success');
-    closeModal();
-    await loadRequests();
-  } catch (e: any) {
-    showToast(e.message, 'error');
-  } finally {
-    processing.value = false;
-  }
+const toggleRejectionReason = (label: string) => {
+    if (selectedRejectionReasons.value.includes(label)) {
+        selectedRejectionReasons.value = selectedRejectionReasons.value.filter(r => r !== label);
+    } else {
+        selectedRejectionReasons.value.push(label);
+    }
 };
 
 const handleReject = async () => {
   if (!selectedRequest.value) return;
+  
+  if (selectedRejectionReasons.value.length === 0 && !customRejectionNote.value) {
+      showToast('Please select at least one reason or add a note.', 'warning');
+      return;
+  }
+
   processing.value = true;
   try {
-    await rejectKYC(selectedRequest.value.id, 'Documents unclear'); // Hardcoded reason for now
-    showToast('Store rejected.', 'info');
+    // Combine standard reasons and custom note
+    const finalReasons = [...selectedRejectionReasons.value];
+    if (customRejectionNote.value) {
+        finalReasons.push(customRejectionNote.value);
+    }
+
+    await rejectKYC(selectedRequest.value.id, finalReasons);
+    showToast('Store rejected and vendor notified.', 'info');
     closeModal();
     await loadRequests();
   } catch (e: any) {
@@ -222,6 +254,36 @@ const handleReject = async () => {
   } finally {
     processing.value = false;
   }
+};
+
+// Reset state on open
+const openReviewModal = (req: any) => {
+  selectedRequest.value = req;
+  selectedRejectionReasons.value = [];
+  customRejectionNote.value = '';
+  showModal.value = true;
+};
+
+const closeModal = () => {
+    showModal.value = false;
+    selectedRequest.value = null;
+    selectedRejectionReasons.value = [];
+    customRejectionNote.value = '';
+};
+
+const handleApprove = async () => {
+    if (!selectedRequest.value) return;
+    processing.value = true;
+    try {
+        await approveKYC(selectedRequest.value.id);
+        showToast('Compliance confirmed. Store verified.', 'success');
+        closeModal();
+        await loadRequests();
+    } catch (e: any) {
+        showToast(e.message, 'error');
+    } finally {
+        processing.value = false;
+    }
 };
 </script>
 

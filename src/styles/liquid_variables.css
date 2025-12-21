@@ -42,13 +42,13 @@
 /* Dim/Oceanic Theme */
 body:has(input[value="dim"]:checked),
 [data-theme="oceanic"] {
-    --liquid-glass-base: rgba(153, 222, 255, 0.12);
-    --liquid-glass-tint: rgba(255, 72, 169, 0.15);
-    --liquid-glass-border: rgba(255, 72, 169, 0.3);
-    --liquid-glass-shine-1: rgba(153, 222, 255, 0.4);
-    --liquid-glass-shine-2: rgba(255, 72, 169, 0.4);
+    --liquid-glass-base: rgba(153, 222, 255, 0.6);
+    --liquid-glass-tint: rgba(255, 72, 169, 0.25);
+    --liquid-glass-border: rgba(255, 72, 169, 0.4);
+    --liquid-glass-shine-1: rgba(153, 222, 255, 0.5);
+    --liquid-glass-shine-2: rgba(255, 72, 169, 0.5);
 
-    --liquid-blur: 10px;
+    --liquid-blur: 12px;
     --liquid-saturate: 200%;
 
     --liquid-reflex-light: 0.7;
@@ -59,73 +59,73 @@ body:has(input[value="dim"]:checked),
 
 /* Sunset Theme */
 [data-theme="sunset"] {
-    --liquid-glass-base: rgba(255, 171, 145, 0.2);
-    --liquid-glass-tint: rgba(255, 204, 188, 0.25);
-    --liquid-glass-border: rgba(255, 171, 145, 0.4);
+    --liquid-glass-base: rgba(255, 171, 145, 0.65);
+    --liquid-glass-tint: rgba(255, 204, 188, 0.3);
+    --liquid-glass-border: rgba(255, 171, 145, 0.5);
     --liquid-action: var(--tertiary-pastel);
 }
 
 /* Forest Theme */
 [data-theme="forest"] {
-    --liquid-glass-base: rgba(165, 214, 167, 0.2);
-    --liquid-glass-tint: rgba(200, 230, 201, 0.25);
-    --liquid-glass-border: rgba(165, 214, 167, 0.4);
+    --liquid-glass-base: rgba(165, 214, 167, 0.65);
+    --liquid-glass-tint: rgba(200, 230, 201, 0.3);
+    --liquid-glass-border: rgba(165, 214, 167, 0.5);
     --liquid-action: var(--primary-pastel);
 }
 
 /* Lavender Theme */
 [data-theme="lavender"] {
-    --liquid-glass-base: rgba(230, 230, 250, 0.2);
-    --liquid-glass-tint: rgba(216, 191, 216, 0.25);
-    --liquid-glass-border: rgba(230, 230, 250, 0.4);
+    --liquid-glass-base: rgba(230, 230, 250, 0.65);
+    --liquid-glass-tint: rgba(216, 191, 216, 0.3);
+    --liquid-glass-border: rgba(230, 230, 250, 0.5);
     --liquid-action: #9370db;
 }
 
 /* Mint Theme */
 [data-theme="mint"] {
-    --liquid-glass-base: rgba(152, 255, 152, 0.15);
-    --liquid-glass-tint: rgba(240, 255, 240, 0.25);
-    --liquid-glass-border: rgba(152, 255, 152, 0.4);
+    --liquid-glass-base: rgba(152, 255, 152, 0.6);
+    --liquid-glass-tint: rgba(240, 255, 240, 0.3);
+    --liquid-glass-border: rgba(152, 255, 152, 0.5);
     --liquid-action: #3eb489;
 }
 
 /* Peach Theme */
 [data-theme="peach"] {
-    --liquid-glass-base: rgba(255, 218, 185, 0.2);
-    --liquid-glass-tint: rgba(255, 229, 180, 0.25);
-    --liquid-glass-border: rgba(255, 218, 185, 0.4);
+    --liquid-glass-base: rgba(255, 218, 185, 0.65);
+    --liquid-glass-tint: rgba(255, 229, 180, 0.3);
+    --liquid-glass-border: rgba(255, 218, 185, 0.5);
     --liquid-action: #ff7f50;
 }
 
 /* Slate Theme */
 [data-theme="slate"] {
-    --liquid-glass-base: rgba(112, 128, 144, 0.15);
-    --liquid-glass-tint: rgba(119, 136, 153, 0.2);
-    --liquid-glass-border: rgba(112, 128, 144, 0.3);
+    --liquid-glass-base: rgba(112, 128, 144, 0.6);
+    --liquid-glass-tint: rgba(119, 136, 153, 0.3);
+    --liquid-glass-border: rgba(112, 128, 144, 0.4);
     --liquid-action: #708090;
 }
 
 /* Midnight Theme */
 [data-theme="midnight"] {
-    --liquid-glass-base: rgba(15, 23, 42, 0.4);
-    --liquid-glass-tint: rgba(59, 130, 246, 0.15);
-    --liquid-glass-border: rgba(59, 130, 246, 0.3);
+    --liquid-glass-base: rgba(15, 23, 42, 0.85);
+    --liquid-glass-tint: rgba(59, 130, 246, 0.2);
+    --liquid-glass-border: rgba(59, 130, 246, 0.4);
     --liquid-action: #3b82f6;
 }
 
 /* Deep Space Theme */
 [data-theme="deep-space"] {
-    --liquid-glass-base: rgba(5, 5, 5, 0.5);
-    --liquid-glass-tint: rgba(147, 51, 234, 0.15);
-    --liquid-glass-border: rgba(147, 51, 234, 0.3);
+    --liquid-glass-base: rgba(5, 5, 5, 0.9);
+    --liquid-glass-tint: rgba(147, 51, 234, 0.2);
+    --liquid-glass-border: rgba(147, 51, 234, 0.4);
     --liquid-action: #9333ea;
 }
 
 /* Cyberpunk Theme */
 [data-theme="cyberpunk"] {
-    --liquid-glass-base: rgba(9, 9, 11, 0.6);
-    --liquid-glass-tint: rgba(6, 182, 212, 0.2);
-    --liquid-glass-border: rgba(6, 182, 212, 0.5);
+    --liquid-glass-base: rgba(9, 9, 11, 0.9);
+    --liquid-glass-tint: rgba(6, 182, 212, 0.25);
+    --liquid-glass-border: rgba(6, 182, 212, 0.6);
     --liquid-action: #06b6d4;
 }
 

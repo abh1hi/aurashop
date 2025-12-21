@@ -50,7 +50,7 @@
                 <span class="material-icons-round">add_business</span>
                 <span>Become a Vendor</span>
               </button>
-              <button v-else class="nav-item-btn" @click="router.push('/vendor/my-stores')">
+              <button v-else class="nav-item-btn" @click="navigateToVendorDashboard">
                 <span class="material-icons-round">storefront</span>
                 <span>Manage Stores</span>
               </button>
@@ -114,7 +114,7 @@
                   </div>
                   <div class="info-item">
                     <span class="info-label">Member Since</span>
-                    <span class="info-value">{{ userProfile?.createdAt ? new Date(userProfile.createdAt).toLocaleDateString() : 'N/A' }}</span>
+                    <span class="info-value">{{ (userProfile as any)?.createdAt ? new Date((userProfile as any).createdAt.toDate()).toLocaleDateString() : 'N/A' }}</span>
                   </div>
                 </div>
               </LiquidCard>
@@ -126,10 +126,10 @@
                     <span class="material-icons-round">home</span>
                   </div>
                   <div class="address-info">
-                    <span class="address-name">{{ userProfile.addresses[0].label }}</span>
-                    <p class="address-detail">{{ userProfile.addresses[0].addressLine }}</p>
+                    <span class="address-name">{{ userProfile?.addresses?.[0]?.label }}</span>
+                    <p class="address-detail">{{ userProfile?.addresses?.[0]?.addressLine }}</p>
                   </div>
-                  <LiquidButton text="Edit" size="sm" type="ghost" @click="editAddress(userProfile.addresses[0].id)" />
+                  <LiquidButton text="Edit" size="sm" type="ghost" @click="userProfile?.addresses?.[0] && editAddress(userProfile.addresses[0].id)" />
                 </div>
                 <div v-else class="empty-placeholder" style="text-align: center; padding: 20px;">
                   <p class="text-secondary">No addresses saved.</p>
@@ -238,7 +238,7 @@
           <div class="menu-group">
             <h3 class="mobile-section-title">Business</h3>
             <div class="mobile-menu-card">
-               <div v-if="userProfile?.roles?.includes('vendor')" class="m-menu-item" @click="router.push('/vendor/my-stores')">
+               <div v-if="userProfile?.roles?.includes('vendor')" class="m-menu-item" @click="navigateToVendorDashboard">
                   <div class="m-icon-box"><span class="material-icons-round">storefront</span></div>
                   <span class="m-menu-label">Manage Stores</span>
                   <span class="material-icons-round m-chevron">chevron_right</span>
@@ -354,6 +354,10 @@ const tabs = [
   { label: 'My Orders', value: 'orders' },
   { label: 'Settings', value: 'settings' }
 ];
+
+const navigateToVendorDashboard = () => {
+    window.location.href = '/vendor/my-stores';
+};
 </script>
 
 <style scoped src="./ProfilePage.css"></style>

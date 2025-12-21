@@ -135,11 +135,7 @@ const filteredStores = computed(() => {
   );
 });
 
-const formatDate = (timestamp: any) => {
-  if (!timestamp) return '-';
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(date);
-};
+
 
 const storeStatusOptions = [
     { label: 'Active', value: 'active', icon: 'check_circle', class: 'text-success' },

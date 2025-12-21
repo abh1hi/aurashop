@@ -355,6 +355,7 @@ const {
     getCategoryName,
     toggleVerification,
     handleApprove,
+    handleReject,
     promptReject,
     confirmReject
 } = useVendorManagementLogic();

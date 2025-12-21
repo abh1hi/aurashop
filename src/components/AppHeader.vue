@@ -31,6 +31,7 @@
       </div>
 
       <div class="actions-section">
+        <LiquidNotificationBell v-if="user" class="icon-action-btn" />
         <LiquidThemeSwitcher />
         <button class="icon-action-btn"><span class="material-icons-round">favorite_border</span></button>
         <router-link to="/cart" class="icon-action-btn">
@@ -60,6 +61,7 @@
       </div>
 
       <div class="mobile-right">
+        <LiquidNotificationBell v-if="user" class="icon-action-btn" />
         <button class="icon-action-btn"><span class="material-icons-round">search</span></button>
         <router-link to="/cart" class="icon-action-btn">
           <span class="material-icons-round">shopping_bag</span>
@@ -102,6 +104,7 @@ import { useRouter, useRoute } from 'vue-router';
 import LiquidButton from './liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidThemeSwitcher from './LiquidThemeSwitcher.vue';
 import LiquidBreadcrumbs from './liquid-ui-kit/LiquidBreadcrumbs/LiquidBreadcrumbs.vue';
+import LiquidNotificationBell from './liquid-ui-kit/LiquidNotificationBell/LiquidNotificationBell.vue';
 import { useAuth } from '../composables/useAuth';
 import { useLocation } from '../composables/useLocation';
 

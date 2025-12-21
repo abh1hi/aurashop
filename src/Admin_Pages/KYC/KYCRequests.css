@@ -242,6 +242,58 @@
     font-weight: 600;
 }
 
+/* Rejection Checklist */
+.rejection-section {
+    margin-top: 24px;
+}
+
+.checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    transition: color 0.2s;
+}
+
+.checklist-item:hover {
+    color: var(--text-primary);
+}
+
+.checklist-item input {
+    margin-top: 3px;
+    cursor: pointer;
+    accent-color: var(--error-color);
+}
+
+.custom-note textarea {
+    width: 100%;
+    padding: 12px;
+    background: var(--liquid-glass-inner);
+    border: 1px solid var(--liquid-glass-border);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.85rem;
+    resize: vertical;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.custom-note textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+}
+
 /* Artifact Grid */
 .artifact-grid {
     display: grid;

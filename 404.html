@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+        // Custom 404 handler for GitHub Pages / Static Hosting / Dev Server fallback
+        // This script takes the current path and redirects to the appropriate entry point
+        const path = window.location.pathname;
+
+        if (path.startsWith('/admin')) {
+            window.location.replace('/admin/index.html' + window.location.search + window.location.hash);
+        } else if (path.startsWith('/vendor')) {
+            window.location.replace('/vendor/index.html' + window.location.search + window.location.hash);
+        } else {
+            window.location.replace('/index.html' + window.location.search + window.location.hash);
+        }
+    </script>
+</head>
+
+<body>
+    <p>Redirecting to application...</p>
+</body>
+
+</html>

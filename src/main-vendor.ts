@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import './style.css'
-import App from './App.vue'
-import router from './router'
+import App from './AppVendor.vue'
+import router from './router/vendor' // Distinct Vendor Router
 import { createPinia } from 'pinia'
 
 const app = createApp(App)

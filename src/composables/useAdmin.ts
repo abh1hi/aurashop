@@ -1,20 +1,25 @@
+import { collection, query, where, getDocs, doc, updateDoc, limit, onSnapshot, getCountFromServer, getDoc } from 'firebase/firestore';
+import { useNotifications } from './useNotifications';
+
+// ... existing code ...
+
 import { ref } from 'vue';
 import { useAuth } from './useAuth';
 import { db } from '../firebase';
-import { collection, query, where, getDocs, doc, updateDoc, limit, onSnapshot, getCountFromServer, arrayUnion, arrayRemove } from 'firebase/firestore';
-
-const isAdmin = ref(false);
-const loading = ref(false);
-const error = ref<string | null>(null);
-
-// Centralized Admin List (Dev Only)
-const devAdmins = [
-    'admin@aurashop.com',
-    'admin@example.com'
-];
 
 export function useAdmin() {
+    const isAdmin = ref(false);
+    const loading = ref(false);
+    const error = ref<string | null>(null);
+
+    // Centralized Admin List (Dev Only)
+    const devAdmins = [
+        'admin@aurashop.com',
+        'admin@example.com'
+    ];
+
     const { user } = useAuth();
+    const { sendNotification } = useNotifications();
 
     const checkAdminStatus = async () => {
         if (!user.value) {
@@ -167,15 +172,35 @@ export function useAdmin() {
         }
     };
 
+    // sendNotification is already destructured at the top
+
+
     const approveKYC = async (storeId: string) => {
         loading.value = true;
         try {
             const storeRef = doc(db, 'stores', storeId);
+
+            // Fetch store to get ownerId
+            const storeSnap = await getDoc(storeRef); // Make sure getDoc is imported
+            if (!storeSnap.exists()) throw new Error('Store not found');
+            const storeData = storeSnap.data();
+
             await updateDoc(storeRef, {
                 kycStatus: 'verified',
                 status: 'active',
                 approvedAt: new Date()
             });
+
+            // Trigger Notification
+            if (storeData.ownerId) {
+                await sendNotification(storeData.ownerId, {
+                    title: 'KYC Verified!',
+                    message: `Congratulations! Your store "${storeData.name}" has been verified and is now active.`,
+                    type: 'success',
+                    link: '/vendor/dashboard'
+                });
+            }
+
         } catch (e: any) {
             error.value = e.message;
             throw e;
@@ -184,16 +209,47 @@ export function useAdmin() {
         }
     };
 
-    const rejectKYC = async (storeId: string, reason: string) => {
+    const rejectKYC = async (storeId: string, reasons: string | string[]) => {
         loading.value = true;
         try {
             const storeRef = doc(db, 'stores', storeId);
+
+            // Fetch store to get ownerId
+            const storeSnap = await getDoc(storeRef);
+            if (!storeSnap.exists()) throw new Error('Store not found');
+            const storeData = storeSnap.data();
+
+            // Normalize reasons to array
+            const reasonList = Array.isArray(reasons) ? reasons : [reasons];
+            const primaryReason = reasonList[0] || 'Verification Failed';
+
             await updateDoc(storeRef, {
                 kycStatus: 'rejected',
-                status: 'rejected', // Or 'suspended' depending on business logic
-                rejectionReason: reason,
+                status: 'rejected',
+                rejectionReason: primaryReason, // Store primary reason for simple display
+                rejectionDetails: reasonList,   // Store detailed list
                 rejectedAt: new Date()
             });
+
+            // Format Notification Message
+            let message = `Your application for "${storeData.name}" was rejected.`;
+            if (reasonList.length === 1) {
+                message += ` Reason: ${primaryReason}`;
+            } else {
+                message += ` Missing/Incorrect items: ${reasonList.join(', ')}.`;
+            }
+            message += ` Please correct these details and resubmit.`;
+
+            // Trigger Notification
+            if (storeData.ownerId) {
+                await sendNotification(storeData.ownerId, {
+                    title: 'Verification Action Required',
+                    message: message,
+                    type: 'error',
+                    link: '/vendor/onboarding'
+                });
+            }
+
         } catch (e: any) {
             error.value = e.message;
             throw e;
@@ -261,6 +317,64 @@ export function useAdmin() {
         }
     };
 
+    const fetchCustomers = async () => {
+        loading.value = true;
+        try {
+            const usersRef = collection(db, 'users');
+            // Assuming customers are users who are not vendors and not admins?
+            // Or just everyone. For now, let's treat "Customer" as anyone since everyone is a customer.
+            // But if we want *only* customers (non-vendors), we'd filter:
+            // const q = query(usersRef, where('isVendor', '!=', true)); 
+            // However, Firestore inequality requires composite index. 
+            // Let's just fetch all and filter client side for now or assume all users.
+            const q = query(usersRef, limit(100)); // Safety limit
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e: any) {
+            error.value = e.message;
+            return [];
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const sendBulkNotification = async (targetGroup: 'all' | 'vendors' | 'customers' | 'specific', payload: any, specificUserIds: string[] = []) => {
+        loading.value = true;
+        try {
+            let userIds: string[] = [];
+
+            if (targetGroup === 'specific') {
+                userIds = specificUserIds;
+            } else if (targetGroup === 'vendors') {
+                const vendors = await fetchVendors();
+                userIds = vendors.map((v: any) => v.id);
+            } else {
+                // 'all' or 'customers' (treating all as customers for now)
+                // WARNING: Client-side iteration for large user bases is not scalable.
+                // This mimics a cloud function loop.
+                const allUsers = await fetchUsers(); // This currently limits to 50 in existing fn
+                userIds = allUsers.map((u: any) => u.id);
+            }
+
+            console.log(`Sending bulk notification to ${userIds.length} users...`);
+
+            // Send in parallel batches of 10 to avoid overwhelming network but speeding up
+            const batchSize = 10;
+            for (let i = 0; i < userIds.length; i += batchSize) {
+                const chunk = userIds.slice(i, i + batchSize);
+                await Promise.all(chunk.map(uid => sendNotification(uid, payload)));
+            }
+
+            return userIds.length;
+
+        } catch (e: any) {
+            error.value = e.message;
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    };
+
     return {
         isAdmin,
         loading,
@@ -268,6 +382,7 @@ export function useAdmin() {
         checkAdminStatus,
         fetchDashboardStats,
         fetchUsers,
+        fetchCustomers, // New
         toggleUserBan,
         fetchVendors,
         subscribeToStores,
@@ -279,6 +394,7 @@ export function useAdmin() {
         updateUserRole,
         updateStoreCommission,
         toggleStoreVisibility,
-        updateStoreStatus
+        updateStoreStatus,
+        sendBulkNotification // New
     };
 }

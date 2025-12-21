@@ -237,7 +237,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, reactive, watch } from 'vue';
+import { ref, onMounted, computed, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AppHeader from '../components/AppHeader.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
@@ -276,7 +276,7 @@ interface Product {
 
 const route = useRoute();
 const router = useRouter();
-const { getProduct, loading: vendorLoading } = useVendor();
+const { getProduct } = useVendor();
 const { addToCart } = useCart();
 const { toggleWishlist, isInWishlist } = useWishlist();
 const { showToast } = useToast();
@@ -336,7 +336,7 @@ const initSelections = () => {
     if (product.value?.options) {
         product.value.options.forEach(option => {
             if (option.values.length > 0) {
-                selectedOptions[option.name] = option.values[0];
+                selectedOptions[option.name] = option.values[0]!;
             }
         });
     }
@@ -350,7 +350,7 @@ const fetchProductData = async () => {
         if (data) {
             product.value = data as Product;
             if (product.value.images && product.value.images.length > 0) {
-                activeImage.value = product.value.images[0];
+                activeImage.value = product.value.images[0]!;
             }
             initSelections();
         }

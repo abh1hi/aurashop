@@ -38,7 +38,7 @@ export function useEditProductPage() {
     };
 
     const previewImage = computed(() => {
-        if (newImages.value.length > 0) {
+        if (newImages.value.length > 0 && newImages.value[0]) {
             return URL.createObjectURL(newImages.value[0]);
         }
         if (existingImages.value.length > 0) {
@@ -54,7 +54,7 @@ export function useEditProductPage() {
     const loadProductData = async () => {
         const productId = route.params.productId as string;
         if (productId) {
-            const product = await getProduct(productId);
+            const product = await getProduct(productId) as any;
             if (product) {
                 formData.name = product.name;
                 formData.description = product.description;

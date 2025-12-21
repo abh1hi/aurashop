@@ -162,6 +162,15 @@ const onPhoneValidate = (phoneObject) => {
 
 const loading = ref(false);
 
+const performRedirect = () => {
+    const redirectPath = route.query.redirect || '/';
+    if (redirectPath.toString().startsWith('/vendor') || redirectPath.toString().startsWith('/admin')) {
+        window.location.href = redirectPath.toString();
+    } else {
+        router.push(redirectPath);
+    }
+};
+
 const handleSubmit = async () => {
   loading.value = true;
   try {
@@ -202,8 +211,7 @@ const handleSubmit = async () => {
 
       showToast('Account created successfully!', 'success');
     }
-    const redirectPath = route.query.redirect || '/';
-    router.push(redirectPath);
+    performRedirect();
   } catch (error) {
     if (error.code === 'auth/credential-already-in-use') {
         // Handle Merge Flow
@@ -214,7 +222,7 @@ const handleSubmit = async () => {
             await mergeUserData(currentUid, targetUser.uid);
             await fetchWishlist();
             showToast('Logged in and data merged!', 'success');
-            router.push('/');
+            performRedirect();
             return;
         }
     }
@@ -233,8 +241,7 @@ const handleGoogleLogin = async () => {
         await loginWithGoogle();
         showToast('Logged in with Google!', 'success');
     }
-    const redirectPath = route.query.redirect || '/';
-    router.push(redirectPath);
+    performRedirect();
   } catch (error) {
     if (error.code === 'auth/credential-already-in-use') {
          if (confirm("This Google account is already in use. Switch and merge data?")) {
@@ -243,7 +250,7 @@ const handleGoogleLogin = async () => {
             await mergeUserData(currentUid, targetUser.uid);
             await fetchWishlist();
             showToast('Logged in and data merged!', 'success');
-            router.push('/');
+            performRedirect();
             return;
          }
     }
@@ -275,8 +282,7 @@ const handlePhoneAuth = async () => {
     } else {
       await confirmationResult.value.confirm(otp.value);
       showToast('Phone verified successfully!', 'success');
-      const redirectPath = route.query.redirect || '/';
-      router.push(redirectPath);
+      performRedirect();
     }
   } catch (error) {
     console.error(error);

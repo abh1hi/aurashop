@@ -2,17 +2,23 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     match /kyc/{userId}/{allPaths=**} {
-      // Only the user can write to their own folder
-      allow write: if request.auth != null && request.auth.uid == userId;
-      // Only the user or an admin can read the files
+      // Allow write if user owns the path AND file is reasonable size (e.g. < 50MB for videos)
+      allow write: if request.auth != null 
+                   && request.auth.uid == userId
+                   && request.resource.size < 50 * 1024 * 1024; // 50MB limit
+      
+      // Read access for owner or admin
       allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
     }
     
     match /products/{storeId}/{allPaths=**} {
-      // Allow any authenticated user to upload product images for now
-      // Ideally, we should check if the user owns the store, but that requires custom claims or Firestore lookup
-      allow read: if true; // Public read access for product images
-      allow write: if request.auth != null;
+      // Public read
+      allow read: if true;
+      
+      // Write if authenticated AND image is valid
+      allow write: if request.auth != null
+                   && request.resource.size < 5 * 1024 * 1024 // 5MB limit
+                   && request.resource.contentType.matches('image/.*');
     }
   }
 }

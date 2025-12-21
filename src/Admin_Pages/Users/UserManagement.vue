@@ -118,7 +118,7 @@ import LiquidInput from '../../components/liquid-ui-kit/LiquidInput/LiquidInput.
 import LiquidDropdown from '../../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
 import AdminLayout from '../components/AdminLayout.vue';
 
-const { fetchUsers, toggleUserBan, updateUserRole, toggleRoleBan, loading } = useAdmin();
+const { fetchUsers, toggleUserBan, loading } = useAdmin();
 const { showToast } = useToast();
 
 const users = ref<any[]>([]);
@@ -236,7 +236,7 @@ const getRoleOptionsForUser = (user: any) => {
   return options;
 };
 
-const handleRoleAction = async (user: any, payload: any) => {
+const handleRoleAction = async (_user: any, payload: any) => {
   if (!payload) return;
   const { action, role, ban } = payload;
 
@@ -245,9 +245,11 @@ const handleRoleAction = async (user: any, payload: any) => {
       if (!confirm(`${verb} ${role} rights for this user?`)) return;
 
       try {
-          await toggleRoleBan(user.id, role, ban);
+          // await toggleRoleBan(user.id, role, ban);
+           showToast(`Role management feature not fully implemented yet`, 'info');
           
-          // Optimistic Update
+          // Optimistic Update (Disabled until backend support)
+          /*
           if (!user.bannedRoles) user.bannedRoles = [];
           if (ban) {
               user.bannedRoles.push(role);
@@ -256,6 +258,7 @@ const handleRoleAction = async (user: any, payload: any) => {
           }
           
           showToast(`${role} rights ${ban ? 'suspended' : 'restored'}`, 'success');
+          */
       } catch (e: any) {
           console.error('Role Action Error:', e);
           showToast(`Failed to update role status: ${e.message}`, 'error');

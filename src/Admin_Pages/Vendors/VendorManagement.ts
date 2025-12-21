@@ -147,6 +147,11 @@ export function useVendorManagementLogic() {
         }
     };
 
+    const handleReject = (vendor: any) => {
+        openReviewModal(vendor);
+        promptReject();
+    };
+
     return {
         loading,
         vendors,
@@ -171,6 +176,7 @@ export function useVendorManagementLogic() {
         getCategoryName,
         toggleVerification,
         handleApprove,
+        handleReject,
         promptReject,
         confirmReject
     };
