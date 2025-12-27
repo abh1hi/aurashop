@@ -58,6 +58,12 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
+        path: '/admin/messages',
+        name: 'MessagesPage',
+        component: () => import('../Admin_Pages/Messages/MessagesPage.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
         path: '/admin/not-authorized',
         name: 'NotAuthorized',
         component: () => import('../Admin_Pages/NotAuthorized.vue')

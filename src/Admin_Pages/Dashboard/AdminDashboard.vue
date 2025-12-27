@@ -1,134 +1,156 @@
 <template>
   <AdminLayout>
-    <div class="dashboard-header">
-      <div class="header-intro">
-        <h1 class="page-title">Aura<span>Core</span> Command</h1>
-        <p class="page-subtitle">Unified administrative oversight and system intelligence.</p>
-      </div>
-      <div class="header-actions">
-        <md-text-button>
-          <md-icon slot="icon">assessment</md-icon>
-          Reports
-        </md-text-button>
-        <md-filled-button>
-           <md-icon slot="icon">rocket_launch</md-icon>
-           Deploy Phase
-        </md-filled-button>
-      </div>
-    </div>
+    <div class="dashboard-page">
+      <!-- M3 Standard Header -->
+      <header class="page-header">
+        <div class="header-text">
+          <h1 class="headline-large">Dashboard</h1>
+          <p class="body-large subtext">System overview and performance metrics.</p>
+        </div>
+        <div class="header-actions">
+           <md-filled-button>
+             <md-icon slot="icon">add</md-icon>
+             New Notification
+           </md-filled-button>
+        </div>
+      </header>
 
-    <!-- M3 Grid Layout -->
-    <div class="dashboard-grid">
-      <!-- Stats Row -->
-      <section class="stats-row">
-        <StatCard 
-          title="Total Ecosystem Users" 
-          :value="stats.totalUsers.toLocaleString()" 
-          icon="groups"
-          trend-value="+14.2%"
-          trend-status="up"
-          variant="primary"
-        />
-        <StatCard 
-          title="Active Marketplace Vendors" 
-          :value="stats.activeVendors.toString()" 
-          icon="storefront"
-          trend-value="+3.8%"
-          trend-status="up"
-        />
-        <StatCard 
-          title="Pending Verifications" 
-          :value="stats.pendingKYC.toString()" 
-          icon="verified_user"
-          trend-value="-2"
-          trend-status="down"
-        />
-        <StatCard 
-          title="Total Protocol Revenue" 
-          :value="'$' + (stats.totalSales / 1000).toFixed(1) + 'k'" 
-          icon="payments"
-          trend-value="+22%"
-          trend-status="up"
-        />
-      </section>
-
-      <!-- Main Content Area -->
-      <div class="content-split">
-        <!-- Left: Charts & Tables -->
-        <div class="main-panel">
-          <div class="m3-card chart-card">
-            <div class="card-header">
-              <div class="header-text">
-                  <h3>System Inflow Dynamics</h3>
-                  <p>Real-time transaction volume analysis</p>
-              </div>
-              <div class="segment-control">
-                <button class="segment-btn active">Live</button>
-                <button class="segment-btn">Week</button>
-                <button class="segment-btn">Month</button>
-              </div>
-            </div>
-            <div class="chart-area">
-              <!-- Placeholder for Chart -->
-              <div class="mock-chart-grid">
-                  <div class="bar" style="height: 40%"></div>
-                  <div class="bar" style="height: 70%"></div>
-                  <div class="bar" style="height: 50%"></div>
-                  <div class="bar" style="height: 90%"></div>
-                  <div class="bar" style="height: 60%"></div>
-                  <div class="bar" style="height: 80%"></div>
-                  <div class="bar" style="height: 45%"></div>
-                  <div class="bar" style="height: 75%"></div>
-              </div>
+      <!-- Stats Grid -->
+      <section class="stats-grid">
+        <div class="m3-card stat-card primary-container">
+          <div class="stat-content">
+            <span class="label-medium">Total Users</span>
+            <span class="display-small">{{ stats.totalUsers.toLocaleString() }}</span>
+            <div class="trend up">
+              <md-icon>trending_up</md-icon>
+              <span class="label-small">+12.5%</span>
             </div>
           </div>
-          
-          <div class="m3-card table-card">
+          <md-icon class="stat-icon">group</md-icon>
+        </div>
+
+        <div class="m3-card stat-card">
+          <div class="stat-content">
+            <span class="label-medium">Active Vendors</span>
+            <span class="display-small">{{ stats.activeVendors }}</span>
+            <div class="trend up">
+              <md-icon>trending_up</md-icon>
+              <span class="label-small">+3.2%</span>
+            </div>
+          </div>
+          <md-icon class="stat-icon">storefront</md-icon>
+        </div>
+
+        <div class="m3-card stat-card">
+          <div class="stat-content">
+            <span class="label-medium">Pending Approvals</span>
+            <span class="display-small">{{ stats.pendingKYC }}</span>
+             <div class="trend down">
+              <span class="label-small" style="color: var(--md-sys-color-error);">Action Required</span>
+            </div>
+          </div>
+          <md-icon class="stat-icon">verified_user</md-icon>
+        </div>
+
+        <div class="m3-card stat-card">
+          <div class="stat-content">
+            <span class="label-medium">Total Revenue</span>
+            <span class="display-small">${{ (stats.totalSales / 1000).toFixed(1) }}k</span>
+            <div class="trend up">
+              <md-icon>trending_up</md-icon>
+              <span class="label-small">+8.4%</span>
+            </div>
+          </div>
+          <md-icon class="stat-icon">payments</md-icon>
+        </div>
+      </section>
+
+      <!-- Main Layout -->
+      <div class="content-layout">
+        <!-- Main Column -->
+        <div class="main-column">
+          <!-- Chart Section -->
+          <section class="m3-card flow-card">
+            <div class="card-header">
+              <h2 class="title-medium">Transaction Volume</h2>
+              <div class="filter-chips">
+                <md-chip-set>
+                    <md-filter-chip label="7 Days" selected></md-filter-chip>
+                    <md-filter-chip label="30 Days"></md-filter-chip>
+                </md-chip-set>
+              </div>
+            </div>
+            <div class="chart-container">
+               <!-- Simple CSS Bar Chart for Demo (Replace with Chart.js later) -->
+               <div class="bar-chart">
+                 <div class="bar" style="height: 60%"></div>
+                 <div class="bar" style="height: 80%"></div>
+                 <div class="bar" style="height: 40%"></div>
+                 <div class="bar" style="height: 90%"></div>
+                 <div class="bar" style="height: 70%"></div>
+                 <div class="bar" style="height: 50%"></div>
+                 <div class="bar" style="height: 75%"></div>
+               </div>
+               <div class="chart-labels">
+                 <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+               </div>
+            </div>
+          </section>
+
+          <!-- Recent Activity -->
+           <section class="m3-card table-card">
              <div class="card-header">
-                <h3>Recent Team Activity</h3>
+                <h2 class="title-medium">Recent Registrations</h2>
                 <md-text-button>View All</md-text-button>
              </div>
              <TeamList />
-          </div>
+           </section>
         </div>
 
-        <!-- Right: Widgets -->
-        <div class="side-panel">
-          <div class="m3-card widget-card security-widget">
-            <div class="widget-header">
-                <md-icon>security</md-icon>
-                <h3>Security Protocols</h3>
+        <!-- Side Column -->
+        <aside class="side-column">
+          <!-- System Status -->
+          <div class="m3-card widget-card">
+            <div class="card-header">
+              <h2 class="title-medium">System Health</h2>
+              <md-icon>dns</md-icon>
             </div>
             <div class="status-list">
-              <div class="status-row">
-                <span class="label">KYC Pipeline</span>
-                <span class="badge warning">Action Req.</span>
+              <div class="status-item">
+                <div class="dot success"></div>
+                <span>Database</span>
+                <span class="status-val">Operational</span>
               </div>
-              <div class="status-row">
-                <span class="label">Auth Gateway</span>
-                <span class="badge success">Active</span>
+              <div class="status-item">
+                <div class="dot success"></div>
+                <span>API Gateway</span>
+                <span class="status-val">Operational</span>
               </div>
-              <div class="status-row">
-                <span class="label">Fraud Guard</span>
-                <span class="badge success">Active</span>
+              <div class="status-item">
+                <div class="dot warning"></div>
+                <span>Storage</span>
+                <span class="status-val">High Load</span>
               </div>
             </div>
           </div>
 
-          <div class="m3-card widget-card deployment-widget">
-            <div class="widget-header">
-                <md-icon>cloud_upload</md-icon>
-                <h3>Deployment Status</h3>
+          <!-- Quick Actions -->
+           <div class="m3-card widget-card">
+            <div class="card-header">
+              <h2 class="title-medium">Quick Actions</h2>
             </div>
-            <div class="deployment-info">
-                 <span class="version">v2.4.0-alpha</span>
-                 <div class="progress-bar">
-                     <div class="fill" style="width: 74%"></div>
-                 </div>
-                 <span class="percentage">74% Complete</span>
+            <div class="action-list">
+              <md-list-item type="button">
+                <md-icon slot="start">person_add</md-icon>
+                <div slot="headline">Invite Staff</div>
+              </md-list-item>
+              <md-list-item type="button">
+                <md-icon slot="start">settings_backup_restore</md-icon>
+                <div slot="headline">System Backup</div>
+              </md-list-item>
             </div>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   </AdminLayout>
@@ -137,9 +159,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import AdminLayout from '../components/AdminLayout.vue';
-import StatCard from './components/StatCard.vue';
 import TeamList from './components/TeamList.vue';
-// Icons and components are now imported globally
+// M3 Components imported globally via plugins/material-web.ts
 
 // Mock Data
 const stats = ref({
@@ -151,224 +172,220 @@ const stats = ref({
 </script>
 
 <style scoped>
-/* Dashboard Layout */
-.dashboard-header {
+/* Typography & Theme Tokens */
+.headline-large {
+  font-family: var(--md-sys-typescale-headline-large-font);
+  font-size: var(--md-sys-typescale-headline-large-size);
+  font-weight: var(--md-sys-typescale-headline-large-weight);
+  color: var(--md-sys-color-on-background);
+  margin: 0;
+}
+
+.body-large {
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.title-medium {
+  font-family: var(--md-sys-typescale-title-medium-font);
+  font-size: var(--md-sys-typescale-title-medium-size);
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+}
+
+.label-medium {
+    font-family: var(--md-sys-typescale-label-medium-font);
+    font-size: var(--md-sys-typescale-label-medium-size);
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.display-small {
+    font-family: var(--md-sys-typescale-display-small-font);
+    font-size: var(--md-sys-typescale-display-small-size);
+    color: var(--md-sys-color-on-surface);
+    font-weight: 400;
+}
+
+/* Page Layout */
+.dashboard-page {
+  /* padding handled by AdminLayout */
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   margin-bottom: 2rem;
-  padding: 0 0.5rem;
 }
 
-.page-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-  letter-spacing: -1px;
+.subtext {
+  margin-top: 0.25rem;
 }
 
-.page-title span {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.page-subtitle {
-  color: var(--text-secondary);
-  margin-top: 0.5rem;
-  font-size: 1rem;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-/* Grid System */
-.dashboard-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.stats-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-}
-
-.content-split {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 1.5rem;
-}
-
-@media (max-width: 1024px) {
-    .content-split {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* M3 Card Styles */
 .m3-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
-    padding: 1.5rem;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+  background: var(--md-sys-color-surface);
+  border-radius: 16px;
+  padding: 1.5rem;
+  /* Elevation 1 */
+  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.stat-card.primary-container {
+    background-color: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+}
+
+.stat-card.primary-container .label-medium,
+.stat-card.primary-container .display-small,
+.stat-card.primary-container .stat-icon {
+    color: var(--md-sys-color-on-secondary-container);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stat-icon {
+  font-size: 48px;
+  opacity: 0.2;
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  transform: rotate(-15deg);
+}
+
+.trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.trend.up { color: var(--md-sys-color-primary); }
+.trend.down { color: var(--md-sys-color-error); }
+
+/* Main Content Layout */
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .content-layout {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.main-column, .side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Card Headers */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* Chart */
+.chart-container {
+    height: 250px;
     display: flex;
     flex-direction: column;
 }
 
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.header-text h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-}
-
-.header-text p {
-    margin: 0.25rem 0 0;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-}
-
-/* Segment Control */
-.segment-control {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 4px;
-    border-radius: 100px;
-    display: flex;
-    gap: 4px;
-}
-
-.segment-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    padding: 6px 16px;
-    border-radius: 100px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.segment-btn.active {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-/* Mock Chart */
-.chart-area {
-    height: 300px;
-    width: 100%;
-    position: relative;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.mock-chart-grid {
+.bar-chart {
+    flex: 1;
     display: flex;
     align-items: flex-end;
-    justify-content: space-between;
-    height: 100%;
-    padding-bottom: 1rem;
-    gap: 1rem;
+    justify-content: space-around;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    padding-bottom: 8px;
 }
 
 .bar {
-    flex: 1;
-    background: linear-gradient(to top, var(--primary-color), rgba(var(--primary-rgb), 0.2));
+    width: 32px;
+    background: var(--md-sys-color-primary);
     border-radius: 4px 4px 0 0;
-    opacity: 0.7;
-    transition: height 1s ease-out;
+    opacity: 0.8;
+    transition: height 0.5s ease;
 }
 
-/* Widgets */
-.widget-card {
-    margin-bottom: 1.5rem;
+.bar:hover {
+    opacity: 1;
 }
 
-.widget-header {
+.chart-labels {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
-    color: var(--text-secondary);
+    justify-content: space-around;
+    padding-top: 8px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.8rem;
 }
 
-.widget-header h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
+/* Status List */
 .status-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-.status-row {
+.status-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0.75rem;
-    background: rgba(255,255,255,0.02);
-    border-radius: 12px;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
 }
 
-.badge {
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
+.status-item:last-child {
+    border-bottom: none;
 }
 
-.badge.warning {
-    background: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
 }
 
-.badge.success {
-    background: rgba(76, 175, 80, 0.2);
-    color: #4caf50;
+.dot.success { background: var(--md-sys-color-primary); }
+.dot.warning { background: var(--md-sys-color-error); }
+
+.status-val {
+    margin-left: auto;
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
-.deployment-info .version {
-    display: block;
-    font-family: monospace;
-    color: var(--primary-color);
-    margin-bottom: 0.75rem;
-}
-
-.progress-bar {
-    height: 6px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 100px;
-    overflow: hidden;
-    margin-bottom: 0.5rem;
-}
-
-.progress-bar .fill {
-    height: 100%;
-    background: var(--primary-color);
-    border-radius: 100px;
-}
-
-.percentage {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
+/* Action List */
+.action-list md-list-item {
+    --md-list-item-container-color: transparent;
 }
 </style>

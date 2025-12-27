@@ -1,112 +1,153 @@
 <template>
   <AdminLayout>
-    <div class="store-management-header">
-      <div class="header-content">
-        <h1 class="page-title">Ecosphere<span>Management</span></h1>
-        <p class="page-subtitle">Monitor commercial throughput, brand integrity, and merchant status.</p>
-      </div>
-      <div class="search-wrap">
-        <LiquidInput 
-          v-model="searchQuery" 
-          placeholder="Lookup store signature..." 
-          icon="search" 
-        />
-      </div>
-    </div>
+    <div class="store-page">
+      <!-- M3 Standard Header -->
+      <header class="page-header">
+        <div class="header-text">
+          <h1 class="headline-large">Store Operations</h1>
+          <p class="body-large subtext">Monitor commercial throughput and merchant nodes.</p>
+        </div>
+      </header>
 
-    <div class="stores-viewport">
-      <div v-if="loading" class="loading-state">
-         <div class="skeleton-loader"></div>
+      <!-- Search & Filters -->
+      <div class="filter-bar">
+         <md-outlined-text-field 
+            label="Search stores..." 
+            class="search-field"
+            :value="searchQuery"
+            @input="searchQuery = $event.target.value"
+         >
+           <md-icon slot="leading-icon">search</md-icon>
+         </md-outlined-text-field>
+      </div>
+
+      <!-- Store List -->
+      <div class="m3-card list-card">
+        <div v-if="loading" class="loading-state">
+           <md-circular-progress indeterminate></md-circular-progress>
+        </div>
+        
+        <div v-else-if="filteredStores.length > 0" class="list-container">
+           <!-- Desktop Header -->
+           <div class="list-header desktop-only">
+              <span class="col-main">Brand Entity</span>
+              <span class="col-kpi">Commission</span>
+              <span class="col-status">Status</span>
+              <span class="col-vis">Visibility</span>
+              <span class="col-actions"></span>
+           </div>
+
+           <!-- List Items -->
+           <div v-for="store in filteredStores" :key="store.id" class="list-item">
+              <!-- Brand Info -->
+              <div class="col-main brand-info">
+                 <div class="logo-wrap">
+                    <img v-if="store.logoUrl" :src="store.logoUrl" class="brand-logo" />
+                    <div v-else class="brand-placeholder">
+                       <md-icon>storefront</md-icon>
+                    </div>
+                 </div>
+                 <div class="text-content">
+                    <span class="title-medium">{{ store.name || 'Unnamed Store' }}</span>
+                    <span class="body-medium">{{ store.category || 'General' }}</span>
+                 </div>
+              </div>
+
+              <!-- Commission Control -->
+              <div class="col-kpi desktop-only">
+                  <div class="commission-input-group">
+                      <md-outlined-text-field 
+                          type="number"
+                          suffix-text="%"
+                          :value="store.commissionRate || 0"
+                          @change="(e:any) => handleCommissionUpdate(store, e.target.value)"
+                          style="width: 100px;"
+                          density="compact"
+                      ></md-outlined-text-field>
+                  </div>
+              </div>
+
+              <!-- Status Selector -->
+              <div class="col-status desktop-only">
+                  <div class="status-menu-wrap">
+                      <md-outlined-select 
+                          :value="getStoreStatusValue(store)"
+                          @input="(e:any) => handleStatusChange(store, e.target.value)"
+                          density="compact"
+                      >
+                          <md-select-option value="active">
+                              <div slot="headline">Active</div>
+                          </md-select-option>
+                           <md-select-option value="under_review">
+                              <div slot="headline">Under Review</div>
+                          </md-select-option>
+                           <md-select-option value="suspended">
+                              <div slot="headline">Suspended</div>
+                          </md-select-option>
+                      </md-outlined-select>
+                  </div>
+              </div>
+
+              <!-- Visibility Toggle -->
+              <div class="col-vis desktop-only">
+                  <md-icon-button 
+                      :selected="store.isVisible" 
+                      toggle 
+                      @click="handleVisibilityToggle(store)"
+                      :title="store.isVisible ? 'Hide from Marketplace' : 'Show on Marketplace'"
+                  >
+                      <md-icon slot="onIcon">visibility</md-icon>
+                      <md-icon slot="icon">visibility_off</md-icon>
+                  </md-icon-button>
+              </div>
+
+              <!-- Actions -->
+              <div class="col-actions desktop-only">
+                  <md-icon-button @click="router.push(`/admin/stores/${store.id}/activity`)" title="Activity Log">
+                      <md-icon>history_edu</md-icon>
+                  </md-icon-button>
+                  <md-icon-button :href="`/store/${store.id}`" target="_blank" title="Visit Storefront">
+                      <md-icon>launch</md-icon>
+                  </md-icon-button>
+              </div>
+
+              <!-- Mobile Actions -->
+               <div class="mobile-only action-cluster">
+                   <md-icon-button @click="openMobileActions(store)">
+                       <md-icon>more_vert</md-icon>
+                   </md-icon-button>
+               </div>
+           </div>
+        </div>
+
+        <div v-else class="empty-state">
+           <md-icon class="empty-icon">storefront_off</md-icon>
+           <p class="body-large">No operational stores found.</p>
+        </div>
       </div>
       
-      <div v-else-if="filteredStores.length > 0" class="table-container">
-        <!-- Desktop Header -->
-        <div class="grid-header">
-          <div class="col-store">Brand Entity</div>
-          <div class="col-performance">Performance</div>
-          <div class="col-status">Status & Visibility</div>
-          <div class="col-actions">Control</div>
+       <!-- Mobile Action Sheet Overlay -->
+      <Transition name="slide-up">
+        <div v-if="showMobileSheet && selectedStore" class="mobile-action-sheet-overlay" @click="closeMobileSheet">
+           <div class="action-sheet" @click.stop>
+               <div class="sheet-handle"></div>
+               <div class="sheet-header">
+                  <h3 class="title-large">{{ selectedStore.name }}</h3>
+               </div>
+               <div class="sheet-actions">
+                  <md-list-item type="button" @click="handleVisibilityToggle(selectedStore)">
+                     <md-icon slot="start">{{ selectedStore.isVisible ? 'visibility_off' : 'visibility' }}</md-icon>
+                     <div slot="headline">{{ selectedStore.isVisible ? 'Hide Store' : 'Publish Store' }}</div>
+                  </md-list-item>
+                  <md-list-item type="button" @click="router.push(`/admin/stores/${selectedStore.id}/activity`)">
+                     <md-icon slot="start">history_edu</md-icon>
+                     <div slot="headline">View Activity Log</div>
+                  </md-list-item>
+               </div>
+           </div>
         </div>
+      </Transition>
 
-        <div class="grid-rows">
-          <div v-for="store in filteredStores" :key="store.id" class="data-row">
-            <div class="col-store">
-              <div class="brand-card">
-                <div class="brand-logo-wrap">
-                  <img v-if="store.logoUrl" :src="store.logoUrl" class="brand-logo" />
-                  <div v-else class="brand-placeholder">
-                    <span class="material-icons-round">hub</span>
-                  </div>
-                </div>
-                <div class="brand-details">
-                  <span class="brand-name">{{ store.name || 'Incognito Protocol' }}</span>
-                  <span class="brand-category">{{ store.category || 'Standard' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-performance">
-                <div class="metric-group">
-                    <label>Commission</label>
-                    <div class="commission-control">
-                        <input 
-                            type="number" 
-                            class="glass-input-sm" 
-                            :value="store.commissionRate || 0" 
-                            @change="(e) => handleCommissionUpdate(store, (e.target as HTMLInputElement).value)"
-                            min="0"
-                            max="100"
-                        />
-                        <span class="unit">%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-status">
-              <div class="status-controls">
-                <!-- Status Dropdown -->
-                <div class="status-selector">
-                    <LiquidDropdown 
-                        :model-value="getStoreStatusLabel(store)"
-                        :options="storeStatusOptions"
-                        @change="(val: any) => handleStatusChange(store, val)"
-                    />
-                </div>
-                
-                <!-- Visibility Toggle -->
-                <button 
-                    class="icon-btn-glass toggle-vis"
-                    :class="{ 'active': store.isVisible }"
-                    @click="handleVisibilityToggle(store)"
-                    :title="store.isVisible ? 'Hide from Marketplace' : 'Show on Marketplace'"
-                >
-                    <span class="material-icons-round">{{ store.isVisible ? 'visibility' : 'visibility_off' }}</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="col-actions">
-              <div class="action-cluster">
-                  <a :href="`/store/${store.id}`" target="_blank" class="icon-btn-glass" title="Visit Storefront">
-                      <span class="material-icons-round">storefront</span>
-                  </a>
-                  <a :href="`mailto:${store.ownerEmail}`" class="icon-btn-glass" title="Email Owner">
-                      <span class="material-icons-round">mail</span>
-                  </a>
-                  <button @click="router.push(`/admin/stores/${store.id}/activity`)" class="icon-btn-glass" title="Activity Log">
-                      <span class="material-icons-round">history_edu</span>
-                  </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div v-else class="empty-state">
-        <span class="material-icons-round">blur_off</span>
-        <h3>No operational nodes detected</h3>
-        <p>Awaiting store propagation signals.</p>
-      </div>
     </div>
   </AdminLayout>
 </template>
@@ -115,8 +156,6 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAdmin } from '../../composables/useAdmin';
-import LiquidInput from '../../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
-import LiquidDropdown from '../../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
 import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import AdminLayout from '../components/AdminLayout.vue';
 
@@ -126,6 +165,8 @@ const { showToast } = useToast();
 
 const stores = ref<any[]>([]);
 const searchQuery = ref('');
+const showMobileSheet = ref(false);
+const selectedStore = ref<any>(null);
 
 onMounted(async () => {
   stores.value = await fetchStores();
@@ -140,18 +181,8 @@ const filteredStores = computed(() => {
   );
 });
 
-
-
-const storeStatusOptions = [
-    { label: 'Active', value: 'active', icon: 'check_circle', class: 'text-success' },
-    { label: 'Under Review', value: 'under_review', icon: 'pending', class: 'text-warning' },
-    { label: 'Suspended', value: 'suspended', icon: 'block', class: 'text-danger' }
-];
-
-const getStoreStatusLabel = (store: any) => {
-    const status = store.status || (store.isActive ? 'active' : 'suspended');
-    const option = storeStatusOptions.find(o => o.value === status);
-    return option ? option.label : 'Unknown';
+const getStoreStatusValue = (store: any) => {
+    return store.status || (store.isActive ? 'active' : 'suspended');
 };
 
 const handleCommissionUpdate = async (store: any, val: string) => {
@@ -173,6 +204,7 @@ const handleVisibilityToggle = async (store: any) => {
         await toggleStoreVisibility(store.id, newState);
         store.isVisible = newState;
         showToast(`Store ${newState ? 'visible' : 'hidden'}`, 'success');
+        if (showMobileSheet.value) closeMobileSheet();
     } catch (e) {
         showToast('Failed to toggle visibility', 'error');
     }
@@ -189,7 +221,69 @@ const handleStatusChange = async (store: any, newStatus: any) => {
         showToast('Failed to update status', 'error');
     }
 };
+
+// Mobile Actions
+const openMobileActions = (store: any) => {
+    selectedStore.value = store;
+    showMobileSheet.value = true;
+};
+
+const closeMobileSheet = () => {
+    showMobileSheet.value = false;
+    setTimeout(() => selectedStore.value = null, 300);
+};
 </script>
 
-<style scoped src="./StoreManagement.css"></style>
-<style scoped src="../Users/UserManagement.css"></style>
+<style scoped>
+/* Common Styles */
+.store-page { /* Padding handled */ max-width: 1200px; margin: 0 auto; }
+.page-header { margin-bottom: 24px; }
+.headline-large { font-family: var(--md-sys-typescale-headline-large-font); font-size: var(--md-sys-typescale-headline-large-size); font-weight: 400; color: var(--md-sys-color-on-background); margin: 0; }
+.body-large { font-size: 1rem; color: var(--md-sys-color-on-surface-variant); }
+.filter-bar { margin-bottom: 16px; display: flex; }
+.search-field { flex: 1; max-width: 400px; }
+
+/* List Card */
+.m3-card { background: var(--md-sys-color-surface); border-radius: 16px; border: 1px solid var(--md-sys-color-outline-variant); overflow: hidden; }
+.list-header { display: flex; padding: 16px; background: var(--md-sys-color-surface-container); border-bottom: 1px solid var(--md-sys-color-outline-variant); font-weight: 500; color: var(--md-sys-color-on-surface-variant); }
+.list-item { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--md-sys-color-outline-variant); transition: background 0.2s; }
+.list-item:hover { background: var(--md-sys-color-surface-container-low); }
+
+/* Columns */
+.col-main { flex: 2; display: flex; align-items: center; gap: 16px; }
+.col-kpi { flex: 1; }
+.col-status { flex: 1; }
+.col-vis { flex: 0.5; text-align: center; }
+.col-actions { flex: 0.8; display: flex; justify-content: flex-end; gap: 4px; }
+
+/* Brand Info */
+.brand-info .logo-wrap {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--md-sys-color-surface-container-high);
+    display: flex; align-items: center; justify-content: center;
+}
+.brand-logo { width: 100%; height: 100%; object-fit: cover; }
+.brand-placeholder { color: var(--md-sys-color-on-surface-variant); }
+
+.text-content { display: flex; flex-direction: column; }
+.title-medium { font-size: 1rem; font-weight: 500; color: var(--md-sys-color-on-surface); }
+.body-medium { font-size: 0.875rem; color: var(--md-sys-color-on-surface-variant); }
+
+/* Mobile Sheet */
+.mobile-action-sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: flex-end; }
+.action-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 28px 28px 0 0; padding: 16px 0 32px 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.2); animation: slideUp 0.3s cubic-bezier(0.2, 0, 0, 1); }
+.sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline-variant); border-radius: 2px; margin: 0 auto 16px auto; }
+.sheet-header { padding: 0 24px 16px 24px; border-bottom: 1px solid var(--md-sys-color-outline-variant); margin-bottom: 8px; }
+.title-large { font-size: 1.3rem; margin: 0; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.mobile-only { display: none; }
+@media (max-width: 768px) {
+    .desktop-only { display: none; }
+    .mobile-only { display: block; }
+    .list-header { display: none; }
+    .col-main { flex: 1; }
+}
+</style>

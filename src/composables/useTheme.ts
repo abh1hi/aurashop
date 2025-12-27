@@ -2,27 +2,33 @@ import { ref, onMounted } from 'vue';
 import { cacheManager } from '../utils/cacheManager';
 
 const liquidAnimationsEnabled = ref(false);
-const currentTheme = ref('chic'); // Default theme
+const currentTheme = ref('light'); // Default to light ('Google Material')
 
 export function useTheme() {
+
+    // Toggle animations preference
     const toggleLiquidAnimations = () => {
         liquidAnimationsEnabled.value = !liquidAnimationsEnabled.value;
         updateBodyClasses();
         cacheManager.set('user_preferences', {
             theme: currentTheme.value,
             animations: liquidAnimationsEnabled.value
-        }, 86400000); // 24 hours TTL
+        }, 86400000); // 24h
     };
 
+    // Set active theme and apply to root element
     const setTheme = (theme: string) => {
         currentTheme.value = theme;
-        document.getElementById('app')?.setAttribute('data-theme', theme);
+        // Apply to <html> tag for global CSS variable scope
+        document.documentElement.setAttribute('data-theme', theme);
+
         cacheManager.set('user_preferences', {
             theme: currentTheme.value,
             animations: liquidAnimationsEnabled.value
-        }, 86400000); // 24 hours TTL
+        }, 86400000); // 24h
     };
 
+    // Helper for animations class
     const updateBodyClasses = () => {
         if (liquidAnimationsEnabled.value) {
             document.body.classList.remove('disable-liquid-effects');
@@ -32,20 +38,15 @@ export function useTheme() {
     };
 
     onMounted(() => {
-        // Initialize state based on cache or defaults
         const cachedPrefs = cacheManager.get('user_preferences') as any;
 
         if (cachedPrefs) {
             currentTheme.value = cachedPrefs.theme;
             liquidAnimationsEnabled.value = cachedPrefs.animations;
-            document.getElementById('app')?.setAttribute('data-theme', cachedPrefs.theme);
+            document.documentElement.setAttribute('data-theme', cachedPrefs.theme);
         } else {
-            // Fallback to DOM attribute if no cache
-            const app = document.getElementById('app');
-            if (app) {
-                const theme = app.getAttribute('data-theme');
-                if (theme) currentTheme.value = theme;
-            }
+            // Default check
+            document.documentElement.setAttribute('data-theme', 'light');
         }
         updateBodyClasses();
     });

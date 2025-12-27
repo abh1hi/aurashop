@@ -1,101 +1,100 @@
 <template>
   <AdminLayout>
-    <div class="page-header mb-xl">
-        <div class="header-left">
-            <LiquidButton 
-                icon="west" 
-                type="ghost" 
-                size="sm" 
-                @click="router.back()" 
-                class="mb-md"
-            />
-            <h1 class="page-title">Store Activity Log</h1>
-            <p class="page-subtitle" v-if="store">Activity stream for {{ store.name }}</p>
-        </div>
-    </div>
+    <div class="activity-page">
+      <!-- M3 Standard Header -->
+      <header class="page-header">
+         <div class="header-nav">
+            <md-icon-button @click="router.back()">
+                <md-icon>arrow_back</md-icon>
+            </md-icon-button>
+            <div class="header-text">
+                <h1 class="headline-large">Store Activity</h1>
+                <p class="body-large subtext" v-if="store">Log for {{ store.name }}</p>
+            </div>
+         </div>
+      </header>
 
-    <div v-if="loading && !store" class="loading-state">
-        <LiquidSpinner />
-    </div>
+      <div v-if="loading && !store" class="loading-state">
+         <md-circular-progress indeterminate></md-circular-progress>
+      </div>
 
-    <div v-else-if="store" class="content-grid">
-        <!-- Main Column -->
-        <div class="main-column">
+      <div v-else-if="store" class="content-grid">
+         <!-- Main Content -->
+         <div class="main-column">
             
-            <!-- Staff Approvals Section -->
-            <section class="activity-section mb-xl">
-                <div class="section-header">
-                    <h2 class="section-title">Pending Staff Approvals</h2>
-                    <span class="badge" v-if="pendingApprovals.length > 0">{{ pendingApprovals.length }}</span>
-                </div>
+            <!-- Pending Approvals -->
+            <section class="m3-card section-card">
+               <div class="card-header">
+                  <div class="title-wrap">
+                      <h2 class="title-large">Pending Staff Approvals</h2>
+                      <span class="badge-count" v-if="pendingApprovals.length > 0">{{ pendingApprovals.length }}</span>
+                  </div>
+               </div>
 
-                <div v-if="loadingApprovals" class="loading-state-sm">
-                    <LiquidSpinner size="sm" />
-                </div>
-                
-                <div v-else-if="pendingApprovals.length === 0" class="empty-state-sm">
-                    <span class="material-icons-round">check_circle</span>
-                    <p>No pending approvals.</p>
-                </div>
+               <div v-if="loadingApprovals" class="loading-state-sm">
+                   <md-circular-progress indeterminate size="small"></md-circular-progress>
+               </div>
 
-                <div v-else class="approval-list">
-                    <div v-for="invite in pendingApprovals" :key="invite.id" class="approval-card">
-                        <div class="user-info">
-                            <div class="avatar-placeholder">
-                                {{ invite.applicantData.name[0] }}
-                            </div>
-                            <div class="details">
-                                <h3>{{ invite.applicantData.name }}</h3>
-                                <p>{{ invite.applicantData.email }}</p>
-                                <span class="role-tag">{{ invite.role }}</span>
-                            </div>
-                        </div>
-                        <div class="actions">
-                            <LiquidButton 
-                                text="Finalize Approval" 
-                                icon="verified" 
-                                type="success" 
-                                size="sm" 
-                                @click="handleFinalize(invite)"
-                            />
-                        </div>
-                    </div>
-                </div>
+               <div v-else-if="pendingApprovals.length === 0" class="empty-state-sm">
+                   <md-icon>check_circle_outline</md-icon>
+                   <p class="body-medium">No pending approvals.</p>
+               </div>
+
+               <div v-else class="approval-list">
+                   <div v-for="invite in pendingApprovals" :key="invite.id" class="approval-item">
+                       <div class="user-info">
+                           <div class="avatar-circle">
+                               {{ invite.applicantData.name[0] }}
+                           </div>
+                           <div class="text-content">
+                               <span class="title-medium">{{ invite.applicantData.name }}</span>
+                               <span class="body-small">{{ invite.applicantData.email }}</span>
+                               <span class="role-chip">{{ invite.role }}</span>
+                           </div>
+                       </div>
+                       <div class="actions">
+                           <md-filled-tonal-button @click="handleFinalize(invite)">
+                               <md-icon slot="icon">verified</md-icon>
+                               Approve
+                           </md-filled-tonal-button>
+                       </div>
+                   </div>
+               </div>
             </section>
 
-            <!-- Future Activity Stream Placeholder -->
-            <section class="activity-section">
-                <div class="section-header">
-                    <h2 class="section-title">Recent Events</h2>
+            <!-- Activity Stream -->
+            <section class="m3-card section-card">
+                <div class="card-header">
+                    <h2 class="title-large">Recent Events</h2>
                 </div>
                 <div class="empty-state-sm">
-                    <span class="material-icons-round">history</span>
-                    <p>No recent activity recorded.</p>
+                    <md-icon>history</md-icon>
+                    <p class="body-medium">No recent activity recorded.</p>
                 </div>
             </section>
+         </div>
 
-        </div>
+         <!-- Side Column -->
+         <aside class="side-column">
+             <div class="m3-card info-card">
+                 <h3 class="title-medium card-title">Store Details</h3>
+                 
+                 <div class="detail-row">
+                     <span class="label">Status</span>
+                     <span class="status-badge" :class="store.status">{{ store.status }}</span>
+                 </div>
+                 <div class="detail-row">
+                     <span class="label">Owner UID</span>
+                     <span class="value mono">{{ store.ownerId?.slice(0, 8) }}...</span>
+                 </div>
+                 <div class="detail-row">
+                     <span class="label">Commission</span>
+                     <span class="value">{{ store.commissionRate }}%</span>
+                 </div>
+             </div>
+         </aside>
 
-        <!-- Side Column (Store Info) -->
-        <div class="side-column">
-            <div class="glass-card store-info-card">
-                <div class="card-header">
-                    <h3>Store Details</h3>
-                </div>
-                <div class="info-row">
-                    <label>Status</label>
-                    <span class="status-badge" :class="store.status">{{ store.status }}</span>
-                </div>
-                <div class="info-row">
-                    <label>Owner ID</label>
-                    <span class="text-mono">{{ store.ownerId?.slice(0, 8) }}...</span>
-                </div>
-                <div class="info-row">
-                    <label>Commission</label>
-                    <span>{{ store.commissionRate }}%</span>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
   </AdminLayout>
 </template>
@@ -104,8 +103,6 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AdminLayout from '../components/AdminLayout.vue';
-import LiquidButton from '../../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
-import LiquidSpinner from '../../components/liquid-ui-kit/LiquidSpinner/LiquidSpinner.vue';
 import { useAdmin } from '../../composables/useAdmin';
 import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import { doc, getDoc } from 'firebase/firestore';
@@ -163,76 +160,88 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
-.page-subtitle { color: var(--text-secondary); margin-top: 4px; }
+/* Page Layout */
+.activity-page { padding: 16px; max-width: 1200px; margin: 0 auto; }
 
+.page-header { margin-bottom: 24px; }
+.header-nav { display: flex; align-items: center; gap: 16px; }
+
+.headline-large {
+    font-family: var(--md-sys-typescale-headline-large-font);
+    font-size: var(--md-sys-typescale-headline-large-size);
+    font-weight: 400;
+    color: var(--md-sys-color-on-background);
+    margin: 0;
+}
+
+.body-large { font-size: 1rem; color: var(--md-sys-color-on-surface-variant); }
+
+/* Content Grid */
 .content-grid {
     display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: var(--spacing-xl);
+    grid-template-columns: 1fr;
+    gap: 24px;
 }
 
-.section-header {
-    display: flex; align-items: center; gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+@media(min-width: 1024px) {
+    .content-grid { grid-template-columns: 1fr 300px; }
 }
 
-.section-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
-
-.badge {
-    background: var(--brand-primary); color: white;
-    padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;
+/* Card Styles */
+.m3-card {
+    background: var(--md-sys-color-surface);
+    border-radius: 16px;
+    border: 1px solid var(--md-sys-color-outline-variant);
+    overflow: hidden;
+    padding: 24px;
+    margin-bottom: 24px;
 }
 
-.approval-list {
-    display: flex; flex-direction: column; gap: var(--spacing-md);
-}
+.card-header { margin-bottom: 16px; border-bottom: 1px solid var(--md-sys-color-outline-variant); padding-bottom: 16px; }
+.title-large { font-size: 1.375rem; font-weight: 400; margin: 0; color: var(--md-sys-color-on-surface); }
+.title-wrap { display: flex; align-items: center; gap: 12px; }
+.badge-count { background: var(--md-sys-color-error); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
 
-.approval-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    padding: var(--spacing-md);
-    border-radius: var(--radius-lg);
+/* Approval List */
+.approval-list { display: flex; flex-direction: column; gap: 16px; }
+.approval-item {
     display: flex; justify-content: space-between; align-items: center;
+    padding: 16px;
+    background: var(--md-sys-color-surface-container);
+    border-radius: 12px;
 }
 
-.user-info { display: flex; align-items: center; gap: var(--spacing-md); }
-
-.avatar-placeholder {
+.user-info { display: flex; align-items: center; gap: 16px; }
+.avatar-circle {
     width: 40px; height: 40px; border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
     display: flex; align-items: center; justify-content: center;
-    font-weight: bold; color: white;
+    font-weight: 500;
 }
 
-.details h3 { font-size: 1rem; margin-bottom: 2px; }
-.details p { font-size: 0.85rem; color: var(--text-secondary); }
-.role-tag { 
+.text-content { display: flex; flex-direction: column; }
+.title-medium { font-size: 1rem; font-weight: 500; }
+.role-chip { 
     display: inline-block; font-size: 0.75rem; 
-    background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-top: 4px;
+    background: var(--md-sys-color-surface-variant); 
+    padding: 2px 6px; border-radius: 4px; margin-top: 4px;
+    width: fit-content;
 }
 
-.store-info-card {
-    padding: var(--spacing-lg);
-}
-.card-header { margin-bottom: var(--spacing-md); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: var(--spacing-sm); }
-.info-row { display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm); font-size: 0.9rem; }
-.info-row label { color: var(--text-secondary); }
-.text-mono { font-family: monospace; opacity: 0.8; }
+/* Side Column */
+.info-card .card-title { margin-bottom: 16px; color: var(--md-sys-color-primary); }
+.detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; }
+.detail-row .label { color: var(--md-sys-color-on-surface-variant); }
+.mono { font-family: monospace; }
+.status-badge { font-weight: 500; text-transform: capitalize; }
+.status-badge.active { color: var(--md-sys-color-primary); }
 
+/* Empty States */
 .empty-state-sm {
-    text-align: center; padding: var(--spacing-lg); color: var(--text-tertiary);
-    border: 1px dashed rgba(255,255,255,0.1); border-radius: var(--radius-lg);
+    text-align: center; padding: 32px; color: var(--md-sys-color-on-surface-variant);
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: 12px;
 }
-.empty-state-sm .material-icons-round { font-size: 2rem; margin-bottom: 8px; opacity: 0.5; }
-
-@media (max-width: 1024px) {
-    .content-grid { grid-template-columns: 1fr; }
-}
+.empty-state-sm md-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
 </style>

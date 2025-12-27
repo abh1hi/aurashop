@@ -20,8 +20,10 @@
 import { onMounted } from 'vue';
 import LiquidToast from './components/liquid-ui-kit/LiquidToast/LiquidToast.vue';
 import { useAuth } from './composables/useAuth';
+import { useAdminTheme } from './Admin_Pages/composables/useAdminTheme';
 
 const { initAuth } = useAuth();
+const { currentAdminTheme } = useAdminTheme(); // Initialize theme
 
 onMounted(() => {
   initAuth();
@@ -29,15 +31,8 @@ onMounted(() => {
 </script>
 
 <style>
-@import './styles/variables.css';
-@import './styles/main.css';
-@import './styles/animations.css';
-@import url('https://fonts.googleapis.com/css2?family=Material+Icons+Round');
-
+/* Admin Specific Global Styles are loaded via main-admin.ts -> admin-theme.css */
 #app {
   min-height: 100vh;
-  background-color: transparent;
-  color: var(--text-color);
-  font-family: var(--font-family);
 }
 </style>

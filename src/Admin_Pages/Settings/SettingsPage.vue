@@ -101,11 +101,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import AdminLayout from '../components/AdminLayout.vue';
-import { useTheme } from '../../composables/useTheme';
+import { useAdminTheme } from '../composables/useAdminTheme';
 // Icons and components are now imported globally
 
 
-const { currentTheme, setTheme } = useTheme();
+const { currentAdminTheme: currentTheme, setAdminTheme: setTheme } = useAdminTheme();
 
 const platformFee = ref('10');
 const taxRate = ref('18');
@@ -113,8 +113,8 @@ const maintenanceMode = ref(false);
 const autoApproveVendors = ref(false);
 
 const themes = [
-  { id: 'light', name: 'Default', preview: '#fbfbfd', accent: '#6750A4' },
-  { id: 'dark', name: 'Midnight', preview: '#1C1B1F', accent: '#D0BCFF' },
+  { id: 'light', name: 'Google Material', preview: '#f8f9fa', accent: '#1a73e8' },
+  { id: 'dark', name: 'Dark Mode', preview: '#121212', accent: '#a8c7fa' },
   { id: 'lavender', name: 'Lavender', preview: '#E6E6FA', accent: '#7B68EE' },
   { id: 'mint', name: 'Mint', preview: '#F0FFF0', accent: '#00FA9A' },
   { id: 'oceanic', name: 'Oceanic', preview: '#E0F7FA', accent: '#006064' },

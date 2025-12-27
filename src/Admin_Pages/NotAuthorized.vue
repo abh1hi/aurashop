@@ -1,12 +1,17 @@
 <template>
-  <div class="not-authorized-container">
-    <div class="content-box">
-      <span class="material-icons-round lock-icon">lock</span>
-      <h1>Access Denied</h1>
-      <p>You do not have permission to access the Administrator Portal.</p>
+  <div class="m3-auth-container">
+    <div class="m3-auth-card">
+      <md-icon class="lock-icon">lock_person</md-icon>
+      <h1 class="headline-large">Access Restricted</h1>
+      <p class="body-large">You do not have the required permissions to access the Administration Portal.</p>
+      
       <div class="actions">
-        <button class="btn-primary" @click="goHome">Return to Store</button>
-        <button class="btn-ghost" @click="goToLogin">Sign In as Admin</button>
+        <md-filled-button @click="goHome">
+            Return to Store
+        </md-filled-button>
+        <md-text-button @click="goToLogin">
+            Sign In as Administrator
+        </md-text-button>
       </div>
     </div>
   </div>
@@ -23,80 +28,52 @@ const goToLogin = () => {
 </script>
 
 <style scoped>
-.not-authorized-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
-  color: #fff;
-  font-family: 'Inter', sans-serif;
+.m3-auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--md-sys-color-surface-container-lowest);
+    color: var(--md-sys-color-on-surface);
 }
 
-.content-box {
-  text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  padding: 3rem;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  max-width: 400px;
-  width: 90%;
+.m3-auth-card {
+    background: var(--md-sys-color-surface);
+    padding: 48px;
+    border-radius: 28px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
 }
 
 .lock-icon {
-  font-size: 64px;
-  color: #e94560;
-  margin-bottom: 1rem;
+    font-size: 64px;
+    color: var(--md-sys-color-error);
+    margin-bottom: 8px;
 }
 
-h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  font-weight: 700;
+.headline-large {
+    font-family: var(--md-sys-typescale-headline-large-font);
+    font-size: 1.75rem;
+    font-weight: 400;
+    margin: 0;
 }
 
-p {
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 2rem;
-  line-height: 1.5;
+.body-large {
+    color: var(--md-sys-color-on-surface-variant);
+    margin: 0;
 }
 
 .actions {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-button {
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  font-weight: 500;
-}
-
-.btn-primary {
-  background: #e94560;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #d63d56;
-  transform: translateY(-2px);
-}
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-.btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+    width: 100%;
 }
 </style>
