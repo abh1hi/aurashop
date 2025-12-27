@@ -17,7 +17,7 @@
 
       <!-- Stats Grid -->
       <section class="stats-grid">
-        <div class="m3-card stat-card primary-container">
+        <div class="m3-card stat-card primary-container" @click="router.push('/admin/users')">
           <div class="stat-content">
             <span class="label-medium">Total Users</span>
             <span class="display-small">{{ stats.totalUsers.toLocaleString() }}</span>
@@ -29,19 +29,31 @@
           <md-icon class="stat-icon">group</md-icon>
         </div>
 
-        <div class="m3-card stat-card">
+        <div class="m3-card stat-card" @click="router.push('/admin/vendors')">
           <div class="stat-content">
-            <span class="label-medium">Active Vendors</span>
-            <span class="display-small">{{ stats.activeVendors }}</span>
+            <span class="label-medium">Total Vendors</span>
+            <span class="display-small">{{ stats.totalVendors }}</span>
             <div class="trend up">
               <md-icon>trending_up</md-icon>
               <span class="label-small">+3.2%</span>
             </div>
           </div>
-          <md-icon class="stat-icon">storefront</md-icon>
+          <md-icon class="stat-icon">badge</md-icon>
         </div>
 
-        <div class="m3-card stat-card">
+        <div class="m3-card stat-card" @click="router.push('/admin/stores')">
+          <div class="stat-content">
+            <span class="label-medium">Active Stores</span>
+            <span class="display-small">{{ stats.activeStores }}</span>
+            <div class="trend up">
+              <md-icon>storefront</md-icon>
+              <span class="label-small">Live</span>
+            </div>
+          </div>
+          <md-icon class="stat-icon">store</md-icon>
+        </div>
+
+        <div class="m3-card stat-card" @click="router.push('/admin/kyc')">
           <div class="stat-content">
             <span class="label-medium">Pending Approvals</span>
             <span class="display-small">{{ stats.pendingKYC }}</span>
@@ -117,19 +129,19 @@
             </div>
             <div class="status-list">
               <div class="status-item">
-                <div class="dot success"></div>
+                <div class="dot" :class="getStatusClass(systemStatus.database)"></div>
                 <span>Database</span>
-                <span class="status-val">Operational</span>
+                <span class="status-val">{{ systemStatus.database }}</span>
               </div>
               <div class="status-item">
-                <div class="dot success"></div>
-                <span>API Gateway</span>
-                <span class="status-val">Operational</span>
+                <div class="dot" :class="getStatusClass(systemStatus.auth)"></div>
+                <span>Authentication</span>
+                <span class="status-val">{{ systemStatus.auth }}</span>
               </div>
               <div class="status-item">
-                <div class="dot warning"></div>
+                <div class="dot" :class="getStatusClass(systemStatus.storage)"></div>
                 <span>Storage</span>
-                <span class="status-val">High Load</span>
+                <span class="status-val">{{ systemStatus.storage }}</span>
               </div>
             </div>
           </div>
@@ -157,18 +169,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import AdminLayout from '../components/AdminLayout.vue';
 import TeamList from './components/TeamList.vue';
-// M3 Components imported globally via plugins/material-web.ts
+import { useAdmin } from '../../composables/useAdmin';
 
-// Mock Data
+const router = useRouter();
+const { fetchDashboardStats, fetchChartData } = useAdmin();
+
 const stats = ref({
-  totalUsers: 14205,
-  activeVendors: 89,
-  pendingKYC: 5,
-  totalSales: 452900
+  totalUsers: 0,
+  totalVendors: 0,
+  activeStores: 0,
+  pendingKYC: 0,
+  totalSales: 0
 });
+
+const systemStatus = ref({
+  database: 'Checking...',
+  auth: 'Operational', // Firebase Auth is generally assumed up if we are logged in
+  storage: 'Operational'
+});
+
+const chartData = ref<number[]>([]);
+
+onMounted(async () => {
+    try {
+        const data = await fetchDashboardStats();
+        if (data) {
+            stats.value = data;
+            systemStatus.value.database = 'Operational';
+        } else {
+             systemStatus.value.database = 'Degraded';
+        }
+    } catch (e) {
+        systemStatus.value.database = 'Outage';
+    }
+    
+    // Mock chart data fetch for now, can be replaced by real later
+    chartData.value = await fetchChartData();
+});
+
+const getStatusClass = (status: string) => {
+    if (status === 'Operational') return 'success';
+    if (status === 'Degraded') return 'warning';
+    if (status === 'Outage' || status === 'Checking...') return 'error'; // Checking might be yellow/warning too, but let's stick to safe defaults or change if needed
+    return 'warning';
+};
 </script>
 
 <style scoped>
@@ -248,6 +296,13 @@ const stats = ref({
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.3);
 }
 
 .stat-card.primary-container {
@@ -373,10 +428,23 @@ const stats = ref({
     width: 10px;
     height: 10px;
     border-radius: 50%;
+    transition: background 0.3s, box-shadow 0.3s;
 }
 
-.dot.success { background: var(--md-sys-color-primary); }
-.dot.warning { background: var(--md-sys-color-error); }
+.dot.success { 
+    background: #4caf50; 
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+
+.dot.warning { 
+    background: #ff9800; 
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.6);
+}
+
+.dot.error { 
+    background: #f44336; 
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+}
 
 .status-val {
     margin-left: auto;

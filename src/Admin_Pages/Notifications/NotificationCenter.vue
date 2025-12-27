@@ -6,6 +6,12 @@
           <h1 class="page-title">Notification Center</h1>
           <p class="page-subtitle">Send targeted alerts, system updates, and marketing messages.</p>
         </div>
+        <div class="header-actions">
+           <md-outlined-button @click="goToHistory">
+             <md-icon slot="icon">restore</md-icon>
+             Load Saved / History
+           </md-outlined-button>
+        </div>
       </div>
 
       <div class="content-grid">
@@ -35,7 +41,7 @@
                       <md-outlined-text-field
                           label="Search User"
                           v-model="searchQuery" 
-                          placeholder="Type name or email..." 
+                          placeholder="Type name, email, or UID..." 
                           @input="handleUserSearch"
                           class="w-100"
                       >
@@ -136,10 +142,76 @@
                 </md-outlined-text-field>
               </div>
 
+              <div class="form-group">
+                <label class="field-label">Media Attachment</label>
+                <div class="media-type-selector mb-sm">
+                    <md-outlined-select 
+                        label="Attachment Type" 
+                        :value="mediaSource"
+                        @change="e => mediaSource = e.target.value"
+                        class="w-100"
+                    >
+                        <md-select-option value="url">
+                            <div slot="headline">External URL</div>
+                        </md-select-option>
+                        <md-select-option value="upload">
+                            <div slot="headline">Upload File</div>
+                        </md-select-option>
+                    </md-outlined-select>
+                </div>
+
+                <div v-if="mediaSource === 'url'" class="mt-sm">
+                    <md-outlined-text-field
+                        label="Media URL"
+                        v-model="formData.mediaUrl" 
+                        placeholder="https://... (Image or Video)" 
+                        class="w-100"
+                        :disabled="uploading"
+                    >
+                        <md-icon slot="leading-icon">image</md-icon>
+                    </md-outlined-text-field>
+                </div>
+
+                <div v-else class="mt-sm upload-box">
+                    <input 
+                        type="file" 
+                        id="media-upload" 
+                        class="hidden-input" 
+                        accept="image/*,video/*"
+                        @change="handleFileUpload"
+                    >
+                    <label for="media-upload" class="upload-label" v-if="!uploading && !formData.mediaUrl">
+                        <md-icon>add_photo_alternate</md-icon>
+                        <span>Click to Upload Image/Video</span>
+                    </label>
+                    
+                    <div v-else-if="uploading" class="upload-status">
+                        <md-circular-progress indeterminate></md-circular-progress>
+                        <span>Uploading...</span>
+                    </div>
+
+                    <div v-else-if="formData.mediaUrl" class="upload-success">
+                        <md-icon class="success-icon">check_circle</md-icon>
+                        <span>Media Uploaded</span>
+                        <md-text-button @click.prevent="formData.mediaUrl = ''" class="remove-media-btn">Remove</md-text-button>
+                    </div>
+                </div>
+              </div>
+
               <div class="form-actions mt-xl">
+                 <md-outlined-button 
+                    type="button" 
+                    class="draft-btn"
+                    @click="handleSaveDraft"
+                    :disabled="loading || !formData.title"
+                 >
+                    <md-icon slot="icon">save</md-icon>
+                    Save Draft
+                 </md-outlined-button>
+                 
                  <md-filled-button 
                     type="submit" 
-                    class="w-100 send-btn"
+                    class="send-btn"
                     :disabled="!isValid || loading"
                  >
                     <md-icon slot="icon">send</md-icon>
@@ -150,6 +222,7 @@
             </form>
           </div>
         </section>
+
 
         <!-- Preview Section -->
         <section class="preview-section">
@@ -173,6 +246,12 @@
                           <div class="notif-text-content">
                               <span class="notif-title">{{ formData.title || 'Notification Title' }}</span>
                               <p class="notif-message">{{ formData.message || 'The notification description will appear here. It offers a preview of how users will see it.' }}</p>
+                              
+                              <div v-if="formData.mediaUrl" class="notif-media-preview">
+                                  <video v-if="isVideo" :src="formData.mediaUrl" controls muted class="media-content"></video>
+                                  <img v-else :src="formData.mediaUrl" alt="Notification Media" class="media-content" />
+                              </div>
+                              
                               <span class="notif-time">Just now</span>
                           </div>
                       </div>
@@ -187,19 +266,69 @@
           </div>
         </section>
       </div>
+
+
     </div>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import AdminLayout from '../components/AdminLayout.vue';
 import { useAdmin } from '../../composables/useAdmin';
 import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
-// Icons and components are now imported globally
+import { storage } from '../../firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const { loading, error, fetchUsers, sendBulkNotification } = useAdmin();
+const router = useRouter();
+const { loading, error, searchUsers, sendBulkNotification, saveDraft } = useAdmin();
 const { showToast } = useToast();
+
+// Replaced local load logic with separate page support
+onMounted(() => {
+    const template = history.state.templateData;
+    if (template) {
+        console.log('Hydrating from template:', template);
+        formData.title = template.title || '';
+        formData.message = template.message || '';
+        formData.type = template.type || 'info';
+        formData.link = template.link || '';
+        formData.mediaUrl = template.mediaUrl || '';
+        formData.targetGroup = template.targetGroup || 'specific';
+        
+        mediaSource.value = formData.mediaUrl ? 'url' : 'upload';
+        
+        // Clear state to prevent reload on refresh? Optional.
+        // history.replaceState({}, ''); 
+        showToast('Template loaded', 'success');
+    }
+});
+
+const handleSaveDraft = async () => {
+    if (!formData.title) {
+        showToast('Please enter at least a title', 'warning');
+        return;
+    }
+    
+    try {
+        await saveDraft({
+            title: formData.title,
+            message: formData.message,
+            type: formData.type,
+            link: formData.link,
+            mediaUrl: formData.mediaUrl,
+            targetGroup: formData.targetGroup
+        });
+        showToast('Draft saved successfully', 'success');
+    } catch (e) {
+        showToast('Failed to save draft', 'error');
+    }
+};
+
+const goToHistory = () => {
+    router.push('/admin/notifications/history');
+};
 
 const targetGroupOptions = [
     { label: 'Specific Users', value: 'specific' },
@@ -217,27 +346,62 @@ const notificationTypes = [
     { label: 'System', value: 'system', icon: 'dns' }
 ];
 
+// ... rest of existing logic ...
+// (We need to insert the rest carefully or use a slightly different replace strategy to avoid wiping the rest of the script block if it was too large)
+// Actually, I'll just replace the setup block start and rely on `activeTab` being new.
+// Wait, I am replacing a huge chunk. Let me just check the boundaries.
+// The `handleSend` implementation is below. I will just inject these NEW functions after `useAdmin` destructuring.
+
+
 const formData = reactive({
     targetGroup: 'specific',
     title: '',
     message: '',
     type: 'info',
-    link: ''
+    link: '',
+    mediaUrl: ''
+});
+
+const mediaSource = ref<'url' | 'upload'>('url');
+const uploading = ref(false);
+
+const handleFileUpload = async (event: Event) => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    // Validation (Max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('File too large (Max 10MB)', 'error');
+        return;
+    }
+
+    uploading.value = true;
+    try {
+        const fileRef = storageRef(storage, `notifications/${Date.now()}_${file.name}`);
+        await uploadBytes(fileRef, file);
+        const url = await getDownloadURL(fileRef);
+        formData.mediaUrl = url;
+        showToast('Media uploaded successfully', 'success');
+    } catch (e: any) {
+        console.error('Upload failed', e);
+        showToast('Failed to upload media', 'error');
+    } finally {
+        uploading.value = false;
+    }
+};
+
+
+
+const isVideo = computed(() => {
+    if (!formData.mediaUrl) return false;
+    const url = formData.mediaUrl.toLowerCase();
+    return url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.mov') || url.endsWith('.ogg');
 });
 
 const searchQuery = ref('');
-const allUsers = ref<any[]>([]);
 const searchResults = ref<any[]>([]);
 const selectedUsers = ref<any[]>([]);
-
-// Prefetch users for searching - simplified for MVP. In prod, use server-side search.
-onMounted(async () => {
-    try {
-        allUsers.value = await fetchUsers();
-    } catch (e) {
-        console.error('Failed to load users', e);
-    }
-});
+let searchTimeout: any = null;
 
 const handleGroupChange = (val: string) => {
     formData.targetGroup = val;
@@ -248,15 +412,25 @@ const handleGroupChange = (val: string) => {
 };
 
 const handleUserSearch = () => {
-    if (!searchQuery.value) {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    
+    if (!searchQuery.value || searchQuery.value.length < 2) {
         searchResults.value = [];
         return;
     }
-    const query = searchQuery.value.toLowerCase();
-    searchResults.value = allUsers.value.filter((user: any) => 
-        (user.displayName?.toLowerCase().includes(query) || user.email?.toLowerCase().includes(query)) &&
-        !selectedUsers.value.some(u => u.id === user.id)
-    ).slice(0, 5);
+
+    searchTimeout = setTimeout(async () => {
+        try {
+            // Use server-side search which supports Name, Email, and UID
+            const results = await searchUsers({ query: searchQuery.value });
+            // Filter out already selected users
+            searchResults.value = results.filter((user: any) => 
+                !selectedUsers.value.some(u => u.id === user.id)
+            ).slice(0, 5);
+        } catch (e) {
+            console.error('Search failed', e);
+        }
+    }, 300); // 300ms debounce
 };
 
 const selectUser = (user: any) => {
@@ -288,7 +462,8 @@ const handleSend = async () => {
             title: formData.title,
             message: formData.message,
             type: formData.type,
-            link: formData.link
+            link: formData.link,
+            mediaUrl: formData.mediaUrl
         };
 
         const specificIds = selectedUsers.value.map(u => u.id);
@@ -304,9 +479,10 @@ const handleSend = async () => {
         formData.title = '';
         formData.message = '';
         formData.link = '';
+        formData.mediaUrl = '';
         formData.type = 'info';
         selectedUsers.value = [];
-
+        
     } catch (e: any) {
         showToast(error.value || 'Failed to send notifications', 'error');
     }
@@ -321,6 +497,9 @@ const handleSend = async () => {
 }
 
 .page-header {
+    display: flex; /* Changed for flex actions */
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 2rem;
 }
 
@@ -482,9 +661,20 @@ const handleSend = async () => {
     width: 100%;
 }
 
+.form-actions {
+    display: flex;
+    gap: 12px;
+}
+
 .send-btn {
+    flex: 2;
     height: 48px;
     font-size: 1rem;
+}
+
+.draft-btn {
+    flex: 1;
+    height: 48px;
 }
 
 /* Preview Section */
@@ -579,6 +769,22 @@ const handleSend = async () => {
     margin-bottom: 4px;
 }
 
+.notif-media-preview {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+}
+
+.media-content {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
 .notif-time {
     font-size: 10px;
     color: var(--md-sys-color-outline);
@@ -606,6 +812,133 @@ const handleSend = async () => {
     to { opacity: 1; transform: translateY(0); }
 }
 
+
+.mt-sm { margin-top: 8px; }
+.mb-sm { margin-bottom: 8px; }
+
+/* Upload Box */
+
+/* Upload Box */
+.hidden-input { display: none; }
+
+.upload-box {
+    border: 2px dashed var(--md-sys-color-outline-variant);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: border-color 0.2s;
+}
+
+.upload-box:hover {
+    border-color: var(--md-sys-color-primary);
+}
+
+.upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.upload-status, .upload-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--md-sys-color-on-surface);
+}
+
+.success-icon { color: #10b981; }
+.remove-media-btn { --md-text-button-label-text-color: var(--md-sys-color-error); }
+
+/* History Log (Original) */
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.history-section {
+    margin-top: 2rem;
+}
+
+.log-card {
+    padding: 0 !important; /* Reset padding for flush table */
+    overflow: hidden;
+}
+
+.log-table {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.log-header {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.05);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.log-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr;
+    padding: 16px 24px;
+    align-items: center;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    transition: background 0.2s;
+    font-size: 0.875rem;
+    color: var(--md-sys-color-on-surface);
+}
+
+.log-row:last-child {
+    border-bottom: none;
+}
+
+.log-row:hover {
+    background: rgba(255,255,255,0.02);
+}
+
+.col-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+}
+
+.log-icon {
+    font-size: 20px;
+    opacity: 0.8;
+}
+.log-icon.info { color: var(--md-sys-color-secondary); }
+.log-icon.success { color: green; }
+.log-icon.warning { color: orange; }
+.log-icon.error { color: var(--md-sys-color-error); }
+
+.col-audience { color: var(--md-sys-color-on-surface-variant); }
+.col-sender { font-family: monospace; font-size: 0.8rem; opacity: 0.7; }
+
+.status-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.1);
+}
+.status-badge.success { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+.empty-state {
+    padding: 48px;
+    text-align: center;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
+
 </style>

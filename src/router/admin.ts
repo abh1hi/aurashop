@@ -16,6 +16,18 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
+        path: '/admin/users/search',
+        name: 'UserSearch',
+        component: () => import('../Admin_Pages/Users/UserSearch.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/users/:id',
+        name: 'UserDetailPage',
+        component: () => import('../Admin_Pages/Users/UserDetailPage.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
         path: '/admin/vendors',
         name: 'VendorManagement',
         component: () => import('../Admin_Pages/Vendors/VendorManagement.vue'),
@@ -25,6 +37,18 @@ const routes: Array<RouteRecordRaw> = [
         path: '/admin/stores',
         name: 'StoreManagement',
         component: () => import('../Admin_Pages/Stores/StoreManagement.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/stores/search',
+        name: 'StoreSearch',
+        component: () => import('../Admin_Pages/Stores/StoreSearch.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/stores/:id',
+        name: 'StoreDetail',
+        component: () => import('../Admin_Pages/Stores/StoreDetailPage.vue'),
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
@@ -55,6 +79,12 @@ const routes: Array<RouteRecordRaw> = [
         path: '/admin/notifications',
         name: 'NotificationCenter',
         component: () => import('../Admin_Pages/Notifications/NotificationCenter.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/notifications/history',
+        name: 'NotificationHistory',
+        component: () => import('../Admin_Pages/Notifications/NotificationHistory.vue'),
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {

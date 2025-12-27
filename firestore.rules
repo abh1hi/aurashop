@@ -33,16 +33,16 @@ service cloud.firestore {
       
       // Subcollections
       match /cart/{itemId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isOwner(userId) || isAdmin();
       }
       match /wishlist/{itemId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isOwner(userId) || isAdmin();
       }
       match /tracking_sessions/{sessionId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isOwner(userId) || isAdmin();
       }
       match /addresses/{addressId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isOwner(userId) || isAdmin();
       }
       match /notifications/{notificationId} {
         // User can read/write their own notifications, Admin can write to anyone's
@@ -91,6 +91,11 @@ service cloud.firestore {
           get(/databases/$(database)/documents/stores/$(storeId)).data.ownerId == request.auth.uid || 
           isAdmin()
         );
+      }
+
+      // Admin Override for all subcollections (Stats, etc.)
+      match /{document=**} {
+        allow read, write: if isAdmin();
       }
     }
 
@@ -180,12 +185,24 @@ service cloud.firestore {
       allow create: if isAuthenticated(); // Customers create orders
       allow read: if isAuthenticated() && (
         resource.data.userId == request.auth.uid || // Customer
-        get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid // Vendor
+        get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid || // Vendor
+        isAdmin() // Admin
       );
       allow update: if isAuthenticated() && (
         // Vendor updating status
-        get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid
+        get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid ||
+        isAdmin()
       );
+    }
+    
+    // Admin Notification Logs
+    match /admin_notification_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Admin Notification Drafts
+    match /admin_notification_drafts/{draftId} {
+      allow read, write: if isAdmin();
     }
   }
 }

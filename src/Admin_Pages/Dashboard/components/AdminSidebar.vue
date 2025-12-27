@@ -48,8 +48,13 @@
              <span class="role">Root</span>
           </div>
        </div>
-       <md-icon-button @click="handleLogout" class="logout-btn">
+       <md-icon-button @click="handleLogout" class="logout-btn" title="Logout">
           <md-icon>logout</md-icon>
+       </md-icon-button>
+       
+       <!-- Collapse Toggle -->
+       <md-icon-button @click="$emit('toggle-collapse')" class="collapse-btn desktop-only" title="Toggle Sidebar">
+          <md-icon>{{ collapsed ? 'chevron_right' : 'chevron_left' }}</md-icon>
        </md-icon-button>
     </div>
   </nav>
@@ -64,7 +69,7 @@ const props = defineProps<{
   collapsed: boolean
 }>();
 
-const emit = defineEmits(['close-mobile']);
+const emit = defineEmits(['close-mobile', 'toggle-collapse']);
 const router = useRouter();
 const { logout } = useAuth();
 const navRef = ref<HTMLElement | null>(null); // Ref for the sidebar element
@@ -276,5 +281,15 @@ const handleLogout = async () => {
 
 .logout-btn {
     color: var(--md-sys-color-error);
+}
+
+.collapse-btn {
+    color: var(--md-sys-color-on-surface-variant);
+    margin-left: auto; /* Push to right if space permits, or just auto spacing */
+}
+
+/* Hide collapse button on mobile since overlay logic handles close */
+@media(max-width: 768px) {
+    .collapse-btn { display: none; }
 }
 </style>

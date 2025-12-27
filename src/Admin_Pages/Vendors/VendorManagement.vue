@@ -9,7 +9,7 @@
         </div>
       </header>
 
-      <!-- Search -->
+      <!-- Search & Tools -->
       <div class="filter-bar">
          <md-outlined-text-field 
             label="Search stores..." 
@@ -19,6 +19,36 @@
          >
            <md-icon slot="leading-icon">search</md-icon>
          </md-outlined-text-field>
+         
+         <div style="flex-grow: 1;"></div>
+         
+         <md-outlined-button @click="showTemplateModal = true">
+            <md-icon slot="icon">edit_note</md-icon>
+            Templates
+         </md-outlined-button>
+      </div>
+
+      <!-- Filters & Sorting -->
+      <div class="filter-row" style="display: flex; gap: 12px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
+          <!-- Status Chips -->
+          <div class="chip-group">
+              <md-filter-chip label="All" :selected="filterStatus === 'all'" @click="filterStatus = 'all'"></md-filter-chip>
+              <md-filter-chip label="Pending" :selected="filterStatus === 'pending'" @click="filterStatus = 'pending'"></md-filter-chip>
+              <md-filter-chip label="Approved" :selected="filterStatus === 'approved'" @click="filterStatus = 'approved'"></md-filter-chip>
+              <md-filter-chip label="Rejected" :selected="filterStatus === 'rejected'" @click="filterStatus = 'rejected'"></md-filter-chip>
+          </div>
+
+          <div style="flex-grow: 1;"></div>
+
+          <!-- Sort Select -->
+           <div class="sort-control">
+               <span class="body-small" style="margin-right: 8px;">Sort by:</span>
+               <select class="native-select" :value="sortOrder" @change="sortOrder = ($event.target as HTMLSelectElement).value">
+                   <option value="newest">Newest</option>
+                   <option value="oldest">Oldest</option>
+                   <option value="name">Name</option>
+               </select>
+           </div>
       </div>
 
       <!-- Main List -->
@@ -42,7 +72,6 @@
                v-for="vendor in filteredVendors" 
                :key="vendor.id" 
                class="list-item"
-               @click="openReviewModal(vendor)"
              >
                 <!-- Store Info -->
                 <div class="col-main store-info">
@@ -56,8 +85,48 @@
                 </div>
 
                 <!-- Owner -->
-                <div class="col-owner desktop-only">
-                    <span class="body-medium">UID: {{ vendor.ownerId?.substring(0, 8) }}</span>
+                <div 
+                    class="col-owner desktop-only owner-cell" 
+                    @click.stop="handleOwnerHover(vendor.ownerId)"
+                >
+                    <span class="body-medium">UID: {{ vendor.ownerId }}</span>
+                    <md-icon class="info-icon">info</md-icon>
+
+                    <!-- Owner Details Popover -->
+                    <Transition name="fade">
+                        <div v-if="hoveredOwner && hoveredOwner.uid === vendor.ownerId" class="owner-popover m3-surface" @click.stop>
+                            <!-- Click stop propagation inside popover to prevent toggling it off when interacting with content -->
+                             <div class="popover-close-btn" @click.stop="hoveredOwner = null">
+                                <md-icon style="font-size: 18px;">close</md-icon>
+                             </div>
+                            
+                            <div v-if="hoveredOwner.loading" class="popover-loading">
+                                <md-circular-progress indeterminate style="--md-circular-progress-size: 24px;"></md-circular-progress>
+                            </div>
+                            <div v-else class="popover-content">
+                                <div class="popover-header">
+                                    <div class="popover-avatar">
+                                        <img v-if="hoveredOwner.avatarUrl" :src="hoveredOwner.avatarUrl" />
+                                        <span v-else>{{ getInitials(hoveredOwner.name) }}</span>
+                                    </div>
+                                    <div class="popover-titles">
+                                        <span class="title-small">{{ hoveredOwner.name }}</span>
+                                        <span class="body-xs secondary-text">{{ hoveredOwner.role }}</span>
+                                    </div>
+                                </div>
+                                <div class="popover-stats">
+                                    <div class="stat-item">
+                                        <md-icon>store</md-icon>
+                                        <span>{{ hoveredOwner.storeCount }} Stores</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <md-icon>mail</md-icon>
+                                        <span class="email-text" :title="hoveredOwner.email">{{ hoveredOwner.email }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Transition>
                 </div>
 
                 <!-- Date -->
@@ -74,9 +143,10 @@
 
                  <!-- Actions -->
                  <div class="col-actions desktop-only">
-                    <md-icon-button title="Review" @click.stop="openReviewModal(vendor)">
-                       <md-icon>analytics</md-icon>
-                    </md-icon-button>
+                    <md-filled-tonal-button @click.stop="openReviewModal(vendor)" style="height: 32px; font-size: 0.8rem;">
+                       Review
+                       <md-icon slot="icon">analytics</md-icon>
+                    </md-filled-tonal-button>
                  </div>
 
                  <!-- Mobile Chevron -->
@@ -124,31 +194,86 @@
 
                  <!-- Profile Content -->
                  <div v-if="activeTab === 'profile'" class="tab-content profile-content">
+                    
+                    <!-- Business Details -->
                     <section class="section">
                        <h3 class="title-medium section-title">Business Details</h3>
+                       
+                       <div class="detail-row" :class="{ verified: verifiedFields['branding'] }">
+                          <span class="label">Store Logo/Branding</span>
+                          <span class="value" v-if="selectedVendor.logoUrl">Uploaded</span>
+                          <span class="value missing" v-else>Not submitted</span>
+                          <md-checkbox :checked="verifiedFields['branding']" @change="toggleVerification('branding')"></md-checkbox>
+                       </div>
+
                        <div class="detail-row" :class="{ verified: verifiedFields['name'] }">
                           <span class="label">Store Name</span>
-                          <span class="value">{{ selectedVendor.name }}</span>
+                          <span class="value">{{ selectedVendor.name || 'Not submitted' }}</span>
                           <md-checkbox :checked="verifiedFields['name']" @change="toggleVerification('name')"></md-checkbox>
                        </div>
+
                        <div class="detail-row" :class="{ verified: verifiedFields['category'] }">
                           <span class="label">Category</span>
-                          <span class="value">{{ getCategoryName(selectedVendor.category) }}</span>
+                          <span class="value">{{ selectedVendor.category ? getCategoryName(selectedVendor.category) : 'Not submitted' }}</span>
                           <md-checkbox :checked="verifiedFields['category']" @change="toggleVerification('category')"></md-checkbox>
+                       </div>
+
+                       <div class="detail-row" :class="{ verified: verifiedFields['description'] }">
+                          <span class="label">Description</span>
+                          <span class="value">{{ selectedVendor.description || 'Not submitted' }}</span>
+                          <md-checkbox :checked="verifiedFields['description']" @change="toggleVerification('description')"></md-checkbox>
+                       </div>
+
+                       <div class="detail-row" :class="{ verified: verifiedFields['hours'] }">
+                          <span class="label">Operating Hours</span>
+                          <span class="value">{{ selectedVendor.operatingHours || 'Not submitted' }}</span>
+                          <md-checkbox :checked="verifiedFields['hours']" @change="toggleVerification('hours')"></md-checkbox>
                        </div>
                     </section>
                     
+                    <!-- Contact Details -->
                     <section class="section">
-                         <h3 class="title-medium section-title">Contact & Financial</h3>
+                         <h3 class="title-medium section-title">Contact Information</h3>
+                         
+                         <div class="detail-row" :class="{ verified: verifiedFields['address'] }">
+                             <span class="label">Business Address</span>
+                             <span class="value">{{ selectedVendor.address || 'Not submitted' }}</span>
+                             <md-checkbox :checked="verifiedFields['address']" @change="toggleVerification('address')"></md-checkbox>
+                         </div>
+
                          <div class="detail-row" :class="{ verified: verifiedFields['email'] }">
                              <span class="label">Email</span>
-                             <span class="value">{{ selectedVendor.email }}</span>
+                             <span class="value">{{ selectedVendor.email || 'Not submitted' }}</span>
                              <md-checkbox :checked="verifiedFields['email']" @change="toggleVerification('email')"></md-checkbox>
                          </div>
+
+                         <div class="detail-row" :class="{ verified: verifiedFields['phone'] }">
+                             <span class="label">Phone Number</span>
+                             <span class="value">{{ selectedVendor.phone || 'Not submitted' }}</span>
+                             <md-checkbox :checked="verifiedFields['phone']" @change="toggleVerification('phone')"></md-checkbox>
+                         </div>
+                    </section>
+                    
+                    <!-- Financial Details -->
+                    <section class="section">
+                         <h3 class="title-medium section-title">Financial Information</h3>
+                         
+                         <div class="detail-row" :class="{ verified: verifiedFields['bankName'] }">
+                             <span class="label">Bank Name</span>
+                             <span class="value">{{ selectedVendor.bankDetails?.bankName || 'Not submitted' }}</span>
+                             <md-checkbox :checked="verifiedFields['bankName']" @change="toggleVerification('bankName')"></md-checkbox>
+                         </div>
+
                          <div class="detail-row" :class="{ verified: verifiedFields['account'] }">
-                             <span class="label">Bank Account</span>
-                             <span class="value">{{ selectedVendor.bankDetails?.account || 'N/A' }}</span>
+                             <span class="label">Account Number</span>
+                             <span class="value">{{ selectedVendor.bankDetails?.account || 'Not submitted' }}</span>
                              <md-checkbox :checked="verifiedFields['account']" @change="toggleVerification('account')"></md-checkbox>
+                         </div>
+
+                         <div class="detail-row" :class="{ verified: verifiedFields['ifsc'] }">
+                             <span class="label">IFSC / Routing</span>
+                             <span class="value">{{ selectedVendor.bankDetails?.ifsc || 'Not submitted' }}</span>
+                             <md-checkbox :checked="verifiedFields['ifsc']" @change="toggleVerification('ifsc')"></md-checkbox>
                          </div>
                     </section>
                  </div>
@@ -213,6 +338,77 @@
             </div>
         </div>
 
+        <!-- Template Management Dialog -->
+         <Transition name="fade">
+            <div v-if="showTemplateModal" class="review-modal-overlay">
+                <div class="review-modal m3-surface" style="width: 600px; height: auto; max-height: 90vh;">
+                     <header class="review-header">
+                        <div class="header-left">
+                            <h2 class="title-large">Manage Templates</h2>
+                        </div>
+                        <md-icon-button @click="showTemplateModal = false"><md-icon>close</md-icon></md-icon-button>
+                    </header>
+                    <div class="review-body" style="padding: 0; display: flex; flex-direction: column; overflow: hidden;">
+                        
+                        <!-- Template Tabs -->
+                        <div class="m3-tabs">
+                           <button class="tab-btn" :class="{ active: activeTemplateTab === 'approval' }" @click="activeTemplateTab = 'approval'">Approval</button>
+                           <button class="tab-btn" :class="{ active: activeTemplateTab === 'rejection' }" @click="activeTemplateTab = 'rejection'">Rejection</button>
+                        </div>
+
+                        <div class="tab-content" style="flex: 1; overflow-y: auto;">
+                            <!-- Approval UI -->
+                            <div v-if="activeTemplateTab === 'approval'">
+                                <h3 class="title-medium" style="margin-bottom: 8px;">Approval Notification</h3>
+                                <p class="body-small" style="margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">
+                                    This message is sent to the vendor immediately after you click "Approve". 
+                                </p>
+                                <md-outlined-text-field
+                                    type="textarea"
+                                    label="Message Body"
+                                    :value="successTemplate"
+                                    @input="successTemplate = $event.target.value"
+                                    rows="4"
+                                    style="width: 100%;"
+                                ></md-outlined-text-field>
+                            </div>
+
+                            <!-- Rejection UI -->
+                            <div v-else>
+                                <h3 class="title-medium" style="margin-bottom: 8px;">Rejection Notification</h3>
+                                <p class="body-small" style="margin-bottom: 16px; color: var(--md-sys-color-on-surface-variant);">
+                                    Customize the rejection email. Use placeholders to insert dynamic details.
+                                </p>
+
+                                <div class="placeholder-chips" style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                                    <md-assist-chip label="{{admin_note}}" @click="rejectTemplate += '{{admin_note}}'">
+                                        <md-icon slot="icon">note_add</md-icon>
+                                    </md-assist-chip>
+                                    <md-assist-chip label="{{missing_fields}}" @click="rejectTemplate += '{{missing_fields}}'">
+                                        <md-icon slot="icon">playlist_add</md-icon>
+                                    </md-assist-chip>
+                                </div>
+                                
+                                <md-outlined-text-field
+                                    type="textarea"
+                                    label="Message Body"
+                                    :value="rejectTemplate"
+                                    @input="rejectTemplate = $event.target.value"
+                                    rows="10"
+                                    style="width: 100%;"
+                                ></md-outlined-text-field>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div style="padding: 16px; display: flex; justify-content: flex-end; border-top: 1px solid var(--md-sys-color-outline-variant); background: var(--md-sys-color-surface);">
+                         <md-text-button @click="showTemplateModal = false" style="margin-right: 8px;">Cancel</md-text-button>
+                         <md-filled-button @click="saveTemplates">Save Changes</md-filled-button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
     </div>
   </AdminLayout>
 </template>
@@ -248,7 +444,16 @@ const {
     handleApprove,
     handleReject,
     promptReject,
-    confirmReject
+    confirmReject,
+    showTemplateModal,
+    successTemplate,
+    rejectTemplate,
+    saveTemplates,
+    activeTemplateTab,
+    filterStatus,
+    sortOrder,
+    hoveredOwner,
+    handleOwnerHover
 } = useVendorManagementLogic();
 </script>
 
@@ -285,7 +490,7 @@ const {
     background: var(--md-sys-color-surface);
     border-radius: 16px;
     border: 1px solid var(--md-sys-color-outline-variant);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .list-header {
@@ -302,7 +507,7 @@ const {
     align-items: center;
     padding: 12px 16px;
     border-bottom: 1px solid var(--md-sys-color-outline-variant);
-    cursor: pointer;
+    cursor: default; /* Changed from pointer */
     transition: background 0.2s;
 }
 
@@ -310,7 +515,60 @@ const {
 
 /* Columns */
 .col-main { flex: 2; display: flex; align-items: center; gap: 16px; }
-.col-owner { flex: 1.5; }
+.col-owner { flex: 1.5; position: relative; } /* Added relative positioning */
+.owner-cell { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.info-icon { font-size: 18px; color: var(--md-sys-color-outline); opacity: 0.5; }
+.owner-cell:hover .info-icon { opacity: 1; }
+
+.owner-popover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    width: 260px;
+    background: var(--md-sys-color-surface-container);
+    border-radius: 12px;
+    border: 1px solid var(--md-sys-color-outline-variant);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 12px;
+    margin-top: 8px;
+    cursor: auto;
+}
+
+.popover-close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: pointer;
+    color: var(--md-sys-color-on-surface-variant);
+    opacity: 0.6;
+}
+.popover-close-btn:hover { opacity: 1; }
+
+.popover-loading { display: flex; justify-content: center; padding: 12px; }
+
+.popover-header { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.popover-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 500;
+    overflow: hidden;
+}
+.popover-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.popover-titles { display: flex; flex-direction: column; }
+.title-small { font-size: 0.875rem; font-weight: 500; color: var(--md-sys-color-on-surface); }
+.body-xs { font-size: 0.75rem; }
+
+.popover-stats { display: flex; flex-direction: column; gap: 8px; }
+.stat-item { display: flex; align-items: center; gap: 8px; color: var(--md-sys-color-on-surface-variant); font-size: 0.8rem; }
+.stat-item md-icon { font-size: 16px; }
+.email-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+
 .col-date { flex: 1; }
 .col-status { flex: 1; }
 .col-actions { flex: 0.5; display: flex; justify-content: flex-end; }
@@ -424,6 +682,7 @@ const {
 
 .label { color: var(--md-sys-color-on-surface-variant); font-weight: 500; }
 .value { font-weight: 500; }
+.value.missing { color: var(--md-sys-color-error); font-style: italic; }
 
 /* Artifacts */
 .artifact-card {
@@ -489,15 +748,87 @@ const {
 .dialog-icon { font-size: 32px; color: var(--md-sys-color-secondary); margin-bottom: 16px; }
 .dialog-actions { display: flex; justify-content: flex-end; width: 100%; gap: 8px; margin-top: 16px; }
 
+/* Mobile Action Bar */
+.mobile-action-bar {
+    padding: 16px;
+    background: var(--md-sys-color-surface);
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
 /* Responsive */
 .mobile-only { display: none; }
 @media (max-width: 768px) {
     .desktop-only { display: none; }
-    .mobile-only { display: block; }
+    .mobile-only { display: flex; } /* Flex for action bar */
+    
     .list-header { display: none; }
     .list-item { padding: 16px; }
     .col-main { flex: 1; }
-    .review-modal { width: 100%; height: 100%; border-radius: 0; }
-    .header-right { display: none; } /* Actions moved or stacked? Keep simple for now */
+    
+    /* Full Screen Modal on Mobile */
+    .review-modal { 
+        width: 100%; 
+        height: 100%; 
+        max-width: 100%; 
+        max-height: 100%; 
+        border-radius: 0; 
+    }
+    
+    .review-header {
+        padding: 12px 16px;
+    }
+    
+    .header-right { display: none; } /* Hide desktop actions */
+    
+    .review-body {
+        padding-bottom: 0; /* Space handled by sticky bar */
+    }
+    
+    .tab-content {
+        padding: 16px;
+        padding-bottom: 80px; /* Space for action bar context */
+    }
+    
+    .artifact-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .art-icon {
+        width: 100%;
+        height: 120px; /* Larger preview area hint */
+        margin-bottom: 12px;
+    }
+    
+    .art-details { width: 100%; margin-bottom: 12px; }
+    
+    /* Make checkboxes larger/easier to hit */
+    md-checkbox {
+        transform: scale(1.2);
+        margin-left: auto;
+    }
+}
+/* Filters */
+.chip-group {
+    display: flex;
+    gap: 8px;
+}
+
+.native-select {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--md-sys-color-outline);
+    background: transparent;
+    color: var(--md-sys-color-on-surface);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.secondary-text {
+    color: var(--md-sys-color-secondary);
 }
 </style>

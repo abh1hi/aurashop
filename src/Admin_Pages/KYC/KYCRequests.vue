@@ -144,7 +144,7 @@
                                 <div class="art-info">
                                     <span class="title-small">Gov ID</span>
                                     <div v-if="selectedRequest.kycDocUrl">
-                                        <md-text-button @click="window.open(selectedRequest.kycDocUrl)">Inspect Document</md-text-button>
+                                        <md-text-button @click="setPreview(selectedRequest.kycDocUrl, 'pdf')">Inspect Document</md-text-button>
                                     </div>
                                     <span v-else class="error-text">Missing</span>
                                 </div>
@@ -156,17 +156,24 @@
                                 <div class="art-info">
                                     <span class="title-small">Liveness Video</span>
                                     <div v-if="selectedRequest.kycVideoUrl">
-                                        <md-text-button @click="window.open(selectedRequest.kycVideoUrl)">Review Stream</md-text-button>
+                                        <md-text-button @click="setPreview(selectedRequest.kycVideoUrl, 'video')">Review Stream</md-text-button>
                                     </div>
                                     <span v-else class="error-text">Missing</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Preview Frame (Placeholder for direct embedding if needed, currently using links for safety/simplicity) -->
-                        <div class="preview-placeholder">
-                            <md-icon>visibility</md-icon>
-                            <p>Select an artifact to preview (Opens in new tab)</p>
+                        <!-- Preview Frame -->
+                        <div class="preview-container">
+                            <div v-if="previewUrl" class="preview-content">
+                                <video v-if="previewType === 'video'" :src="previewUrl" controls autoplay class="preview-media"></video>
+                                <iframe v-else-if="previewType === 'pdf'" :src="previewUrl" class="preview-media" type="application/pdf"></iframe>
+                                <img v-else :src="previewUrl" class="preview-media object-contain" />
+                            </div>
+                            <div v-else class="preview-placeholder">
+                                <md-icon>visibility</md-icon>
+                                <p>Select an artifact to preview</p>
+                            </div>
                         </div>
                     </div>
                  </div>
@@ -200,7 +207,16 @@ const rejectionReasonsOptions = [
     { id: 'video_content', label: 'Face Not Visible' },
 ];
 const selectedRejectionReasons = ref<string[]>([]);
+
 const customRejectionNote = ref('');
+
+const previewUrl = ref('');
+const previewType = ref<'video' | 'pdf' | 'image' | ''>('');
+
+const setPreview = (url: string, type: 'video' | 'pdf' | 'image') => {
+    previewUrl.value = url;
+    previewType.value = type;
+};
 
 const loadRequests = async () => {
   requests.value = await fetchPendingKYCRequests();
@@ -338,7 +354,11 @@ const handleReject = async () => {
 .art-icon { font-size: 32px; color: var(--md-sys-color-primary); }
 .art-info { display: flex; flex-direction: column; }
 
-.preview-placeholder { height: 200px; background: var(--md-sys-color-surface-container-high); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--md-sys-color-on-surface-variant); }
+
+.preview-container { flex: 1; display: flex; flex-direction: column; height: 100%; min-height: 300px; background: var(--md-sys-color-surface-container-high); border-radius: 12px; overflow: hidden; }
+.preview-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.preview-media { width: 100%; height: 100%; object-fit: contain; border: none; }
+.preview-placeholder { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--md-sys-color-on-surface-variant); }
 .preview-placeholder md-icon { font-size: 48px; opacity: 0.5; margin-bottom: 8px; }
 
 /* Responsive */

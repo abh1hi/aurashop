@@ -1,6 +1,6 @@
 <template>
   <div class="team-card-container">
-    <div class="team-list">
+    <div class="team-list" v-if="members.length > 0">
       <div class="team-member" v-for="member in members" :key="member.id">
         <div class="member-avatar">
             <img :src="member.avatar" />
@@ -14,19 +14,24 @@
         </span>
       </div>
     </div>
+    <div v-else class="empty-state">
+        <p class="body-medium">No recent registrations found.</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useAdmin } from '../../../composables/useAdmin';
 import '@material/web/button/filled-tonal-button.js';
 import '@material/web/icon/icon.js';
 
-const members = [
-  { id: 1, name: 'Alexandra Deff', role: 'Working on Github Project Repository', avatar: 'https://i.pravatar.cc/150?img=5', status: 'completed', statusLabel: 'Completed' },
-  { id: 2, name: 'Edwin Adenike', role: 'Working on Integrate User Authentication', avatar: 'https://i.pravatar.cc/150?img=3', status: 'progress', statusLabel: 'In Progress' },
-  { id: 3, name: 'Isaac Oluwatemilorun', role: 'Working on Develop Search Functionality', avatar: 'https://i.pravatar.cc/150?img=11', status: 'pending', statusLabel: 'Pending' },
-  { id: 4, name: 'David Oshodi', role: 'Working on Responsive Layout', avatar: 'https://i.pravatar.cc/150?img=8', status: 'progress', statusLabel: 'In Progress' }
-];
+const { fetchRecentActivity } = useAdmin();
+const members = ref<any[]>([]);
+
+onMounted(async () => {
+    members.value = await fetchRecentActivity();
+});
 </script>
 
 <style scoped>
@@ -100,4 +105,11 @@ const members = [
 .status-badge.completed { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
 .status-badge.progress { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
 .status-badge.pending { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+
+.empty-state {
+    padding: 24px;
+    text-align: center;
+    color: var(--md-sys-color-on-surface-variant);
+    font-style: italic;
+}
 </style>

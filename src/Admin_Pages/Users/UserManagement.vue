@@ -21,9 +21,10 @@
          </md-outlined-text-field>
 
          <div class="filter-actions">
-           <!-- Placeholder for future filters -->
-<!--           <md-filter-chip label="Admin"></md-filter-chip>-->
-<!--           <md-filter-chip label="Vendor"></md-filter-chip>-->
+           <md-text-button @click="router.push('/admin/users/search')">
+              <md-icon slot="icon">manage_search</md-icon>
+              Advanced Search
+           </md-text-button>
          </div>
       </div>
 
@@ -48,7 +49,7 @@
              v-for="user in filteredUsers" 
              :key="user.id" 
              class="list-item"
-             @click="openMobileActionSheet(user)"
+             @click="navigateToDetails(user)"
            >
               <!-- User Info -->
               <div class="col-main user-info">
@@ -63,9 +64,15 @@
 
               <!-- Roles (Desktop) -->
               <div class="col-role desktop-only">
-                 <div v-if="user.isAdmin" class="role-badge admin">Admin</div>
-                 <div v-if="user.isVendor" class="role-badge vendor">Vendor</div>
-                 <div v-if="!user.isAdmin && !user.isVendor" class="role-badge customer">Customer</div>
+                 <div class="role-gap">
+                    <span 
+                        v-for="role in (user.roles || ['customer'])" 
+                        :key="role" 
+                        :class="['role-badge', role.toLowerCase()]"
+                    >
+                        {{ formatRole(role) }}
+                    </span>
+                 </div>
               </div>
 
               <!-- Date (Desktop) -->
@@ -126,6 +133,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAdmin } from '../../composables/useAdmin';
 import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import AdminLayout from '../components/AdminLayout.vue';
@@ -133,6 +141,7 @@ import AdminLayout from '../components/AdminLayout.vue';
 
 const { fetchUsers, toggleUserBan, loading } = useAdmin();
 const { showToast } = useToast();
+const router = useRouter(); // Import useRouter
 
 const users = ref<any[]>([]);
 const searchQuery = ref('');
@@ -158,8 +167,19 @@ const getInitials = (name: string) => {
 
 const formatDate = (timestamp: any) => {
   if (!timestamp) return '-';
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(date);
+  try {
+      // Handle Firebase Timestamp
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      // Check for invalid date
+      if (isNaN(date.getTime())) return '-';
+      return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(date);
+  } catch (e) {
+      return '-';
+  }
+};
+
+const formatRole = (role: string) => {
+    return role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
 // Mobile Actions
@@ -167,6 +187,15 @@ const openMobileActionSheet = (user: any) => {
     if (window.innerWidth <= 768) {
         selectedUser.value = user;
         showActionSheet.value = true;
+    }
+};
+
+const navigateToDetails = (user: any) => {
+    // If desktop, go to details page. If mobile, show action sheet.
+    if (window.innerWidth > 768) {
+        router.push(`/admin/users/${user.id}`);
+    } else {
+        openMobileActionSheet(user);
     }
 };
 
@@ -320,6 +349,14 @@ const handleBanToggle = async (user: any) => {
 .role-badge.admin { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
 .role-badge.vendor { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
 .role-badge.customer { background: var(--md-sys-color-surface-variant); color: var(--md-sys-color-on-surface-variant); }
+/* Fallback/Generic */
+.role-badge { background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); }
+
+.role-gap {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
 
 /* Status */
 .status-indicator {

@@ -26,6 +26,7 @@ export interface UserProfile {
     photoURL?: string;
     addresses?: Address[];
     roles: string[];
+    createdAt?: any;
     vendorProfile?: {
         storeName: string;
         status: 'pending' | 'active';
@@ -63,7 +64,8 @@ export function useUser() {
                     displayName: user.value?.displayName || '',
                     phoneNumber: user.value?.phoneNumber || '',
                     roles: ['customer'],
-                    addresses: []
+                    addresses: [],
+                    createdAt: user.value?.metadata?.creationTime || new Date().toISOString()
                 };
                 await setDoc(userDocRef, newProfile);
                 userProfile.value = newProfile;

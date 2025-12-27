@@ -1,4 +1,5 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { getFirestore, doc, getDoc, collection, query, where, getCountFromServer } from 'firebase/firestore';
 import { useAdmin } from '../../composables/useAdmin';
 import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import vendorCats from '../../../vendorcat.json';
@@ -14,7 +15,28 @@ export function useVendorManagementLogic() {
     const previewUrl = ref('');
     const previewType = ref<'video' | 'pdf' | null>(null);
     const activeTab = ref<'profile' | 'verification'>('profile');
+    const activeTemplateTab = ref<'approval' | 'rejection'>('approval');
     let unsubscribe: any = null;
+
+    const showTemplateModal = ref(false);
+    const successTemplate = ref('Your store has been verified and is now active.');
+    const rejectTemplate = ref(`Application Rejected.
+
+Reason from Admin:
+"{{admin_note}}"
+
+Action Required:
+Please correct or update the following details which were found to be incomplete or incorrect:
+- {{missing_fields}}
+
+Please update these details in your onboarding form and resubmit.`);
+
+    const saveTemplates = () => {
+        localStorage.setItem('vendor_success_template', successTemplate.value);
+        localStorage.setItem('vendor_reject_template', rejectTemplate.value);
+        showTemplateModal.value = false;
+        showToast('Templates saved successfully', 'success');
+    };
 
     onMounted(() => {
         loading.value = true;
@@ -22,19 +44,57 @@ export function useVendorManagementLogic() {
             vendors.value = stores;
             loading.value = false;
         });
+
+        // Load templates
+        const savedSuccess = localStorage.getItem('vendor_success_template');
+        if (savedSuccess) successTemplate.value = savedSuccess;
+
+        const savedReject = localStorage.getItem('vendor_reject_template');
+        if (savedReject) rejectTemplate.value = savedReject;
     });
 
     onUnmounted(() => {
         if (unsubscribe) unsubscribe();
     });
 
+    const filterStatus = ref('all');
+    const sortOrder = ref('newest');
+
     const filteredVendors = computed(() => {
-        if (!searchQuery.value) return vendors.value;
-        const query = searchQuery.value.toLowerCase();
-        return vendors.value.filter(v =>
-            (v.email && v.email.toLowerCase().includes(query)) ||
-            (v.displayName && v.displayName.toLowerCase().includes(query))
-        );
+        let result = vendors.value;
+
+        // 1. Search
+        if (searchQuery.value) {
+            const query = searchQuery.value.toLowerCase();
+            result = result.filter(v =>
+                (v.email && v.email.toLowerCase().includes(query)) ||
+                (v.displayName && v.displayName.toLowerCase().includes(query)) ||
+                (v.name && v.name.toLowerCase().includes(query))
+            );
+        }
+
+        // 2. Filter Status
+        if (filterStatus.value !== 'all') {
+            result = result.filter(v => {
+                const s = (v.kycStatus || 'pending').toLowerCase();
+                return s === filterStatus.value; // 'pending', 'approved', 'rejected'
+            });
+        }
+
+        // 3. Sort
+        result = [...result].sort((a, b) => {
+            if (sortOrder.value === 'name') {
+                return (a.name || '').localeCompare(b.name || '');
+            }
+
+            // Date Sort (Newest First Default)
+            const dateA = a.createdAt?.seconds ? a.createdAt.seconds : (new Date(a.createdAt).getTime() / 1000);
+            const dateB = b.createdAt?.seconds ? b.createdAt.seconds : (new Date(b.createdAt).getTime() / 1000);
+
+            return sortOrder.value === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
+        return result;
     });
 
     const getInitials = (name: string) => {
@@ -56,6 +116,13 @@ export function useVendorManagementLogic() {
     const verifiedFields = ref<Record<string, boolean>>({});
     const showRejectionDialog = ref(false);
     const rejectionNote = ref('');
+
+    // Owner Hover State
+    const hoveredOwner = ref<any>(null);
+    const isFetchingOwner = ref(false);
+
+    // Cache owner details to avoid repeated fetches
+    const ownerCache = ref<Record<string, any>>({});
 
     // Fields that must be checked to approve
     const requiredFields = [
@@ -83,6 +150,57 @@ export function useVendorManagementLogic() {
     const clearPreview = () => {
         previewUrl.value = '';
         previewType.value = null;
+    };
+
+    const handleOwnerHover = async (uid: string) => {
+        if (!uid) return;
+
+        // Toggle Logic: If clicking the same owner again, close it
+        if (hoveredOwner.value?.uid === uid) {
+            hoveredOwner.value = null;
+            return;
+        }
+
+        // Check cache
+        if (ownerCache.value[uid]) {
+            hoveredOwner.value = ownerCache.value[uid];
+            return;
+        }
+
+        isFetchingOwner.value = true;
+        // Temporary placeholder while loading
+        hoveredOwner.value = { uid, loading: true };
+
+        try {
+            const db = getFirestore();
+
+            // 1. Get User Profile
+            const userSnap = await getDoc(doc(db, 'users', uid));
+            const userData = userSnap.exists() ? userSnap.data() : {};
+
+            // 2. Count Stores Owned
+            const storesQuery = query(collection(db, 'stores'), where('ownerId', '==', uid));
+            const countSnap = await getCountFromServer(storesQuery);
+            const storeCount = countSnap.data().count;
+
+            const details = {
+                uid,
+                name: userData.displayName || userData.name || 'Unknown',
+                email: userData.email || 'No Email',
+                role: userData.role || 'User', // Assuming role field exists
+                storeCount,
+                avatarUrl: userData.photoURL || userData.avatarUrl,
+                loading: false
+            };
+
+            ownerCache.value[uid] = details;
+            hoveredOwner.value = details;
+        } catch (e) {
+            console.error('Error fetching owner details:', e);
+            hoveredOwner.value = { uid, error: true };
+        } finally {
+            isFetchingOwner.value = false;
+        }
     };
 
     const getCategoryName = (id: string) => {
@@ -128,19 +246,47 @@ export function useVendorManagementLogic() {
         showRejectionDialog.value = true;
     }
 
+    // Readable names for fields
+    const fieldLabels: Record<string, string> = {
+        branding: 'Store Logo/Branding',
+        name: 'Store Name',
+        category: 'Business Category',
+        description: 'Store Description',
+        address: 'Business Address',
+        hours: 'Operating Hours',
+        phone: 'Phone Number',
+        email: 'Email Address',
+        bankName: 'Bank Name',
+        account: 'Account Number',
+        ifsc: 'IFSC/Routing Code',
+        doc: 'Government ID',
+        video: 'Liveness Video Probe'
+    };
+
     const confirmReject = async () => {
         if (!selectedVendor.value) return;
 
-        // Compile unverified fields
-        const unverified = requiredFields.filter(f => !verifiedFields.value[f]);
+        // Compile unverified fields with readable names
+        const unverifiedKeys = requiredFields.filter(f => !verifiedFields.value[f]);
+        const unverifiedNames = unverifiedKeys.map(k => fieldLabels[k] || k);
+
+        // Template Message
         const reason = `
-            Review Note: ${rejectionNote.value || 'No specific note provided.'}
-            Issues found with: ${unverified.length > 0 ? unverified.join(', ') : 'General mismatch'}
+Application Rejected.
+
+Reason from Admin:
+"${rejectionNote.value || 'Does not meet verification criteria.'}"
+
+Action Required:
+Please correct or update the following details which were found to be incomplete or incorrect:
+- ${unverifiedNames.length > 0 ? unverifiedNames.join('\n- ') : 'General Review Failed'}
+
+Please update these details in your onboarding form and resubmit.
         `.trim();
 
         try {
             await rejectKYC(selectedVendor.value.id, reason);
-            showToast(`Vendor rejected. Feedback sent.`, 'info');
+            showToast(`Vendor rejected. Detailed feedback sent.`, 'info');
             closeModal();
         } catch (e: any) {
             showToast(`Failed to reject vendor: ${e.message}`, 'error');
@@ -178,6 +324,16 @@ export function useVendorManagementLogic() {
         handleApprove,
         handleReject,
         promptReject,
-        confirmReject
+        confirmReject,
+        showTemplateModal,
+        successTemplate,
+        rejectTemplate,
+        saveTemplates,
+        activeTemplateTab,
+        filterStatus,
+        sortOrder,
+        hoveredOwner,
+        handleOwnerHover,
+        isFetchingOwner
     };
 }

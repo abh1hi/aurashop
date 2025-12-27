@@ -19,6 +19,11 @@
          >
            <md-icon slot="leading-icon">search</md-icon>
          </md-outlined-text-field>
+
+         <md-filled-tonal-button @click="router.push('/admin/stores/search')" class="adv-search-btn">
+             <md-icon slot="icon">manage_search</md-icon>
+             Advanced Search
+         </md-filled-tonal-button>
       </div>
 
       <!-- Store List -->
@@ -38,9 +43,13 @@
            </div>
 
            <!-- List Items -->
-           <div v-for="store in filteredStores" :key="store.id" class="list-item">
-              <!-- Brand Info -->
-              <div class="col-main brand-info">
+           <div 
+                v-for="store in filteredStores" 
+                :key="store.id" 
+                class="list-item"
+           >
+              <!-- Brand Info (Clickable) -->
+              <div class="col-main brand-info clickable-area" @click="router.push(`/admin/stores/${store.id}`)">
                  <div class="logo-wrap">
                     <img v-if="store.logoUrl" :src="store.logoUrl" class="brand-logo" />
                     <div v-else class="brand-placeholder">
@@ -103,10 +112,10 @@
 
               <!-- Actions -->
               <div class="col-actions desktop-only">
-                  <md-icon-button @click="router.push(`/admin/stores/${store.id}/activity`)" title="Activity Log">
+                  <md-icon-button @click.stop="router.push(`/admin/stores/${store.id}/activity`)" title="Activity Log">
                       <md-icon>history_edu</md-icon>
                   </md-icon-button>
-                  <md-icon-button :href="`/store/${store.id}`" target="_blank" title="Visit Storefront">
+                  <md-icon-button :href="`/store/${store.id}`" target="_blank" @click.stop title="Visit Storefront">
                       <md-icon>launch</md-icon>
                   </md-icon-button>
               </div>
@@ -240,7 +249,7 @@ const closeMobileSheet = () => {
 .page-header { margin-bottom: 24px; }
 .headline-large { font-family: var(--md-sys-typescale-headline-large-font); font-size: var(--md-sys-typescale-headline-large-size); font-weight: 400; color: var(--md-sys-color-on-background); margin: 0; }
 .body-large { font-size: 1rem; color: var(--md-sys-color-on-surface-variant); }
-.filter-bar { margin-bottom: 16px; display: flex; }
+.filter-bar { margin-bottom: 16px; display: flex; gap: 12px; align-items: center; }
 .search-field { flex: 1; max-width: 400px; }
 
 /* List Card */
@@ -251,6 +260,8 @@ const closeMobileSheet = () => {
 
 /* Columns */
 .col-main { flex: 2; display: flex; align-items: center; gap: 16px; }
+.clickable-area { cursor: pointer; transition: opacity 0.2s; }
+.clickable-area:hover { opacity: 0.8; }
 .col-kpi { flex: 1; }
 .col-status { flex: 1; }
 .col-vis { flex: 0.5; text-align: center; }
