@@ -1,179 +1,202 @@
 <template>
-  <div class="notification-center-page">
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Notification Center</h1>
-        <p class="page-subtitle">Send targeted alerts, system updates, and marketing messages.</p>
+  <AdminLayout>
+    <div class="notification-center-page">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Notification Center</h1>
+          <p class="page-subtitle">Send targeted alerts, system updates, and marketing messages.</p>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <!-- Compose Section -->
+        <section class="compose-section">
+          <div class="m3-card compose-card">
+            <form @submit.prevent="handleSend" class="notification-form">
+              
+              <!-- Recipient Selection -->
+              <div class="form-group">
+                <md-outlined-select 
+                  label="Target Audience"
+                  :value="formData.targetGroup" 
+                  @change="e => handleGroupChange(e.target.value)"
+                  class="w-100"
+                >
+                    <md-select-option v-for="opt in targetGroupOptions" :key="opt.value" :value="opt.value">
+                        <div slot="headline">{{ opt.label }}</div>
+                    </md-select-option>
+                </md-outlined-select>
+              </div>
+
+              <!-- Specific User Search (Conditional) -->
+              <transition name="fade">
+                <div v-if="formData.targetGroup === 'specific'" class="form-group user-search-group">
+                  <div class="search-wrapper">
+                      <md-outlined-text-field
+                          label="Search User"
+                          v-model="searchQuery" 
+                          placeholder="Type name or email..." 
+                          @input="handleUserSearch"
+                          class="w-100"
+                      >
+                        <md-icon slot="leading-icon">search</md-icon>
+                      </md-outlined-text-field>
+
+                      <div v-if="searchResults.length > 0" class="search-results-dropdown">
+                          <div 
+                              v-for="user in searchResults" 
+                              :key="user.id" 
+                              class="search-result-item"
+                              @click="selectUser(user)"
+                          >
+                              <div class="user-avatar-small">
+                                  <img :src="user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user.displayName}`" alt="Avatar"/>
+                              </div>
+                              <div class="user-info">
+                                  <span class="user-name">{{ user.displayName || 'Unnamed User' }}</span>
+                                  <span class="user-email">{{ user.email }}</span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- Selected Users Tags -->
+                   <div v-if="selectedUsers.length > 0" class="selected-users-tags">
+                      <div v-for="user in selectedUsers" :key="user.id" class="user-chip">
+                          <span>{{ user.displayName || user.email }}</span>
+                          <md-icon-button @click="removeUser(user.id)" class="remove-btn">
+                             <md-icon>close</md-icon>
+                          </md-icon-button>
+                      </div>
+                   </div>
+                </div>
+              </transition>
+
+              <div class="divider"></div>
+
+              <!-- Content Section -->
+              <div class="form-group">
+                <label class="field-label">Notification Type</label>
+                <div class="type-selector">
+                   <div 
+                      v-for="type in notificationTypes" 
+                      :key="type.value"
+                      class="type-btn-wrapper"
+                   >
+                       <md-filled-tonal-button 
+                            v-if="formData.type === type.value"
+                            type="button"
+                            @click="formData.type = type.value"
+                            class="type-btn active"
+                        >
+                            <md-icon slot="icon">{{ type.icon }}</md-icon>
+                            {{ type.label }}
+                        </md-filled-tonal-button>
+                        <md-outlined-button 
+                            v-else
+                            type="button"
+                            @click="formData.type = type.value"
+                            class="type-btn"
+                        >
+                            <md-icon slot="icon">{{ type.icon }}</md-icon>
+                            {{ type.label }}
+                        </md-outlined-button>
+                   </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <md-outlined-text-field
+                    label="Title"
+                    v-model="formData.title" 
+                    placeholder="Brief header (e.g., 'Order Shipped')" 
+                    class="w-100"
+                >
+                    <md-icon slot="leading-icon">title</md-icon>
+                </md-outlined-text-field>
+              </div>
+
+              <div class="form-group">
+                <md-outlined-text-field
+                    label="Message Content"
+                    type="textarea"
+                    v-model="formData.message"
+                    rows="4"
+                    class="w-100"
+                ></md-outlined-text-field>
+              </div>
+
+              <div class="form-group">
+                <md-outlined-text-field
+                    label="Action Link (Optional)"
+                    v-model="formData.link" 
+                    placeholder="e.g., /products/special-sale" 
+                    class="w-100"
+                >
+                    <md-icon slot="leading-icon">link</md-icon>
+                </md-outlined-text-field>
+              </div>
+
+              <div class="form-actions mt-xl">
+                 <md-filled-button 
+                    type="submit" 
+                    class="w-100 send-btn"
+                    :disabled="!isValid || loading"
+                 >
+                    <md-icon slot="icon">send</md-icon>
+                    Send Notification
+                 </md-filled-button>
+              </div>
+
+            </form>
+          </div>
+        </section>
+
+        <!-- Preview Section -->
+        <section class="preview-section">
+          <h3 class="section-title">Live Preview</h3>
+          <div class="preview-container">
+              <!-- Notification Panel Preview -->
+               <div class="preview-mockup">
+                  <div class="mockup-header">
+                      <span class="mockup-time">9:41</span>
+                      <div class="mockup-status">
+                          <md-icon style="font-size: 14px;">signal_cellular_4_bar</md-icon>
+                          <md-icon style="font-size: 14px;">wifi</md-icon>
+                          <md-icon style="font-size: 14px;">battery_full</md-icon>
+                      </div>
+                  </div>
+                  <div class="mockup-content">
+                      <div class="notif-card-preview" :class="formData.type">
+                          <div class="notif-icon-box">
+                              <md-icon>{{ getTypeIcon(formData.type) }}</md-icon>
+                          </div>
+                          <div class="notif-text-content">
+                              <span class="notif-title">{{ formData.title || 'Notification Title' }}</span>
+                              <p class="notif-message">{{ formData.message || 'The notification description will appear here. It offers a preview of how users will see it.' }}</p>
+                              <span class="notif-time">Just now</span>
+                          </div>
+                      </div>
+                  </div>
+               </div>
+               
+               <!-- Toast Preview -->
+               <div class="toast-preview" :class="formData.type">
+                  <md-icon>{{ getTypeIcon(formData.type) }}</md-icon>
+                  <span>{{ formData.title || 'New Notification' }}</span>
+               </div>
+          </div>
+        </section>
       </div>
     </div>
-
-    <div class="content-grid">
-      <!-- Compose Section -->
-      <section class="compose-section">
-        <LiquidCard class="compose-card">
-          <form @submit.prevent="handleSend" class="notification-form">
-            
-            <!-- Recipient Selection -->
-            <div class="form-group">
-              <label class="field-label">Target Audience</label>
-              <LiquidDropdown 
-                :modelValue="formData.targetGroup" 
-                :options="targetGroupOptions" 
-                @update:modelValue="handleGroupChange"
-                placeholder="Select Audience"
-                class="w-100"
-              />
-            </div>
-
-            <!-- Specific User Search (Conditional) -->
-            <transition name="fade">
-              <div v-if="formData.targetGroup === 'specific'" class="form-group user-search-group">
-                <label class="field-label">Search User</label>
-                <div class="search-wrapper">
-                    <LiquidInput 
-                        v-model="searchQuery" 
-                        placeholder="Type name or email..." 
-                        icon="search"
-                        @input="handleUserSearch"
-                    />
-                    <div v-if="searchResults.length > 0" class="search-results-dropdown">
-                        <div 
-                            v-for="user in searchResults" 
-                            :key="user.id" 
-                            class="search-result-item"
-                            @click="selectUser(user)"
-                        >
-                            <div class="user-avatar-small">
-                                <img :src="user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user.displayName}`" alt="Avatar"/>
-                            </div>
-                            <div class="user-info">
-                                <span class="user-name">{{ user.displayName || 'Unnamed User' }}</span>
-                                <span class="user-email">{{ user.email }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Selected Users Tags -->
-                 <div v-if="selectedUsers.length > 0" class="selected-users-tags">
-                    <span v-for="user in selectedUsers" :key="user.id" class="user-tag">
-                        {{ user.displayName || user.email }}
-                        <button type="button" class="remove-tag-btn" @click="removeUser(user.id)">&times;</button>
-                    </span>
-                 </div>
-              </div>
-            </transition>
-
-            <div class="divider"></div>
-
-            <!-- Content Section -->
-            <div class="form-group">
-              <label class="field-label">Notification Type</label>
-              <div class="type-selector">
-                 <button 
-                    v-for="type in notificationTypes" 
-                    :key="type.value"
-                    type="button"
-                    class="type-btn"
-                    :class="{ active: formData.type === type.value, [type.value]: true }"
-                    @click="formData.type = type.value"
-                 >
-                    <span class="material-icons-round">{{ type.icon }}</span>
-                    {{ type.label }}
-                 </button>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="field-label">Title</label>
-              <LiquidInput 
-                v-model="formData.title" 
-                placeholder="Brief header (e.g., 'Order Shipped')" 
-                icon="title"
-              />
-            </div>
-
-            <div class="form-group">
-              <label class="field-label">Message Content</label>
-              <textarea 
-                v-model="formData.message" 
-                class="liquid-textarea" 
-                placeholder="Enter your detailed message here..."
-                rows="4"
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label class="field-label">Action Link (Optional)</label>
-              <LiquidInput 
-                v-model="formData.link" 
-                placeholder="e.g., /products/special-sale" 
-                icon="link"
-              />
-            </div>
-
-            <div class="form-actions mt-xl">
-               <LiquidButton 
-                text="Send Notification" 
-                type="primary" 
-                size="lg" 
-                icon="send" 
-                class="w-100"
-                :loading="loading"
-                :disabled="!isValid"
-               />
-            </div>
-
-          </form>
-        </LiquidCard>
-      </section>
-
-      <!-- Preview Section -->
-      <section class="preview-section">
-        <h3 class="section-title">Live Preview</h3>
-        <div class="preview-container">
-            <!-- Notification Panel Preview -->
-             <div class="preview-mockup">
-                <div class="mockup-header">
-                    <span class="mockup-time">9:41</span>
-                    <div class="mockup-status">
-                        <span class="material-icons-round" style="font-size: 14px;">signal_cellular_4_bar</span>
-                        <span class="material-icons-round" style="font-size: 14px;">wifi</span>
-                        <span class="material-icons-round" style="font-size: 14px;">battery_full</span>
-                    </div>
-                </div>
-                <div class="mockup-content">
-                    <div class="notif-card-preview" :class="formData.type">
-                        <div class="notif-icon-box">
-                            <span class="material-icons-round">{{ getTypeIcon(formData.type) }}</span>
-                        </div>
-                        <div class="notif-text-content">
-                            <span class="notif-title">{{ formData.title || 'Notification Title' }}</span>
-                            <p class="notif-message">{{ formData.message || 'The notification description will appear here. It offers a preview of how users will see it.' }}</p>
-                            <span class="notif-time">Just now</span>
-                        </div>
-                    </div>
-                </div>
-             </div>
-             
-             <!-- Toast Preview -->
-             <div class="toast-preview" :class="formData.type">
-                <span class="material-icons-round">{{ getTypeIcon(formData.type) }}</span>
-                <span>{{ formData.title || 'New Notification' }}</span>
-             </div>
-        </div>
-      </section>
-    </div>
-  </div>
+  </AdminLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
-import LiquidCard from '../../components/liquid-ui-kit/LiquidCard/LiquidCard.vue';
-import LiquidInput from '../../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
-import LiquidDropdown from '../../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
-import LiquidButton from '../../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
+import AdminLayout from '../components/AdminLayout.vue';
 import { useAdmin } from '../../composables/useAdmin';
 import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
+// Icons and components are now imported globally
 
 const { loading, error, fetchUsers, sendBulkNotification } = useAdmin();
 const { showToast } = useToast();
@@ -216,7 +239,8 @@ onMounted(async () => {
     }
 });
 
-const handleGroupChange = () => {
+const handleGroupChange = (val: string) => {
+    formData.targetGroup = val;
     // Reset selections when group changes
     selectedUsers.value = [];
     searchQuery.value = '';
@@ -291,33 +315,30 @@ const handleSend = async () => {
 
 <style scoped>
 .notification-center-page {
-    max-width: 1200px;
+    /* max-width: 1200px; Remove max-width constraint enforced by Layout */
     margin: 0 auto;
-    padding-bottom: 60px;
+    width: 100%;
 }
 
 .page-header {
-    margin-bottom: 32px;
+    margin-bottom: 2rem;
 }
 
 .page-title {
-    font-size: var(--text-3xl);
-    font-weight: 800;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--md-sys-color-on-background);
 }
 
 .page-subtitle {
-    color: var(--secondary-text);
+    color: var(--md-sys-color-on-surface-variant);
 }
 
 .content-grid {
     display: grid;
     grid-template-columns: 3fr 2fr;
-    gap: 32px;
+    gap: 2rem;
 }
 
 @media(max-width: 1024px) {
@@ -326,26 +347,37 @@ const handleSend = async () => {
     }
 }
 
-.compose-card {
-    padding: 32px;
+/* M3 Card Styles */
+.m3-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
 }
 
 .form-group {
-    margin-bottom: 24px;
+    margin-bottom: 1.5rem;
+}
+
+.w-100 {
+    width: 100%;
 }
 
 .field-label {
     display: block;
-    font-size: var(--text-sm);
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--primary-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--md-sys-color-on-surface);
 }
 
 .divider {
     height: 1px;
-    background: var(--liquid-glass-border);
-    margin: 24px 0;
+    background: var(--md-sys-color-outline-variant);
+    margin: 1.5rem 0;
 }
 
 /* User Search */
@@ -360,12 +392,11 @@ const handleSend = async () => {
     width: 100%;
     max-height: 200px;
     overflow-y: auto;
-    background: var(--liquid-glass-base);
-    border: 1px solid var(--liquid-glass-border);
-    backdrop-filter: blur(16px);
-    border-radius: var(--radius-md);
+    background: var(--md-sys-color-surface);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: 8px;
     margin-top: 4px;
-    box-shadow: var(--liquid-shadow-lg);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 10;
 }
 
@@ -376,10 +407,11 @@ const handleSend = async () => {
     padding: 12px;
     cursor: pointer;
     transition: background 0.2s;
+    color: var(--md-sys-color-on-surface);
 }
 
 .search-result-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--md-sys-color-surface-variant);
 }
 
 .user-avatar-small {
@@ -401,13 +433,13 @@ const handleSend = async () => {
 }
 
 .user-name {
-    font-size: var(--text-sm);
+    font-size: 0.875rem;
     font-weight: 600;
 }
 
 .user-email {
-    font-size: var(--text-xs);
-    color: var(--secondary-text);
+    font-size: 0.75rem;
+    color: var(--md-sys-color-on-surface-variant);
 }
 
 .selected-users-tags {
@@ -417,80 +449,42 @@ const handleSend = async () => {
     margin-top: 12px;
 }
 
-.user-tag {
+.user-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 12px;
-    background: var(--brand-primary-light);
-    color: var(--brand-primary);
-    border-radius: var(--radius-full);
-    font-size: var(--text-xs);
+    padding: 4px 4px 4px 12px;
+    background: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+    border-radius: 100px;
+    font-size: 0.875rem;
     font-weight: 500;
 }
 
-.remove-tag-btn {
-    background: none;
-    border: none;
-    color: currentColor;
-    cursor: pointer;
-    font-size: 14px;
-    padding: 0;
-    display: flex;
+.remove-btn {
+    --md-icon-button-icon-size: 18px;
+    width: 24px;
+    height: 24px;
 }
 
 /* Type Selector */
 .type-selector {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.type-btn-wrapper {
+    flex: 1 1 auto;
 }
 
 .type-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 12px;
-    border: 1px solid var(--liquid-glass-border);
-    background: var(--liquid-glass-shine-1);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    color: var(--secondary-text);
-    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.type-btn.active {
-    background: var(--liquid-glass-base);
-    transform: translateY(-2px);
-    box-shadow: var(--liquid-shadow-md);
-    color: var(--primary-text);
-    font-weight: 600;
-}
-
-.type-btn.info.active { border-color: var(--info-color); color: var(--info-color); }
-.type-btn.success.active { border-color: var(--success-color); color: var(--success-color); }
-.type-btn.warning.active { border-color: var(--warning-color); color: var(--warning-color); }
-.type-btn.error.active { border-color: var(--error-color); color: var(--error-color); }
-.type-btn.promotion.active { border-color: #d946ef; color: #d946ef; }
-.type-btn.system.active { border-color: #64748b; color: #64748b; }
-
-.liquid-textarea {
     width: 100%;
-    padding: 16px;
-    background: var(--liquid-glass-inner);
-    border: 1px solid var(--liquid-glass-border);
-    border-radius: var(--radius-lg);
-    color: var(--primary-text);
-    font-family: inherit;
-    resize: vertical;
-    outline: none;
-    transition: all 0.3s ease;
 }
 
-.liquid-textarea:focus {
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.1);
+.send-btn {
+    height: 48px;
+    font-size: 1rem;
 }
 
 /* Preview Section */
@@ -499,11 +493,11 @@ const handleSend = async () => {
 }
 
 .preview-mockup {
-    background: var(--bg-color);
-    border: 1px solid var(--liquid-glass-border);
+    background: var(--md-sys-color-background);
+    border: 1px solid var(--md-sys-color-outline-variant);
     border-radius: 24px;
     overflow: hidden;
-    box-shadow: var(--liquid-shadow-xl);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     width: 320px;
     margin: 0 auto;
     height: 600px;
@@ -523,7 +517,7 @@ const handleSend = async () => {
     background: transparent;
     font-size: 12px;
     font-weight: 600;
-    color: var(--primary-text);
+    color: var(--md-sys-color-on-surface);
 }
 
 .mockup-status {
@@ -541,10 +535,10 @@ const handleSend = async () => {
     display: flex;
     gap: 12px;
     padding: 16px;
-    background: var(--liquid-glass-base);
+    background: var(--md-sys-color-surface);
     backdrop-filter: blur(20px);
     border-radius: 16px;
-    border: 1px solid var(--liquid-glass-border);
+    border: 1px solid var(--md-sys-color-outline-variant);
     margin-bottom: 20px;
     animation: slideInDown 0.5s ease-out;
 }
@@ -559,12 +553,12 @@ const handleSend = async () => {
     flex-shrink: 0;
 }
 
-.info .notif-icon-box { background: rgba(59, 130, 246, 0.1); color: var(--info-color); }
-.success .notif-icon-box { background: rgba(16, 185, 129, 0.1); color: var(--success-color); }
-.warning .notif-icon-box { background: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
-.error .notif-icon-box { background: rgba(239, 68, 68, 0.1); color: var(--error-color); }
-.promotion .notif-icon-box { background: rgba(217, 70, 239, 0.1); color: #d946ef; }
-.system .notif-icon-box { background: rgba(100, 116, 139, 0.1); color: #64748b; }
+.info .notif-icon-box { background: rgba(59, 130, 246, 0.1); color: var(--md-sys-color-secondary); }
+.success .notif-icon-box { background: rgba(16, 185, 129, 0.1); color: green; }
+.warning .notif-icon-box { background: rgba(245, 158, 11, 0.1); color: orange; }
+.error .notif-icon-box { background: rgba(239, 68, 68, 0.1); color: var(--md-sys-color-error); }
+.promotion .notif-icon-box { background: rgba(217, 70, 239, 0.1); color: purple; }
+.system .notif-icon-box { background: rgba(100, 116, 139, 0.1); color: gray; }
 
 .notif-text-content {
     flex: 1;
@@ -575,19 +569,19 @@ const handleSend = async () => {
     font-weight: 600;
     font-size: 14px;
     margin-bottom: 4px;
-    color: var(--primary-text);
+    color: var(--md-sys-color-on-surface);
 }
 
 .notif-message {
     font-size: 12px;
-    color: var(--secondary-text);
+    color: var(--md-sys-color-on-surface-variant);
     line-height: 1.4;
     margin-bottom: 4px;
 }
 
 .notif-time {
     font-size: 10px;
-    color: var(--tertiary-text);
+    color: var(--md-sys-color-outline);
 }
 
 .toast-preview {
@@ -604,8 +598,8 @@ const handleSend = async () => {
     font-size: 14px;
 }
 
-.toast-preview.success { border-left: 4px solid var(--success-color); }
-.toast-preview.error { border-left: 4px solid var(--error-color); }
+.toast-preview.success { border-left: 4px solid green; }
+.toast-preview.error { border-left: 4px solid var(--md-sys-color-error); }
 
 @keyframes slideInDown {
     from { opacity: 0; transform: translateY(-10px); }

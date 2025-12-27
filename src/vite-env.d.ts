@@ -21,3 +21,21 @@ declare module '*.vue' {
     const component: DefineComponent<{}, {}, any>
     export default component
 }
+
+declare module '@vue/runtime-dom' {
+    interface IntrinsicElements {
+        'md-filled-button': any;
+        'md-outlined-button': any;
+        'md-text-button': any;
+        'md-filled-tonal-button': any;
+        'md-icon': any;
+        'md-ripple': any;
+        'md-switch': any;
+        'md-checkbox': any;
+        'md-outlined-text-field': any;
+        'md-outlined-select': any;
+        'md-select-option': any;
+        'md-icon-button': any;
+        [key: string]: any;
+    }
+}

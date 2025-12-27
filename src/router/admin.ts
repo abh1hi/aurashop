@@ -28,6 +28,12 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
+        path: '/admin/stores/:id/activity',
+        name: 'StoreActivity',
+        component: () => import('../Admin_Pages/Stores/StoreActivityPage.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
         path: '/admin/team',
         name: 'TeamPage',
         component: () => import('../Admin_Pages/Team/TeamPage.vue'),

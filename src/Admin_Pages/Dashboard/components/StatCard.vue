@@ -17,10 +17,13 @@
       </div>
       <span class="trend-label">Relative to phase</span>
     </div>
+    <md-ripple></md-ripple>
   </div>
 </template>
 
 <script setup lang="ts">
+import '@material/web/ripple/ripple.js';
+
 defineProps({
   title: { type: String, required: true },
   value: { type: [String, Number], required: true },

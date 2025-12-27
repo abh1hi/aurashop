@@ -110,6 +110,21 @@
               <span class="material-icons-round">east</span>
             </div>
           </div>
+          
+          <div class="action-card" @click="router.push(`/vendor/store/${route.params.id}/team`)">
+            <div class="action-content">
+              <div class="action-icon">
+                <span class="material-icons-round">groups</span>
+              </div>
+              <div class="action-text">
+                <h3>Team</h3>
+                <p>Manage staff</p>
+              </div>
+            </div>
+            <div class="action-arrow">
+              <span class="material-icons-round">east</span>
+            </div>
+          </div>
         </div>
       </section>
 

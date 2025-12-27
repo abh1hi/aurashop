@@ -89,6 +89,18 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/vendor/store/:id/team',
+        name: 'StoreTeam',
+        component: () => import('../vendor_pages/StoreTeamPage.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/vendor/join/:token',
+        name: 'VendorJoin',
+        component: () => import('../vendor_pages/VendorJoinPage.vue'),
+        meta: { requiresAuth: false }
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'VendorError',
         component: () => import('../pages/ErrorPage.vue')

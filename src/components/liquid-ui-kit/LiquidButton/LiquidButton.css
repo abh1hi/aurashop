@@ -157,6 +157,32 @@
     transform: translateY(-2px);
 }
 
+/* Ghost Button (New) */
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--glass-border);
+}
+
+.btn-ghost:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--error-color);
+    border-color: rgba(var(--error-rgb), 0.3);
+}
+
+/* Success Button (New) */
+.btn-success {
+    background: #10b981;
+    color: white;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+}
+
+.btn-success:hover {
+    background: #059669;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+
 /* Loading Spinner */
 .spin {
     animation: spin 1s linear infinite;

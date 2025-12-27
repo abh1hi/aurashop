@@ -6,7 +6,13 @@ import { resolve } from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    vue(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith('md-')
+        }
+      }
+    }),
     {
       name: 'mpa-rewrite',
       configureServer(server) {

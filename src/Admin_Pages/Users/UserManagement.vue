@@ -6,11 +6,14 @@
         <p class="page-subtitle">Manage system access, roles, and security compliance.</p>
       </div>
       <div class="search-wrap">
-        <LiquidInput 
-          v-model="searchQuery" 
-          placeholder="Filter by name or email..." 
-          icon="search" 
-        />
+        <md-outlined-text-field 
+          label="Filter by name or email..." 
+          :value="searchQuery"
+          @input="searchQuery = $event.target.value"
+          style="width: 100%;"
+        >
+          <md-icon slot="trailing-icon">search</md-icon>
+        </md-outlined-text-field>
       </div>
     </div>
 
@@ -45,12 +48,18 @@
 
             <div class="col-role">
               <div class="role-selector">
-                <LiquidDropdown 
-                  :model-value="'Manage Roles'"
-                  :options="getRoleOptionsForUser(user)"
-                  placeholder="Manage Access"
-                  @change="(val: any) => handleRoleAction(user, val)"
-                />
+                <md-outlined-select label="Manage Access" @input="(e:any) => handleRoleAction(user, JSON.parse(e.target.value || '{}'))">
+                  <md-select-option value="{}" disabled selected>
+                      <div slot="headline">Manage Roles</div>
+                  </md-select-option>
+                  <md-select-option 
+                      v-for="opt in getRoleOptionsForUser(user)" 
+                      :key="opt.label" 
+                      :value="JSON.stringify(opt.value)"
+                  >
+                      <div slot="headline">{{ opt.label }}</div>
+                  </md-select-option>
+                </md-outlined-select>
               </div>
             </div>
 
@@ -87,14 +96,13 @@
 
             <div class="col-actions">
               <div class="action-cluster">
-                <button 
-                  class="icon-btn-glass" 
+                <md-icon-button 
                   :class="user.isBanned ? 'unban' : 'ban'"
                   @click="handleBanToggle(user)"
                   :title="user.isBanned ? 'Restore User' : 'Restrict User'"
                 >
-                  <span class="material-icons-round">{{ user.isBanned ? 'lock_open' : 'block' }}</span>
-                </button>
+                  <md-icon>{{ user.isBanned ? 'lock_open' : 'block' }}</md-icon>
+                </md-icon-button>
               </div>
             </div>
           </div>
@@ -114,9 +122,8 @@
 import { ref, onMounted, computed } from 'vue';
 import { useAdmin } from '../../composables/useAdmin';
 import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
-import LiquidInput from '../../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
-import LiquidDropdown from '../../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
 import AdminLayout from '../components/AdminLayout.vue';
+// Icons and components are now imported globally
 
 const { fetchUsers, toggleUserBan, loading } = useAdmin();
 const { showToast } = useToast();

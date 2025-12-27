@@ -282,6 +282,8 @@ import LiquidDropdown from '../components/liquid-ui-kit/LiquidDropdown/LiquidDro
 import LiquidOTPInput from '../components/liquid-ui-kit/LiquidOTPInput/LiquidOTPInput.vue';
 import LiquidStepper from '../components/liquid-ui-kit/LiquidStepper/LiquidStepper.vue';
 import { useStoreOnboardingLogic } from './StoreOnboardingPage';
+import { VueTelInput } from 'vue-tel-input';
+import 'vue-tel-input/vue-tel-input.css';
 
 const {
   currentStep,

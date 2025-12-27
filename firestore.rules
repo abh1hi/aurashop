@@ -10,8 +10,8 @@ service cloud.firestore {
     
     function isAdmin() {
       return isAuthenticated() && (
-        request.auth.token.admin == true || 
-        request.auth.token.email in ['admin@aurashop.com', 'admin@example.com']
+        (request.auth.token.keys().hasAny(['admin']) && request.auth.token.admin == true) || 
+        request.auth.token.email in ['admin@aurashop.com', 'admin@example.com', 'abhinavbhatnaria51@gmail.com']
       );
     }
     
@@ -46,17 +46,84 @@ service cloud.firestore {
       }
       match /notifications/{notificationId} {
         // User can read/write their own notifications, Admin can write to anyone's
+        // User can read their own. Authenticated users (e.g. Vendors) can create (send) notifications.
         allow read: if isOwner(userId);
-        allow write: if isOwner(userId) || isAdmin();
+        allow create: if isAuthenticated();
+        // Allow Admin to create/update/delete notifications (e.g. for system alerts)
+        allow update, delete: if isOwner(userId) || isAdmin();
       }
     }
 
     // Stores Collection
     match /stores/{storeId} {
-      allow read: if true; // Public stores
-      allow create: if isAuthenticated(); // Any auth user can create a store (become vendor)
+      
+      // Helper to check if user is a staff member (including owner)
+      function isStaff() {
+        return isAuthenticated() && (
+          resource.data.ownerId == request.auth.uid ||
+          exists(/databases/$(database)/documents/stores/$(storeId)/staff/$(request.auth.uid))
+        );
+      }
+
+      // Public can read basic info, Staff/Owner can read sensitive info
+      allow read: if true; 
+      
+      // Creation: Any auth user
+      allow create: if isAuthenticated(); 
+      
+      // Update: Owner only for critical fields, Staff might update operational fields (future)
+      // For now, restrict to Owner or Admin
       allow update: if isAuthenticated() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      
+      // Delete: Owner only
       allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
+
+      // Staff Subcollection
+      match /staff/{staffId} {
+        // Read: Owner of the store OR the staff member themselves
+        allow read: if isAuthenticated() && (
+          get(/databases/$(database)/documents/stores/$(storeId)).data.ownerId == request.auth.uid ||
+          request.auth.uid == staffId
+        );
+        
+        // Write: Owner OR Admin (for final approval)
+        allow write: if isAuthenticated() && (
+          get(/databases/$(database)/documents/stores/$(storeId)).data.ownerId == request.auth.uid || 
+          isAdmin()
+        );
+      }
+    }
+
+    // Store Invites Collection (Root Level)
+    match /store_invites/{inviteId} {
+      // Public Read (Anyone with the token/ID can check if valid)
+      allow read: if true; 
+      
+      // Create: Store Owner Only
+      allow create: if isAuthenticated() && 
+        get(/databases/$(database)/documents/stores/$(request.resource.data.storeId)).data.ownerId == request.auth.uid;
+      
+      // Update: 
+      // 1. Applicant applying (status: 'active' -> 'applied')
+      // 2. Store Owner approving/rejecting
+      // 3. Admin finalizing approval
+      allow update: if isAuthenticated() && (
+        // Scenario 1: Applicant applying
+        (
+          resource.data.status == 'active' && 
+          request.resource.data.status == 'applied' &&
+          request.resource.data.applicantUid == request.auth.uid &&
+          // Cannot change critical fields
+          request.resource.data.storeId == resource.data.storeId &&
+          request.resource.data.role == resource.data.role
+        ) ||
+        // Scenario 2: Owner managing
+        (
+          get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerId == request.auth.uid
+        ) ||
+        // Scenario 3: Admin
+        isAdmin()
+      );
     }
 
     // Products Collection

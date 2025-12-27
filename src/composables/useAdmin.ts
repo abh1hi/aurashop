@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, doc, updateDoc, limit, onSnapshot, getCountFromServer, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, limit, onSnapshot, getCountFromServer, getDoc, runTransaction, serverTimestamp, arrayUnion } from 'firebase/firestore';
 import { useNotifications } from './useNotifications';
 
 // ... existing code ...
@@ -375,6 +375,77 @@ export function useAdmin() {
         }
     };
 
+    const fetchPendingStaffApprovals = async (storeId: string) => {
+        loading.value = true;
+        try {
+            const invitesRef = collection(db, 'store_invites');
+            const q = query(invitesRef, where('storeId', '==', storeId), where('status', '==', 'pending_admin'));
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e: any) {
+            error.value = e.message;
+            return [];
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const finalizeStaffApproval = async (inviteId: string) => {
+        loading.value = true;
+        try {
+            await runTransaction(db, async (transaction) => {
+                // 1. Get Invite
+                const inviteRef = doc(db, 'store_invites', inviteId);
+                const inviteSnap = await transaction.get(inviteRef);
+
+                if (!inviteSnap.exists()) throw new Error("Invite not found");
+                const inviteData: any = inviteSnap.data();
+
+                if (inviteData.status !== 'pending_admin') throw new Error("Invite status invalid");
+
+                // 2. Add to Staff Subcollection
+                const staffRef = doc(db, 'stores', inviteData.storeId, 'staff', inviteData.applicantUid);
+                transaction.set(staffRef, {
+                    uid: inviteData.applicantUid,
+                    email: inviteData.applicantData.email,
+                    name: inviteData.applicantData.name,
+                    role: inviteData.role,
+                    addedAt: serverTimestamp(),
+                    addedBy: 'system_admin', // Or current admin ID
+                    inviteId: inviteId
+                });
+
+                // 3. Update Invite Status
+                transaction.update(inviteRef, {
+                    status: 'approved',
+                    adminApprovedAt: serverTimestamp()
+                });
+
+                // 4. Update User Roles (Privileged Action - Admin Only)
+                const userRef = doc(db, 'users', inviteData.applicantUid);
+                transaction.update(userRef, {
+                    roles: arrayUnion('staff', 'vendor')
+                });
+
+                // 5. Notify Applicant
+                const notificationRef = doc(collection(db, 'users', inviteData.applicantUid, 'notifications'));
+                transaction.set(notificationRef, {
+                    title: 'Welcome to the Team!',
+                    message: `You have been officially approved as a staff member for ${inviteData.storeName || 'the store'}. You can now access the vendor dashboard.`,
+                    type: 'success',
+                    read: false,
+                    createdAt: serverTimestamp(),
+                    link: `/vendor/store/${inviteData.storeId}/dashboard`
+                });
+            });
+        } catch (e: any) {
+            console.error('Error finalizing approval:', e);
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    };
+
     return {
         isAdmin,
         loading,
@@ -382,7 +453,7 @@ export function useAdmin() {
         checkAdminStatus,
         fetchDashboardStats,
         fetchUsers,
-        fetchCustomers, // New
+        fetchCustomers,
         toggleUserBan,
         fetchVendors,
         subscribeToStores,
@@ -395,6 +466,8 @@ export function useAdmin() {
         updateStoreCommission,
         toggleStoreVisibility,
         updateStoreStatus,
-        sendBulkNotification // New
+        sendBulkNotification,
+        fetchPendingStaffApprovals, // New
+        finalizeStaffApproval      // New
     };
 }

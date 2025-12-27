@@ -6,11 +6,16 @@
         <p class="page-subtitle">Oversee marketplace stores, verification applications, and commercial status.</p>
       </div>
       <div class="search-wrap">
-        <LiquidInput 
-          v-model="searchQuery" 
-          placeholder="Filter by store or owner..." 
-          icon="search" 
-        />
+      <div class="search-wrap">
+        <md-outlined-text-field 
+          label="Filter by store or owner..." 
+          :value="searchQuery"
+          @input="searchQuery = $event.target.value"
+          style="width: 100%;"
+        >
+          <md-icon slot="trailing-icon">search</md-icon>
+        </md-outlined-text-field>
+      </div>
       </div>
     </div>
 
@@ -63,15 +68,15 @@
 
             <div class="col-actions">
               <div class="action-cluster">
-                <button class="icon-btn-glass review" title="Review Application" @click="openReviewModal(vendor)">
-                  <span class="material-icons-round">analytics</span>
-                </button>
-                <button class="icon-btn-glass approve" title="Approve Application" @click="handleApprove(vendor)">
-                  <span class="material-icons-round">verified</span>
-                </button>
-                <button class="icon-btn-glass reject" title="Reject Application" @click="handleReject(vendor)">
-                  <span class="material-icons-round">gpp_maybe</span>
-                </button>
+                <md-icon-button class="review" title="Review Application" @click="openReviewModal(vendor)">
+                  <md-icon>analytics</md-icon>
+                </md-icon-button>
+                <md-icon-button class="approve" title="Approve Application" @click="handleApprove(vendor)">
+                  <md-icon>verified</md-icon>
+                </md-icon-button>
+                <md-icon-button class="reject" title="Reject Application" @click="handleReject(vendor)">
+                  <md-icon>gpp_maybe</md-icon>
+                </md-icon-button>
               </div>
             </div>
           </div>
@@ -96,9 +101,9 @@
                 <h2>Verification Application</h2>
                 <p>Analyzing vendor credentials and proofs.</p>
               </div>
-              <button class="modal-close" @click="closeModal">
-                <span class="material-icons-round">close</span>
-              </button>
+              <md-icon-button class="modal-close" @click="closeModal">
+                <md-icon>close</md-icon>
+              </md-icon-button>
             </header>
             
             <div class="modal-body" v-if="selectedVendor">
@@ -127,7 +132,7 @@
                     <div class="section-header">
                         <label>Store Branding</label>
                         <div class="check-wrap">
-                            <input type="checkbox" :checked="verifiedFields['branding']" @change="toggleVerification('branding')" id="chk-branding" />
+                            <md-checkbox :checked="verifiedFields['branding']" @change="toggleVerification('branding')" id="chk-branding"></md-checkbox>
                             <label for="chk-branding">Verify Branding</label>
                         </div>
                     </div>
@@ -149,35 +154,35 @@
                             <span class="label">Store Name</span>
                             <div class="val-group">
                                 <span class="value">{{ selectedVendor.name }}</span>
-                                <input type="checkbox" :checked="verifiedFields['name']" @change="toggleVerification('name')" />
+                                <md-checkbox :checked="verifiedFields['name']" @change="toggleVerification('name')"></md-checkbox>
                             </div>
                         </div>
                         <div class="info-item" :class="{ 'verified': verifiedFields['category'] }">
                             <span class="label">Category</span>
                             <div class="val-group">
                                 <span class="value">{{ getCategoryName(selectedVendor.category) }}</span>
-                                <input type="checkbox" :checked="verifiedFields['category']" @change="toggleVerification('category')" />
+                                <md-checkbox :checked="verifiedFields['category']" @change="toggleVerification('category')"></md-checkbox>
                             </div>
                         </div>
                          <div class="info-item" :class="{ 'verified': verifiedFields['description'] }">
                             <span class="label">Description</span>
                              <div class="val-group">
                                 <span class="value desc">{{ selectedVendor.description || 'No description provided' }}</span>
-                                <input type="checkbox" :checked="verifiedFields['description']" @change="toggleVerification('description')" />
+                                <md-checkbox :checked="verifiedFields['description']" @change="toggleVerification('description')"></md-checkbox>
                             </div>
                         </div>
                          <div class="info-item" :class="{ 'verified': verifiedFields['address'] }">
                             <span class="label">Location</span>
                             <div class="val-group">
                                 <span class="value">{{ selectedVendor.address || 'N/A' }}, {{ selectedVendor.city || 'N/A' }}</span>
-                                <input type="checkbox" :checked="verifiedFields['address']" @change="toggleVerification('address')" />
+                                <md-checkbox :checked="verifiedFields['address']" @change="toggleVerification('address')"></md-checkbox>
                             </div>
                         </div>
                          <div class="info-item" :class="{ 'verified': verifiedFields['hours'] }">
                             <span class="label">Operating Hours</span>
                              <div class="val-group">
                                 <span class="value">{{ selectedVendor.hours || 'Not specified' }}</span>
-                                <input type="checkbox" :checked="verifiedFields['hours']" @change="toggleVerification('hours')" />
+                                <md-checkbox :checked="verifiedFields['hours']" @change="toggleVerification('hours')"></md-checkbox>
                             </div>
                         </div>
                     </div>
@@ -191,14 +196,14 @@
                             <span class="label">Phone</span>
                              <div class="val-group">
                                 <span class="value mono">{{ selectedVendor.phone }}</span>
-                                <input type="checkbox" :checked="verifiedFields['phone']" @change="toggleVerification('phone')" />
+                                <md-checkbox :checked="verifiedFields['phone']" @change="toggleVerification('phone')"></md-checkbox>
                             </div>
                         </div>
                         <div class="info-item" :class="{ 'verified': verifiedFields['email'] }">
                             <span class="label">Email</span>
                              <div class="val-group">
                                 <span class="value mono">{{ selectedVendor.email }}</span>
-                                <input type="checkbox" :checked="verifiedFields['email']" @change="toggleVerification('email')" />
+                                <md-checkbox :checked="verifiedFields['email']" @change="toggleVerification('email')"></md-checkbox>
                             </div>
                         </div>
                         <div class="divider"></div>
@@ -206,21 +211,21 @@
                             <span class="label">Bank Name</span>
                              <div class="val-group">
                                 <span class="value">{{ selectedVendor.bankDetails?.name || 'N/A' }}</span>
-                                <input type="checkbox" :checked="verifiedFields['bankName']" @change="toggleVerification('bankName')" />
+                                <md-checkbox :checked="verifiedFields['bankName']" @change="toggleVerification('bankName')"></md-checkbox>
                             </div>
                         </div>
                         <div class="info-item" :class="{ 'verified': verifiedFields['account'] }">
                             <span class="label">Account Number</span>
                              <div class="val-group">
                                 <span class="value mono">{{ selectedVendor.bankDetails?.account || 'N/A' }}</span>
-                                <input type="checkbox" :checked="verifiedFields['account']" @change="toggleVerification('account')" />
+                                <md-checkbox :checked="verifiedFields['account']" @change="toggleVerification('account')"></md-checkbox>
                             </div>
                         </div>
                         <div class="info-item" :class="{ 'verified': verifiedFields['ifsc'] }">
                             <span class="label">IFSC Code</span>
                              <div class="val-group">
                                 <span class="value mono">{{ selectedVendor.bankDetails?.ifsc || 'N/A' }}</span>
-                                <input type="checkbox" :checked="verifiedFields['ifsc']" @change="toggleVerification('ifsc')" />
+                                <md-checkbox :checked="verifiedFields['ifsc']" @change="toggleVerification('ifsc')"></md-checkbox>
                             </div>
                         </div>
                     </div>
@@ -261,7 +266,7 @@
                                 <span v-else class="art-missing">Not uploaded</span>
                             </div>
                             <div class="art-check">
-                                <input type="checkbox" :checked="verifiedFields['doc']" @change="toggleVerification('doc')" />
+                                <md-checkbox :checked="verifiedFields['doc']" @change="toggleVerification('doc')"></md-checkbox>
                             </div>
                         </div>
 
@@ -280,7 +285,7 @@
                                 <span v-else class="art-missing">Not uploaded</span>
                             </div>
                              <div class="art-check">
-                                <input type="checkbox" :checked="verifiedFields['video']" @change="toggleVerification('video')" />
+                                <md-checkbox :checked="verifiedFields['video']" @change="toggleVerification('video')"></md-checkbox>
                             </div>
                         </div>
                         </div>
@@ -290,14 +295,14 @@
             </div>
 
             <footer class="modal-footer">
-              <LiquidButton text="Reject Application" type="danger" variant="ghost" @click="promptReject" />
-              <LiquidButton 
-                text="Approve Application" 
-                type="primary" 
+              <md-text-button @click="promptReject" style="--md-sys-color-primary: var(--md-sys-color-error);">Reject Application</md-text-button>
+              <md-filled-button 
                 @click="handleApprove(selectedVendor)" 
                 :disabled="!isAllVerified"
                 :title="!isAllVerified ? 'Verify all details first' : 'Authorize Vendor'"
-              />
+              >
+                Approve Application
+              </md-filled-button>
             </footer>
 
             <!-- Rejection Modal -->
@@ -305,14 +310,18 @@
                 <div class="rejection-box">
                     <h3>Reject Application</h3>
                     <p>Please provide a reason for the rejection. This note will be sent to the vendor.</p>
-                    <textarea 
-                        v-model="rejectionNote" 
+                    <md-outlined-text-field
+                        type="textarea"
+                        label="Rejection Reason"
+                        :value="rejectionNote" 
+                        @input="rejectionNote = $event.target.value"
                         placeholder="e.g., ID document is blurry, Bank details do not match..."
                         rows="4"
-                    ></textarea>
+                        style="width: 100%; margin-bottom: 16px;"
+                    ></md-outlined-text-field>
                     <div class="rejection-actions">
-                        <button class="btn-cancel" @click="showRejectionDialog = false">Cancel</button>
-                        <button class="btn-confirm-reject" @click="confirmReject">Confirm Rejection</button>
+                        <md-text-button @click="showRejectionDialog = false">Cancel</md-text-button>
+                        <md-filled-button class="btn-confirm-reject" @click="confirmReject" style="--md-sys-color-primary: var(--md-sys-color-error);">Confirm Rejection</md-filled-button>
                     </div>
                 </div>
             </div>
@@ -325,11 +334,10 @@
 </template>
 
 <script setup lang="ts">
-import LiquidInput from '../../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
-import LiquidButton from '../../components/liquid-ui-kit/LiquidButton/LiquidButton.vue';
 import LiquidVideoPlayer from '../../components/liquid-ui-kit/LiquidVideoPlayer/LiquidVideoPlayer.vue';
 import LiquidPdfViewer from '../../components/liquid-ui-kit/LiquidPdfViewer/LiquidPdfViewer.vue';
 import AdminLayout from '../components/AdminLayout.vue';
+// Icons and components are now imported globally
 import { useVendorManagementLogic } from './VendorManagement';
 
 const {

@@ -2,10 +2,10 @@
   <div class="team-card">
     <div class="team-header">
       <h3>Team Collaboration</h3>
-      <button class="add-btn">
-        <span class="material-icons-round" style="font-size: 16px;">add</span>
+      <md-filled-tonal-button class="add-btn">
+        <md-icon slot="icon">add</md-icon>
         Add Member
-      </button>
+      </md-filled-tonal-button>
     </div>
 
     <div class="team-list">
@@ -24,6 +24,9 @@
 </template>
 
 <script setup lang="ts">
+import '@material/web/button/filled-tonal-button.js';
+import '@material/web/icon/icon.js';
+
 const members = [
   {
     id: 1,

@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { doc, updateDoc, collection, addDoc, getDocs, getDoc, deleteDoc, query, where, serverTimestamp, arrayUnion, onSnapshot, limit } from 'firebase/firestore';
+import { doc, updateDoc, collection, addDoc, getDocs, getDoc, deleteDoc, query, where, serverTimestamp, arrayUnion, onSnapshot, limit, Timestamp, runTransaction } from 'firebase/firestore';
 import { db, storage } from '../firebase';
 import { ref as refStorage, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from './useAuth';
@@ -487,6 +487,190 @@ export function useVendor() {
         updateProduct,
         deleteProduct,
         uploadFile,
-        fetchUserKYC
+        fetchUserKYC,
+        // Staff Management
+        createInviteLink,
+        fetchInvite,
+        applyForPosition,
+        fetchPendingApplications,
+        approveApplication,
+        rejectApplication,
+        fetchStoreStaff,
+        removeStaff
     };
+
+    // --- Staff Management Implementations ---
+
+    async function createInviteLink(storeId: string, role: string) {
+        if (!user.value) throw new Error("User not authenticated");
+        loading.value = true;
+        try {
+            const invitesRef = collection(db, 'store_invites');
+            // Create a document with auto-generated ID as the token
+            const docRef = await addDoc(invitesRef, {
+                storeId,
+                role,
+                status: 'active',
+                createdAt: serverTimestamp(),
+                createdBy: user.value.uid,
+                expiresAt: Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)) // 7 days expiry
+            });
+            // Return the full URL (assuming current host)
+            return `${window.location.origin}/vendor/join/${docRef.id}`;
+        } catch (e: any) {
+            console.error('Error creating invite:', e);
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    async function fetchInvite(token: string) {
+        loading.value = true;
+        try {
+            const inviteRef = doc(db, 'store_invites', token);
+            const snap = await getDoc(inviteRef);
+            if (snap.exists()) {
+                return { id: snap.id, ...snap.data() };
+            }
+            return null;
+        } catch (e: any) {
+            console.error('Error fetching invite:', e);
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    async function applyForPosition(token: string, applicantData: any) {
+        if (!user.value) throw new Error("User not authenticated");
+        loading.value = true;
+        try {
+            const inviteRef = doc(db, 'store_invites', token);
+            await updateDoc(inviteRef, {
+                status: 'applied',
+                applicantUid: user.value.uid,
+                applicantData: {
+                    ...applicantData,
+                    email: user.value.email, // Ensure verified email is used
+                    appliedAt: new Date().toISOString()
+                }
+            });
+        } catch (e: any) {
+            console.error('Error applying for position:', e);
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    async function fetchPendingApplications(storeId: string) {
+        if (!user.value) return [];
+        loading.value = true;
+        try {
+            const invitesRef = collection(db, 'store_invites');
+            const q = query(
+                invitesRef,
+                where('storeId', '==', storeId),
+                where('status', '==', 'applied')
+            );
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e: any) {
+            console.error('Error fetching applications:', e);
+            return [];
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    async function approveApplication(inviteId: string) {
+        if (!user.value) throw new Error("User not authenticated");
+        loading.value = true;
+        try {
+            await runTransaction(db, async (transaction) => {
+                // 1. Get Invite
+                const inviteRef = doc(db, 'store_invites', inviteId);
+                const inviteSnap = await transaction.get(inviteRef);
+
+                if (!inviteSnap.exists()) throw new Error("Invite not found");
+                const inviteData: any = inviteSnap.data();
+
+                if (inviteData.status !== 'applied') throw new Error("Invite status invalid");
+
+                // Note: We DO NOT add to staff collection yet. That happens after Admin approval.
+
+                // 2. Update Invite Status to 'pending_admin'
+                transaction.update(inviteRef, {
+                    status: 'pending_admin',
+                    ownerApprovedAt: serverTimestamp()
+                });
+
+                // 3. Notify Applicant
+                const notificationRef = doc(collection(db, 'users', inviteData.applicantUid, 'notifications'));
+                transaction.set(notificationRef, {
+                    title: 'Application Approved by Store',
+                    message: `Your application to ${inviteData.storeName || 'the store'} has been approved by the owner. It is now waiting for final system verification.`,
+                    type: 'application_status',
+                    read: false,
+                    createdAt: serverTimestamp(),
+                    storeId: inviteData.storeId
+                });
+
+                // 4. Admin Notification (Conceptually handled by status change to 'pending_admin')
+            });
+        } catch (e: any) {
+            console.error('Error approving application:', e);
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    async function rejectApplication(inviteId: string, reason: string) {
+        if (!user.value) throw new Error("User not authenticated");
+        loading.value = true;
+        try {
+            const inviteRef = doc(db, 'store_invites', inviteId);
+            await updateDoc(inviteRef, {
+                status: 'rejected',
+                rejectionReason: reason,
+                rejectedAt: serverTimestamp()
+            });
+        } catch (e: any) {
+            console.error('Error rejecting application:', e);
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    async function fetchStoreStaff(storeId: string) {
+        if (!user.value) return [];
+        loading.value = true;
+        try {
+            const staffRef = collection(db, 'stores', storeId, 'staff');
+            const snapshot = await getDocs(staffRef);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e: any) {
+            console.error('Error fetching staff:', e);
+            return [];
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    async function removeStaff(storeId: string, staffUid: string) {
+        if (!user.value) return;
+        loading.value = true;
+        try {
+            const staffRef = doc(db, 'stores', storeId, 'staff', staffUid);
+            await deleteDoc(staffRef);
+        } catch (e: any) {
+            console.error('Error removing staff:', e);
+            throw e;
+        } finally {
+            loading.value = false;
+        }
+    }
 }

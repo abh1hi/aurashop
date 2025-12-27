@@ -34,6 +34,15 @@
           </div>
         </div>
 
+        <!-- Team Management -->
+        <div v-if="activeTab === 'team'">
+           <div class="settings-section">
+             <h3 class="settings-section-title">Team Configuration</h3>
+             <p class="text-secondary mb-lg">Manage access protocols and personnel.</p>
+             <StoreTeamManager v-if="store" :storeId="store.id" />
+           </div>
+        </div>
+
         <!-- Appearance -->
         <div v-if="activeTab === 'appearance'">
           <div class="settings-section">
@@ -71,6 +80,7 @@ import { useRoute, useRouter } from 'vue-router';
 import AppHeader from '../components/AppHeader.vue';
 import BottomNavBar from '../components/BottomNavBar.vue';
 import StoreSettings from '../components/StoreSettings.vue';
+import StoreTeamManager from './components/StoreTeamManager.vue';
 import LiquidSettingsLayout from '../components/liquid-ui-kit/LiquidSettingsLayout/LiquidSettingsLayout.vue';
 import LiquidSpinner from '../components/liquid-ui-kit/LiquidSpinner/LiquidSpinner.vue';
 import { useVendor } from '../composables/useVendor';
@@ -86,6 +96,7 @@ const activeTab = ref('general');
 
 const menuItems = [
   { label: 'Identity', value: 'general', icon: 'fingerprint' },
+  { label: 'Team', value: 'team', icon: 'groups' },
   { label: 'Signature', value: 'appearance', icon: 'auto_awesome' },
   { label: 'Signals', value: 'notifications', icon: 'sensors' },
   { label: 'Shield', value: 'security', icon: 'verified_user' }

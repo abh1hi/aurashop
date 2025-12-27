@@ -1,4 +1,4 @@
-import { ref, computed, watch, onUnmounted } from 'vue';
+import { ref, computed, watch, onUnmounted, getCurrentInstance } from 'vue';
 import { db } from '../firebase';
 import {
     collection,
@@ -142,9 +142,11 @@ export function useNotifications() {
         }
     }, { immediate: true });
 
-    onUnmounted(() => {
-        if (unsubscribe) unsubscribe();
-    });
+    if (getCurrentInstance()) {
+        onUnmounted(() => {
+            if (unsubscribe) unsubscribe();
+        });
+    }
 
     const unreadCount = computed(() => {
         return notifications.value.filter(n => !n.isRead).length;

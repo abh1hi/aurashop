@@ -93,6 +93,9 @@
                   <a :href="`mailto:${store.ownerEmail}`" class="icon-btn-glass" title="Email Owner">
                       <span class="material-icons-round">mail</span>
                   </a>
+                  <button @click="router.push(`/admin/stores/${store.id}/activity`)" class="icon-btn-glass" title="Activity Log">
+                      <span class="material-icons-round">history_edu</span>
+                  </button>
               </div>
             </div>
           </div>
@@ -110,12 +113,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAdmin } from '../../composables/useAdmin';
 import LiquidInput from '../../components/liquid-ui-kit/LiquidInput/LiquidInput.vue';
 import LiquidDropdown from '../../components/liquid-ui-kit/LiquidDropdown/LiquidDropdown.vue';
 import { useToast } from '../../components/liquid-ui-kit/LiquidToast/LiquidToast';
 import AdminLayout from '../components/AdminLayout.vue';
 
+const router = useRouter();
 const { fetchStores, updateStoreCommission, toggleStoreVisibility, updateStoreStatus, loading } = useAdmin();
 const { showToast } = useToast();
 
